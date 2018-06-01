@@ -320,4 +320,32 @@ router.get("/current-challenge", (request: Request, response: Response, done: Fu
     done(response)
 });
 
+router.post("/complete-challenge", (request: Request, response: Response, done: Function) => {
+
+});
+
+router.get("/score", (request: Request, response: Response, done: Function) => {
+    const c = new Challenge();
+    c.id = 1;
+    c.description = "this is a test challenge";
+    c.startDate = new Date(Date.now() - 24*60*60*1000);
+    c.endDate = new Date(Date.now() + 24*60*60*1000);
+    c.title = "Do something!";
+    c.imageUrl = "https://unsplash.com/search/photos/green";
+    response.json(JSON.stringify(c));
+    done(response)
+});
+
+router.get("/completed-challenges", (request: Request, response: Response, done: Function) => {
+    const c = new Challenge();
+    c.id = 1;
+    c.description = "this is a test challenge";
+    c.startDate = new Date(Date.now() - 24*60*60*1000);
+    c.endDate = new Date(Date.now() + 24*60*60*1000);
+    c.title = "Do something!";
+    c.imageUrl = "https://unsplash.com/search/photos/green";
+    response.json(JSON.stringify([c]));
+    done(response)
+});
+
 export {router as ApiContoller} ;

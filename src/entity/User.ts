@@ -3,6 +3,12 @@ import * as bcrypt from 'bcrypt-nodejs';
 import {Group} from "./Group";
 import {dateFormat} from "dateformat";
 
+
+export enum Role {
+    User = 0,
+    Admin = 1
+}
+
 @Entity()
 export class User {
 
@@ -30,6 +36,10 @@ export class User {
 
     @ManyToOne(type => Group, group => group.members)
     group: Group;
+
+    @Column()
+    role: Role;
+
 
     @BeforeInsert()
     public encrypt () {
