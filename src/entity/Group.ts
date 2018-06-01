@@ -1,5 +1,6 @@
-import {BeforeInsert, Column, Entity, getRepository, OneToMany, PrimaryGeneratedColumn} from "typeorm";
+import {BeforeInsert, Column, Entity, getRepository, ManyToMany, OneToMany, PrimaryGeneratedColumn} from "typeorm";
 import {User} from "./User";
+import {Challenge} from "./Challenge";
 
 @Entity()
 export class Group {
@@ -19,6 +20,9 @@ export class Group {
 
     @OneToMany(type => Group, group => group.follows)
     followees: Group[];
+
+    @ManyToMany(type => Challenge, challenge => challenge.completedBy, {eager: true})
+    challengesCompleted: Challenge[];
 
     @BeforeInsert()
     async generateInviteId() {
@@ -47,7 +51,8 @@ export class Group {
                 id : this.id,
                 name: this.name,
                 members : [],
-                inviteId : this.inviteId
+                inviteId : this.inviteId,
+                score: this.getScore(),
             };
             Array.from(this.members).forEach(value => {
                 o.members.push({id: value.id, screenName :value.screenName})
@@ -56,7 +61,8 @@ export class Group {
             o =   {
                 id : this.id,
                 name: this.name,
-                members : []
+                members : [],
+                score: this.getScore(),
             };
             Array.from(this.members).forEach(value => {
                 o.members.push({id: value.id, screenName :value.screenName})
@@ -68,5 +74,9 @@ export class Group {
     public async follows() : Promise<Group[]>{
         const loadedRelations = await getRepository(Group).findOne({where: {id: this.id}, relations: ["Group"]});
         return loadedRelations.followees
+    }
+
+    public getScore() : number {
+        return this.challengesCompleted.reduce((acc, val) => acc + val.score, 0)
     }
 }

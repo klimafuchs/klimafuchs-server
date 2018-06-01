@@ -1,4 +1,5 @@
 import {Column, Entity, PrimaryGeneratedColumn} from "typeorm";
+import {Group} from "./Group";
 
 
 @Entity()
@@ -57,6 +58,8 @@ export class Challenge {
 
     @Column()
     active: boolean;
+
+    completedBy: Group[];
 
     public getClientData() {
         let o;
