@@ -4,6 +4,7 @@ import {User} from "../entity/User";
 import * as jwt from "jsonwebtoken";
 import {Group} from "../entity/Group";
 import {getRepository} from "typeorm";
+
 let router = Router();
 const config = require("../../config.json");
 
@@ -12,28 +13,27 @@ const config = require("../../config.json");
  * @apiName Login
  * @apiGroup Client Login
  * @apiExample Example usage:
-     POST http://enviroommate.org:3000/api-login
-     Accept: application/json
-     Cache-Control: no-cache
-     Content-Type: application/json
+ POST http://enviroommate.org:3000/api/login
+ Accept: application/json
+ Cache-Control: no-cache
+ Content-Type: application/json
 
-     {"username" : "1@test.com", "password":"test"}
+ {"username" : "1@test.com", "password":"test"}
 
-    res: {"id":3,"token":"eyJhbGciOiJIUzI1NiJ9.Mw.s8smHWCZOUQBxQY-U5Ds2HhsjpNcRY08p_OfNGmimi4"}
+ res: {"id":3,"token":"eyJhbGciOiJIUzI1NiJ9.Mw.s8smHWCZOUQBxQY-U5Ds2HhsjpNcRY08p_OfNGmimi4"}
  */
-router.post('/login', (req: Request, res: Response, done: Function) =>{
-    passport.authenticate('local', {session: false},(err : Error, user : User) =>{
-        if (!user) {
-            res.status = 401;
-            return res.json({message: "No such user!"});
-        }
-        const id = user.id;
-        const token = jwt.sign(id, config.tokenSecret);
-        return res.json({id, token});
-    })(req,res);
+router.post('/login', passport.authenticate('local', {session: false}), (req: Request, res: Response, done: Function) => {
+    if (!req.user) {
+        res.status = 401;
+        done(res.json({message: "No such user!"}));
+    }
+    const id = req.user.id;
+    const token = jwt.sign(id, config.tokenSecret);
+    done(res.json({id, token}));
 });
 
-router.post('/register', (request: Request, response: Response, done: Function) =>{
+
+router.post('/register', (request: Request, response: Response, done: Function) => {
     //validate
     request.checkBody('username', 'Email is required').notEmpty();
     request.checkBody('username', 'Email is not valid').isEmail();
