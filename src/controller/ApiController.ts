@@ -16,8 +16,17 @@ async function loadRelations(user: User): Promise<User> {
     return u;
 }
 
+function sendServerError (response: Response) {
+
+    console.log(JSON.stringify(response));
+    response.status = 500;
+    response.json({message: "Internal Server error"});
+
+    return(response);
+}
+
 /**
- * @api {get} /api/profile
+ * @api {get}/api/auth/profile
  * @apiName Profile
  * @apiGroup ClientAPI
  * @apiHeader {Authorization} Bearer token  The jwt token
@@ -39,7 +48,7 @@ router.get("/profile", (request: Request, response: Response, done: Function) =>
 });
 
 /**
- * @api {get} /api/wg
+ * @api {get} /api/auth/wg
  * @apiName WG
  * @apiGroup ClientAPI
  * @apiHeader {Authorization} Bearer token  The jwt token
@@ -55,11 +64,11 @@ router.get("/wg", async (request: Request, response: Response, done: Function) =
             response.json({message: "Group not found"});
             done(response)
         }
-    }).catch(response);
+    }).catch(done(sendServerError));
 });
 
 /**
- * @api {post} /api/new-wg
+ * @api {post} /api/auth/new-wg
  * @apiName New WG
  * @apiGroup ClientAPI
  * @apiHeader {Authorization} Bearer token  The jwt token
@@ -84,15 +93,15 @@ router.post("/new-wg", (request: Request, response: Response, done: Function) =>
                     response.json(g.transfer(true));
                     done(response)
                 }
-            }).catch(response);
+            }).catch(done(sendServerError));
         }
-    }).catch(response);
+    }).catch(done(sendServerError));
 
 
 });
 
 /**
- * @api {post} /api/update-wg
+ * @api {post} /api/auth/update-wg
  * @apiName Update WG
  * @apiGroup ClientAPI
  * @apiHeader {Authorization} Bearer token  The jwt token
@@ -114,17 +123,17 @@ router.post("/update-wg", async (request: Request, response: Response, done: Fun
                     response.json(g.transfer(true));
                     done(response)
                 }
-            }).catch(response);
+            }).catch(done(sendServerError));
         } else {
             response.status = 400;
             response.json({message: "Group not found"});
             done(response)
         }
-    }).catch(response);
+    }).catch(done(sendServerError));
 });
 
 /**
- * @api {post} /api/join-wg
+ * @api {post} /api/auth/join-wg
  * @apiName Join WG
  * @apiGroup ClientAPI
  * @apiHeader {Authorization} Bearer token  The jwt token
@@ -154,12 +163,12 @@ router.post("/join-wg", async (request: Request, response: Response, done: Funct
                 response.json(updated.transfer(true));
                 done(response)
             }
-        }).catch(response)
-    }).catch(response);
+        }).catch(done(sendServerError))
+    }).catch(done(sendServerError));
 });
 
 /**
- * @api {post} /api/leave-wg
+ * @api {post} /api/auth/leave-wg
  * @apiName Leave WG
  * @apiGroup ClientAPI
  * @apiHeader {Authorization} Bearer token  The jwt token
@@ -183,11 +192,11 @@ router.post("/leave-wg", async (request: Request, response: Response, done: Func
             done(response.json({message: "not in a group"}));
 
         }
-    }).catch(response);
+    }).catch(done(sendServerError));
 });
 
 /**
- * @api {get} /api/search-wg
+ * @api {get} /api/auth/search-wg
  * @apiName Search WG
  * @apiGroup ClientAPI
  * @apiHeader {Authorization} Bearer token  The jwt token
@@ -208,12 +217,12 @@ router.get("/search-wg", (request: Request, response: Response, done: Function) 
             let accumulate = Array.from(groups).map(group => group.transfer(false))
             response.json(accumulate);
             done(response)
-        }).catch(response)
+        }).catch(done(sendServerError))
     }
 });
 
 /**
- * @api {get} /api/followed-wgs
+ * @api {get} /api/auth/followed-wgs
  * @apiName Followed WG
  * @apiGroup ClientAPI
  * @apiHeader {Authorization} Bearer token  The jwt token
@@ -232,11 +241,11 @@ router.get("/followed-wgs", (request: Request, response: Response, done: Functio
             response.status = 400;
             done(response.json({message: "not in a group"}));
         }
-    }).catch(response)
+    }).catch(done(sendServerError))
 });
 
 /**
- * @api {post} /api/follow-wg
+ * @api {post} /api/auth/follow-wg
  * @apiName Follow WG
  * @apiGroup ClientAPI
  * @apiHeader {Authorization} Bearer token  The jwt token
@@ -260,7 +269,7 @@ router.post("/follow-wg", async (request: Request, response: Response, done: Fun
                 response.status = 400;
                 done(response.json({message: "not in a group"}));
             }
-        }).catch(response)
+        }).catch(done(sendServerError))
     } else {
         response.status = 400;
         done(response.json({message: "group doesn't exist"}));
@@ -268,7 +277,7 @@ router.post("/follow-wg", async (request: Request, response: Response, done: Fun
 });
 
 /**
- * @api {post} /api/unfollow-wg
+ * @api {post} /api/auth/unfollow-wg
  * @apiName Unfollow WG
  * @apiGroup ClientAPI
  * @apiHeader {Authorization} Bearer token  The jwt token
@@ -292,7 +301,7 @@ router.post("/unfollow-wg", async (request: Request, response: Response, done: F
                 response.status = 400;
                 done(response.json({message: "not in a group"}));
             }
-        }).catch(response)
+        }).catch(done(sendServerError))
     } else {
         response.status = 400;
         done(response.json({message: "group doesn't exist"}));
@@ -300,8 +309,8 @@ router.post("/unfollow-wg", async (request: Request, response: Response, done: F
 });
 
 
-/** TODO replace with real implementation, this is here for !!!TESTING!!! purposes
- * @api {get} /api/current-challenge
+/**
+ * @api {get} /api/auth/current-challenge
  * @apiName Followed WG
  * @apiGroup ClientAPI
  * @apiHeader {Authorization} Bearer token  The jwt token
@@ -317,16 +326,37 @@ async function getCurrentChallenge() : Promise<Challenge>{
     return getRepository(Challenge).findOne({where : {active : 1}});
 }
 
+/**
+ * @api {post} /api/auth/complete-challenge
+ * @apiName Unfollow WG
+ * @apiGroup ClientAPI
+ * @apiHeader {Authorization} Bearer token  The jwt token
+ * @apiParam {id} Complete the challenge with this id
+ * @apiSuccess {Object} The users group with updated score
+ * @apiError {String} message The error
+ */
 router.post("/complete-challenge", async (request: Request, response: Response, done: Function) => {
     loadRelations(request.user).then(async u => {
         u.group.challengesCompleted.push(await getCurrentChallenge());
         let u_g = await getRepository(Group).save(u.group);
         response.json(u_g.transfer(true));
         done(response)
-    }).catch(response)
+    }).catch((response) =>{
+        response.status = 400;
+        done(response)
+    })
 
 });
 
+
+/**
+ * @api {get} /api/auth/score
+ * @apiName Followed WG
+ * @apiGroup ClientAPI
+ * @apiHeader {Authorization} Bearer token  The jwt token
+ * @apiSuccess {Number} The score of the group
+ * @apiError {String} message The error
+ */
 router.get("/score", (request: Request, response: Response, done: Function) => {
     loadRelations(request.user).then(async u => {
         if (u.group) {
@@ -335,9 +365,17 @@ router.get("/score", (request: Request, response: Response, done: Function) => {
             response.status = 400;
             done(response.json({message: "not in a group"}));
         }
-    }).catch(response)
+    }).catch(done(sendServerError))
 });
 
+/**
+ * @api {get} /api/auth/completed-challenges
+ * @apiName Followed WG
+ * @apiGroup ClientAPI
+ * @apiHeader {Authorization} Bearer token  The jwt token
+ * @apiSuccess {Object[]} The completed challenges
+ * @apiError {String} message The error
+ */
 router.get("/completed-challenges", (request: Request, response: Response, done: Function) => {
     loadRelations(request.user).then(async u => {
         if (u.group) {
@@ -346,7 +384,7 @@ router.get("/completed-challenges", (request: Request, response: Response, done:
             response.status = 400;
             done(response.json({message: "not in a group"}));
         }
-    }).catch(response)
+    }).catch(done(sendServerError))
 });
 
 export {router as ApiContoller} ;
