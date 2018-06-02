@@ -765,10 +765,79 @@ define({ "api": [
   },
   {
     "type": "post",
-    "url": "/api-login",
-    "title": "",
+    "url": "/api/login",
+    "title": "Login",
     "name": "Login",
     "group": "Client_Login",
+    "success": {
+      "fields": {
+        "Success 200": [
+          {
+            "group": "Success 200",
+            "type": "Object",
+            "optional": false,
+            "field": "token",
+            "description": "<p>the Bearer Token</p>"
+          }
+        ]
+      }
+    },
+    "error": {
+      "fields": {
+        "Error 4xx": [
+          {
+            "group": "Error 4xx",
+            "type": "String",
+            "optional": false,
+            "field": "message",
+            "description": "<p>The error</p>"
+          }
+        ]
+      }
+    },
+    "examples": [
+      {
+        "title": "Example usage:",
+        "content": "POST http://enviroommate.org:3000/api/login\nAccept: application/json\nCache-Control: no-cache\nContent-Type: application/json\n\n{\"username\" : \"1@test.com\", \"password\":\"test\"}\n\nres: {\"id\":3,\"token\":\"eyJhbGciOiJIUzI1NiJ9.Mw.s8smHWCZOUQBxQY-U5Ds2HhsjpNcRY08p_OfNGmimi4\"}",
+        "type": "json"
+      }
+    ],
+    "version": "0.0.0",
+    "filename": "src/controller/ApiLandingController.ts",
+    "groupTitle": "Client_Login"
+  },
+  {
+    "type": "post",
+    "url": "/api/register",
+    "title": "Register",
+    "name": "Register",
+    "group": "Client_Login",
+    "success": {
+      "fields": {
+        "Success 200": [
+          {
+            "group": "Success 200",
+            "type": "Object",
+            "optional": false,
+            "field": "token",
+            "description": "<p>the Bearer Token</p>"
+          }
+        ]
+      }
+    },
+    "error": {
+      "fields": {
+        "Error 4xx": [
+          {
+            "group": "Error 4xx",
+            "type": "String",
+            "optional": false,
+            "field": "message",
+            "description": "<p>The error</p>"
+          }
+        ]
+      }
+    },
     "examples": [
       {
         "title": "Example usage:",
