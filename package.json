@@ -49,6 +49,6 @@
   "scripts": {
     "start": "ts-node src/index.ts",
     "test": "mocha -r ts-node/register test/**/*.ts",
-    "doc": "apidoc -i src/ -o doc/"
+    "doc": "apidoc -i src/ -o docs/"
   }
 }
