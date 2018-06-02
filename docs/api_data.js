@@ -1,8 +1,119 @@
 define({ "api": [
   {
     "type": "post",
+    "url": "/api/auth/complete-challenge",
+    "title": "Complete Challenge",
+    "name": "Complete_Challenge",
+    "group": "ClientAPI",
+    "header": {
+      "fields": {
+        "Header": [
+          {
+            "group": "Header",
+            "type": "Authorization",
+            "optional": false,
+            "field": "Bearer",
+            "description": "<p>token  The jwt token</p>"
+          }
+        ]
+      }
+    },
+    "parameter": {
+      "fields": {
+        "Parameter": [
+          {
+            "group": "Parameter",
+            "type": "id",
+            "optional": false,
+            "field": "Complete",
+            "description": "<p>the challenge with this id</p>"
+          }
+        ]
+      }
+    },
+    "success": {
+      "fields": {
+        "Success 200": [
+          {
+            "group": "Success 200",
+            "type": "Object",
+            "optional": false,
+            "field": "The",
+            "description": "<p>users group with updated score</p>"
+          }
+        ]
+      }
+    },
+    "error": {
+      "fields": {
+        "Error 4xx": [
+          {
+            "group": "Error 4xx",
+            "type": "String",
+            "optional": false,
+            "field": "message",
+            "description": "<p>The error</p>"
+          }
+        ]
+      }
+    },
+    "version": "0.0.0",
+    "filename": "src/controller/ApiController.ts",
+    "groupTitle": "ClientAPI"
+  },
+  {
+    "type": "get",
+    "url": "/api/auth/completed-challenges",
+    "title": "Completed Challenges",
+    "name": "Completed_Challenges",
+    "group": "ClientAPI",
+    "header": {
+      "fields": {
+        "Header": [
+          {
+            "group": "Header",
+            "type": "Authorization",
+            "optional": false,
+            "field": "Bearer",
+            "description": "<p>token  The jwt token</p>"
+          }
+        ]
+      }
+    },
+    "success": {
+      "fields": {
+        "Success 200": [
+          {
+            "group": "Success 200",
+            "type": "Object[]",
+            "optional": false,
+            "field": "The",
+            "description": "<p>completed challenges</p>"
+          }
+        ]
+      }
+    },
+    "error": {
+      "fields": {
+        "Error 4xx": [
+          {
+            "group": "Error 4xx",
+            "type": "String",
+            "optional": false,
+            "field": "message",
+            "description": "<p>The error</p>"
+          }
+        ]
+      }
+    },
+    "version": "0.0.0",
+    "filename": "src/controller/ApiController.ts",
+    "groupTitle": "ClientAPI"
+  },
+  {
+    "type": "post",
     "url": "/api/auth/follow-wg",
-    "title": "",
+    "title": "Follow WG",
     "name": "Follow_WG",
     "group": "ClientAPI",
     "header": {
@@ -64,7 +175,7 @@ define({ "api": [
   {
     "type": "get",
     "url": "/api/auth/followed-wgs",
-    "title": "",
+    "title": "Followed WGs",
     "name": "Followed_WG",
     "group": "ClientAPI",
     "header": {
@@ -112,106 +223,8 @@ define({ "api": [
   },
   {
     "type": "get",
-    "url": "/api/auth/completed-challenges",
-    "title": "",
-    "name": "Followed_WG",
-    "group": "ClientAPI",
-    "header": {
-      "fields": {
-        "Header": [
-          {
-            "group": "Header",
-            "type": "Authorization",
-            "optional": false,
-            "field": "Bearer",
-            "description": "<p>token  The jwt token</p>"
-          }
-        ]
-      }
-    },
-    "success": {
-      "fields": {
-        "Success 200": [
-          {
-            "group": "Success 200",
-            "type": "Object[]",
-            "optional": false,
-            "field": "The",
-            "description": "<p>completed challenges</p>"
-          }
-        ]
-      }
-    },
-    "error": {
-      "fields": {
-        "Error 4xx": [
-          {
-            "group": "Error 4xx",
-            "type": "String",
-            "optional": false,
-            "field": "message",
-            "description": "<p>The error</p>"
-          }
-        ]
-      }
-    },
-    "version": "0.0.0",
-    "filename": "src/controller/ApiController.ts",
-    "groupTitle": "ClientAPI"
-  },
-  {
-    "type": "get",
-    "url": "/api/auth/score",
-    "title": "",
-    "name": "Followed_WG",
-    "group": "ClientAPI",
-    "header": {
-      "fields": {
-        "Header": [
-          {
-            "group": "Header",
-            "type": "Authorization",
-            "optional": false,
-            "field": "Bearer",
-            "description": "<p>token  The jwt token</p>"
-          }
-        ]
-      }
-    },
-    "success": {
-      "fields": {
-        "Success 200": [
-          {
-            "group": "Success 200",
-            "type": "Number",
-            "optional": false,
-            "field": "The",
-            "description": "<p>score of the group</p>"
-          }
-        ]
-      }
-    },
-    "error": {
-      "fields": {
-        "Error 4xx": [
-          {
-            "group": "Error 4xx",
-            "type": "String",
-            "optional": false,
-            "field": "message",
-            "description": "<p>The error</p>"
-          }
-        ]
-      }
-    },
-    "version": "0.0.0",
-    "filename": "src/controller/ApiController.ts",
-    "groupTitle": "ClientAPI"
-  },
-  {
-    "type": "get",
     "url": "/api/auth/current-challenge",
-    "title": "",
+    "title": "Followed WG",
     "name": "Followed_WG",
     "group": "ClientAPI",
     "header": {
@@ -260,7 +273,7 @@ define({ "api": [
   {
     "type": "post",
     "url": "/api/auth/join-wg",
-    "title": "",
+    "title": "Join WG",
     "name": "Join_WG",
     "group": "ClientAPI",
     "header": {
@@ -323,7 +336,7 @@ define({ "api": [
   {
     "type": "post",
     "url": "/api/auth/leave-wg",
-    "title": "",
+    "title": "Leave WG",
     "name": "Leave_WG",
     "group": "ClientAPI",
     "header": {
@@ -373,7 +386,7 @@ define({ "api": [
   {
     "type": "post",
     "url": "/api/auth/new-wg",
-    "title": "",
+    "title": "New WG",
     "name": "New_WG",
     "group": "ClientAPI",
     "header": {
@@ -423,7 +436,7 @@ define({ "api": [
   {
     "type": "get",
     "url": "/api/auth/profile",
-    "title": "",
+    "title": "Get Profile",
     "name": "Profile",
     "group": "ClientAPI",
     "header": {
@@ -479,8 +492,57 @@ define({ "api": [
   },
   {
     "type": "get",
+    "url": "/api/auth/score",
+    "title": "Score",
+    "name": "Score",
+    "group": "ClientAPI",
+    "header": {
+      "fields": {
+        "Header": [
+          {
+            "group": "Header",
+            "type": "Authorization",
+            "optional": false,
+            "field": "Bearer",
+            "description": "<p>token  The jwt token</p>"
+          }
+        ]
+      }
+    },
+    "success": {
+      "fields": {
+        "Success 200": [
+          {
+            "group": "Success 200",
+            "type": "Number",
+            "optional": false,
+            "field": "The",
+            "description": "<p>score of the group</p>"
+          }
+        ]
+      }
+    },
+    "error": {
+      "fields": {
+        "Error 4xx": [
+          {
+            "group": "Error 4xx",
+            "type": "String",
+            "optional": false,
+            "field": "message",
+            "description": "<p>The error</p>"
+          }
+        ]
+      }
+    },
+    "version": "0.0.0",
+    "filename": "src/controller/ApiController.ts",
+    "groupTitle": "ClientAPI"
+  },
+  {
+    "type": "get",
     "url": "/api/auth/search-wg",
-    "title": "",
+    "title": "Search Wg",
     "name": "Search_WG",
     "group": "ClientAPI",
     "header": {
@@ -543,7 +605,7 @@ define({ "api": [
   {
     "type": "post",
     "url": "/api/auth/unfollow-wg",
-    "title": "",
+    "title": "Unfollow WG",
     "name": "Unfollow_WG",
     "group": "ClientAPI",
     "header": {
@@ -591,70 +653,8 @@ define({ "api": [
   },
   {
     "type": "post",
-    "url": "/api/auth/complete-challenge",
-    "title": "",
-    "name": "Unfollow_WG",
-    "group": "ClientAPI",
-    "header": {
-      "fields": {
-        "Header": [
-          {
-            "group": "Header",
-            "type": "Authorization",
-            "optional": false,
-            "field": "Bearer",
-            "description": "<p>token  The jwt token</p>"
-          }
-        ]
-      }
-    },
-    "parameter": {
-      "fields": {
-        "Parameter": [
-          {
-            "group": "Parameter",
-            "type": "id",
-            "optional": false,
-            "field": "Complete",
-            "description": "<p>the challenge with this id</p>"
-          }
-        ]
-      }
-    },
-    "success": {
-      "fields": {
-        "Success 200": [
-          {
-            "group": "Success 200",
-            "type": "Object",
-            "optional": false,
-            "field": "The",
-            "description": "<p>users group with updated score</p>"
-          }
-        ]
-      }
-    },
-    "error": {
-      "fields": {
-        "Error 4xx": [
-          {
-            "group": "Error 4xx",
-            "type": "String",
-            "optional": false,
-            "field": "message",
-            "description": "<p>The error</p>"
-          }
-        ]
-      }
-    },
-    "version": "0.0.0",
-    "filename": "src/controller/ApiController.ts",
-    "groupTitle": "ClientAPI"
-  },
-  {
-    "type": "post",
     "url": "/api/auth/update-wg",
-    "title": "",
+    "title": "Update WG",
     "name": "Update_WG",
     "group": "ClientAPI",
     "header": {
@@ -717,7 +717,7 @@ define({ "api": [
   {
     "type": "get",
     "url": "/api/auth/wg",
-    "title": "",
+    "title": "Get WG",
     "name": "WG",
     "group": "ClientAPI",
     "header": {

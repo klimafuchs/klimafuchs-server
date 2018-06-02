@@ -26,7 +26,7 @@ function sendServerError (response: Response) {
 }
 
 /**
- * @api {get}/api/auth/profile
+ * @api {get}/api/auth/profile Get Profile
  * @apiName Profile
  * @apiGroup ClientAPI
  * @apiHeader {Authorization} Bearer token  The jwt token
@@ -48,7 +48,7 @@ router.get("/profile", (request: Request, response: Response, done: Function) =>
 });
 
 /**
- * @api {get} /api/auth/wg
+ * @api {get} /api/auth/wg Get WG
  * @apiName WG
  * @apiGroup ClientAPI
  * @apiHeader {Authorization} Bearer token  The jwt token
@@ -68,7 +68,7 @@ router.get("/wg", async (request: Request, response: Response, done: Function) =
 });
 
 /**
- * @api {post} /api/auth/new-wg
+ * @api {post} /api/auth/new-wg New WG
  * @apiName New WG
  * @apiGroup ClientAPI
  * @apiHeader {Authorization} Bearer token  The jwt token
@@ -101,7 +101,7 @@ router.post("/new-wg", (request: Request, response: Response, done: Function) =>
 });
 
 /**
- * @api {post} /api/auth/update-wg
+ * @api {post} /api/auth/update-wg Update WG
  * @apiName Update WG
  * @apiGroup ClientAPI
  * @apiHeader {Authorization} Bearer token  The jwt token
@@ -133,7 +133,7 @@ router.post("/update-wg", async (request: Request, response: Response, done: Fun
 });
 
 /**
- * @api {post} /api/auth/join-wg
+ * @api {post} /api/auth/join-wg Join WG
  * @apiName Join WG
  * @apiGroup ClientAPI
  * @apiHeader {Authorization} Bearer token  The jwt token
@@ -168,7 +168,7 @@ router.post("/join-wg", async (request: Request, response: Response, done: Funct
 });
 
 /**
- * @api {post} /api/auth/leave-wg
+ * @api {post} /api/auth/leave-wg Leave WG
  * @apiName Leave WG
  * @apiGroup ClientAPI
  * @apiHeader {Authorization} Bearer token  The jwt token
@@ -196,7 +196,7 @@ router.post("/leave-wg", async (request: Request, response: Response, done: Func
 });
 
 /**
- * @api {get} /api/auth/search-wg
+ * @api {get} /api/auth/search-wg Search Wg
  * @apiName Search WG
  * @apiGroup ClientAPI
  * @apiHeader {Authorization} Bearer token  The jwt token
@@ -222,7 +222,7 @@ router.get("/search-wg", (request: Request, response: Response, done: Function) 
 });
 
 /**
- * @api {get} /api/auth/followed-wgs
+ * @api {get} /api/auth/followed-wgs Followed WGs
  * @apiName Followed WG
  * @apiGroup ClientAPI
  * @apiHeader {Authorization} Bearer token  The jwt token
@@ -245,7 +245,7 @@ router.get("/followed-wgs", (request: Request, response: Response, done: Functio
 });
 
 /**
- * @api {post} /api/auth/follow-wg
+ * @api {post} /api/auth/follow-wg Follow WG
  * @apiName Follow WG
  * @apiGroup ClientAPI
  * @apiHeader {Authorization} Bearer token  The jwt token
@@ -277,7 +277,7 @@ router.post("/follow-wg", async (request: Request, response: Response, done: Fun
 });
 
 /**
- * @api {post} /api/auth/unfollow-wg
+ * @api {post} /api/auth/unfollow-wg Unfollow WG
  * @apiName Unfollow WG
  * @apiGroup ClientAPI
  * @apiHeader {Authorization} Bearer token  The jwt token
@@ -310,7 +310,7 @@ router.post("/unfollow-wg", async (request: Request, response: Response, done: F
 
 
 /**
- * @api {get} /api/auth/current-challenge
+ * @api {get} /api/auth/current-challenge Followed WG
  * @apiName Followed WG
  * @apiGroup ClientAPI
  * @apiHeader {Authorization} Bearer token  The jwt token
@@ -327,8 +327,8 @@ async function getCurrentChallenge() : Promise<Challenge>{
 }
 
 /**
- * @api {post} /api/auth/complete-challenge
- * @apiName Unfollow WG
+ * @api {post} /api/auth/complete-challenge Complete Challenge
+ * @apiName Complete Challenge
  * @apiGroup ClientAPI
  * @apiHeader {Authorization} Bearer token  The jwt token
  * @apiParam {id} Complete the challenge with this id
@@ -350,8 +350,8 @@ router.post("/complete-challenge", async (request: Request, response: Response, 
 
 
 /**
- * @api {get} /api/auth/score
- * @apiName Followed WG
+ * @api {get} /api/auth/score Score
+ * @apiName Score
  * @apiGroup ClientAPI
  * @apiHeader {Authorization} Bearer token  The jwt token
  * @apiSuccess {Number} The score of the group
@@ -369,8 +369,8 @@ router.get("/score", (request: Request, response: Response, done: Function) => {
 });
 
 /**
- * @api {get} /api/auth/completed-challenges
- * @apiName Followed WG
+ * @api {get} /api/auth/completed-challenges Completed Challenges
+ * @apiName Completed Challenges
  * @apiGroup ClientAPI
  * @apiHeader {Authorization} Bearer token  The jwt token
  * @apiSuccess {Object[]} The completed challenges
