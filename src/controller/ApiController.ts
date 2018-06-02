@@ -64,7 +64,7 @@ router.get("/wg", async (request: Request, response: Response, done: Function) =
             response.json({message: "Group not found"});
             done(response)
         }
-    }).catch(done(sendServerError));
+    }).catch(done(sendServerError(response)));
 });
 
 /**
@@ -93,9 +93,9 @@ router.post("/new-wg", (request: Request, response: Response, done: Function) =>
                     response.json(g.transfer(true));
                     done(response)
                 }
-            }).catch(done(sendServerError));
+            }).catch(done(sendServerError(response)));
         }
-    }).catch(done(sendServerError));
+    }).catch(done(sendServerError(response)));
 
 
 });
@@ -123,13 +123,13 @@ router.post("/update-wg", async (request: Request, response: Response, done: Fun
                     response.json(g.transfer(true));
                     done(response)
                 }
-            }).catch(done(sendServerError));
+            }).catch(done(sendServerError(response)));
         } else {
             response.status = 400;
             response.json({message: "Group not found"});
             done(response)
         }
-    }).catch(done(sendServerError));
+    }).catch(done(sendServerError(response)));
 });
 
 /**
@@ -163,8 +163,8 @@ router.post("/join-wg", async (request: Request, response: Response, done: Funct
                 response.json(updated.transfer(true));
                 done(response)
             }
-        }).catch(done(sendServerError))
-    }).catch(done(sendServerError));
+        }).catch(done(sendServerError(response)))
+    }).catch(done(sendServerError(response)));
 });
 
 /**
@@ -192,7 +192,7 @@ router.post("/leave-wg", async (request: Request, response: Response, done: Func
             done(response.json({message: "not in a group"}));
 
         }
-    }).catch(done(sendServerError));
+    }).catch(done(sendServerError(response)));
 });
 
 /**
@@ -217,7 +217,7 @@ router.get("/search-wg", (request: Request, response: Response, done: Function) 
             let accumulate = Array.from(groups).map(group => group.transfer(false))
             response.json(accumulate);
             done(response)
-        }).catch(done(sendServerError))
+        }).catch(done(sendServerError(response)))
     }
 });
 
@@ -241,7 +241,7 @@ router.get("/followed-wgs", (request: Request, response: Response, done: Functio
             response.status = 400;
             done(response.json({message: "not in a group"}));
         }
-    }).catch(done(sendServerError))
+    }).catch(done(sendServerError(response)))
 });
 
 /**
@@ -269,7 +269,7 @@ router.post("/follow-wg", async (request: Request, response: Response, done: Fun
                 response.status = 400;
                 done(response.json({message: "not in a group"}));
             }
-        }).catch(done(sendServerError))
+        }).catch(done(sendServerError(response)))
     } else {
         response.status = 400;
         done(response.json({message: "group doesn't exist"}));
@@ -301,7 +301,7 @@ router.post("/unfollow-wg", async (request: Request, response: Response, done: F
                 response.status = 400;
                 done(response.json({message: "not in a group"}));
             }
-        }).catch(done(sendServerError))
+        }).catch(done(sendServerError(response)))
     } else {
         response.status = 400;
         done(response.json({message: "group doesn't exist"}));
@@ -365,7 +365,7 @@ router.get("/score", (request: Request, response: Response, done: Function) => {
             response.status = 400;
             done(response.json({message: "not in a group"}));
         }
-    }).catch(done(sendServerError))
+    }).catch(done(sendServerError(response)))
 });
 
 /**
@@ -384,7 +384,7 @@ router.get("/completed-challenges", (request: Request, response: Response, done:
             response.status = 400;
             done(response.json({message: "not in a group"}));
         }
-    }).catch(done(sendServerError))
+    }).catch(done(sendServerError(response)))
 });
 
 export {router as ApiContoller} ;

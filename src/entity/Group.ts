@@ -21,7 +21,7 @@ export class Group {
     @OneToMany(type => Group, group => group.follows)
     followees: Group[];
 
-    @ManyToMany(type => Challenge, challenge => challenge.completedBy, {eager: true})
+    @ManyToMany(type => Challenge, challenge => challenge.completedBy)
     challengesCompleted: Challenge[];
 
     @BeforeInsert()
