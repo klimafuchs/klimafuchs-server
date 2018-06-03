@@ -203,7 +203,7 @@ router.get("/search-wg", (request: Request, response: Response, done: Function) 
         response.json({message: "No search query"});
         done(response)
     } else {
-        getRepository(Group).find({name: Like(queryString + "")}).then(groups => {
+        getRepository(Group).find({where: { name : Like("%"+queryString+"%") }}).then(groups => {
             let accumulate = Array.from(groups).map(group => group.transfer(false))
             response.json(accumulate);
             done(response)
@@ -222,7 +222,7 @@ router.get("/search-wg", (request: Request, response: Response, done: Function) 
 router.get("/followed-wgs", (request: Request, response: Response, done: Function) => {
     loadRelations(request.user).then(u => {
         if (u.group) {
-            u.group.follows().then(groups => {
+            u.group.getFollows().then(groups => {
                 let accumulate = Array.from(groups).map(group => group.transfer(false))
                 response.json(accumulate);
                 done(response)
@@ -244,14 +244,13 @@ router.get("/followed-wgs", (request: Request, response: Response, done: Functio
  * @apiError {String} message The error
  */
 router.post("/follow-wg", async (request: Request, response: Response, done: Function) => {
-    let queryObject = QueryString.parse(Url.parse(request.url).query);
-    let idString: String = queryObject.id.toString();
+    let idString: String = request.body.id;
     console.log("queryString:" + idString);
     const groupToFollow = await getRepository(Group).findOne({where: {id: idString}});
     if (groupToFollow) {
         loadRelations(request.user).then(async u => {
             if (u.group) {
-                const loadedRelations = await getRepository(Group).findOne({where: {id: u.id}, relations: ["Group"]});
+                const loadedRelations = await getRepository(Group).findOne({where: {id: u.group.id}, relations: ["followees"]});
                 loadedRelations.followees.push(groupToFollow);
                 await getRepository(Group).save(loadedRelations);
                 response.json(loadedRelations.transfer(true))
@@ -282,7 +281,7 @@ router.post("/unfollow-wg", async (request: Request, response: Response, done: F
     if (groupToFollow) {
         loadRelations(request.user).then(async u => {
             if (u.group) {
-                const loadedRelations = await getRepository(Group).findOne({where: {id: u.id}, relations: ["Group"]});
+                const loadedRelations = await getRepository(Group).findOne({where: {id: u.id}, relations: ["followees"]});
                 const i = loadedRelations.followees.indexOf(u.group);
                 if (i > -1) loadedRelations.followees.slice(i, 1);
                 await getRepository(Group).save(loadedRelations);
@@ -372,10 +371,12 @@ router.get("/score", (request: Request, response: Response, done: Function) => {
 router.get("/completed-challenges", (request: Request, response: Response, done: Function) => {
     loadRelations(request.user).then(async u => {
         if (u.group) {
-            done(response(JSON.stringify(u.group.challengesCompleted)));
+            response.json(u.group.challengesCompleted);
+            done();
         } else {
             response.status = 400;
-            done(response.json({message: "not in a group"}));
+            response.json({message: "not in a group"});
+            done();
         }
     })
 });

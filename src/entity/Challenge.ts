@@ -1,4 +1,4 @@
-import {Column, Entity, PrimaryGeneratedColumn} from "typeorm";
+import {Column, Entity, JoinTable, ManyToMany, PrimaryGeneratedColumn} from "typeorm";
 import {Group} from "./Group";
 
 
@@ -59,6 +59,7 @@ export class Challenge {
     @Column()
     active: boolean;
 
+    @ManyToMany(type => Group, group => group.challengesCompleted)
     completedBy: Group[];
 
     public getClientData() {

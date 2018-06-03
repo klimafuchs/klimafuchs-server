@@ -1,4 +1,14 @@
-import {BeforeInsert, Column, Entity, getRepository, ManyToMany, OneToMany, PrimaryGeneratedColumn} from "typeorm";
+import {
+    BeforeInsert,
+    Column,
+    Entity,
+    getRepository,
+    JoinTable,
+    ManyToMany,
+    OneToMany,
+    PrimaryGeneratedColumn,
+    ManyToOne
+} from "typeorm";
 import {User} from "./User";
 import {Challenge} from "./Challenge";
 
@@ -18,10 +28,15 @@ export class Group {
     @Column()
     inviteId: string;
 
-    @OneToMany(type => Group, group => group.follows)
+    @ManyToMany(type => Group, group => group.follows)
+    @JoinTable()
     followees: Group[];
 
-    @ManyToMany(type => Challenge, challenge => challenge.completedBy)
+    @ManyToMany(type => Group, group => group.followees)
+    follows: Group[];
+
+    @ManyToMany(type => Challenge, challenge => challenge.completedBy, {eager: true})
+    @JoinTable()
     challengesCompleted: Challenge[];
 
     @BeforeInsert()
@@ -71,8 +86,8 @@ export class Group {
         return o;
     }
 
-    public async follows() : Promise<Group[]>{
-        const loadedRelations = await getRepository(Group).findOne({where: {id: this.id}, relations: ["Group"]});
+    public async getFollows() : Promise<Group[]>{
+        const loadedRelations = await getRepository(Group).findOne({where: {id: this.id}, relations: ["followees"]});
         return loadedRelations.followees
     }
 
