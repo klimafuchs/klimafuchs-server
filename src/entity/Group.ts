@@ -10,7 +10,7 @@ export class Group {
     id: number;
 
     @Column()
-    name: string;
+    name: string = "placeholder";
 
     @OneToMany(type => User, user => user.group, {eager: true})
     members: User[];
