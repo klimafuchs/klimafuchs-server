@@ -13,6 +13,7 @@ import * as path from "path";
 import {ApiContoller} from "./controller/ApiController";
 import {passportConf} from "./PassportConfig";
 import {ApiLandingContoller} from "./controller/ApiLandingController";
+import * as cors from 'cors';
 
 
 let config = require("../config.json");
@@ -33,6 +34,15 @@ createConnection().then(async connection => {
         console.log("Got request to " + request.originalUrl);
         done()
     };
+    app.use(cors());
+    app.options('*', cors());
+
+   app.use(function(req, res, next) {
+        res.header("Access-Control-Allow-Origin", "*");
+        res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
+        next();
+    });
+
 
     app.use(logger);
     app.use(bodyParser.json());

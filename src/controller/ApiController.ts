@@ -12,17 +12,16 @@ let router = Router();
 
 async function loadRelations(user: User): Promise<User> {
     let u = await getRepository(User).findOne({where: {id: user.id}, relations: ["group"]});
+    console.log(JSON.stringify(u))
     if (!u) throw new Error("no such user");
     return u;
 }
 
-function sendServerError (response: Response) {
-
-    console.log(JSON.stringify(response));
-    response.status = 500;
+function sendServerError(response: Response, done: Function) {
+    console.error("error handler called")
+    response.status = 500
     response.json({message: "Internal Server error"});
-
-    return(response);
+    return done()
 }
 
 /**
@@ -56,15 +55,14 @@ router.get("/profile", (request: Request, response: Response, done: Function) =>
  * @apiError {String} message The error
  */
 router.get("/wg", async (request: Request, response: Response, done: Function) => {
-    loadRelations(request.user).then(u => {
-        if (u.group) {
-            done(response.json(u.group.transfer(true)));
-        } else {
-            response.status = 400;
-            response.json({message: "Group not found"});
-            done(response)
-        }
-    }).catch(done(sendServerError(response)));
+    let u = await loadRelations(request.user);
+    if (u.group) {
+        response.json(u.group.transfer(true))
+        done();
+    } else {
+        response.json({message: "Group not found"});
+        done()
+    }
 });
 
 /**
@@ -76,27 +74,18 @@ router.get("/wg", async (request: Request, response: Response, done: Function) =
  * @apiError {String} message The error
  * @apiDescription Lets users who are currently not in a group create a new one.
  */
-router.post("/new-wg", (request: Request, response: Response, done: Function) => {
-    loadRelations(request.user).then(u => {
-        if (u.group) {
-            response.status = 400;
-            done(response.json({message: "already in a group"}));
-        } else {
-            let newGroup = new Group();
-            newGroup.members = [request.user];
-            getRepository(Group).save(newGroup).then((g) => {
-                if (g == null) {
-                    response.status = 500;
-                    response.json({message: "Group not created"});
-                    done(response)
-                } else {
-                    response.json(g.transfer(true));
-                    done(response)
-                }
-            }).catch(done(sendServerError(response)));
-        }
-    }).catch(done(sendServerError(response)));
-
+router.post("/new-wg", async (request: Request, response: Response, done: Function) => {
+    let u = await loadRelations(request.user)
+    if (u.group) {
+        response.json({message: "already in a group"})
+        done();
+    } else {
+        let newGroup = new Group();
+        newGroup.members = [request.user];
+        let g = await getRepository(Group).save(newGroup);
+        response.json(newGroup.transfer(true));
+        done();
+    }
 
 });
 
@@ -123,13 +112,13 @@ router.post("/update-wg", async (request: Request, response: Response, done: Fun
                     response.json(g.transfer(true));
                     done(response)
                 }
-            }).catch(done(sendServerError(response)));
+            }).catch(done(sendServerError(response, done)));
         } else {
             response.status = 400;
             response.json({message: "Group not found"});
             done(response)
         }
-    }).catch(done(sendServerError(response)));
+    }).catch(done(sendServerError(response, done)));
 });
 
 /**
@@ -163,8 +152,8 @@ router.post("/join-wg", async (request: Request, response: Response, done: Funct
                 response.json(updated.transfer(true));
                 done(response)
             }
-        }).catch(done(sendServerError(response)))
-    }).catch(done(sendServerError(response)));
+        }).catch(done(sendServerError(response, done)))
+    }).catch(done(sendServerError(response, done)));
 });
 
 /**
@@ -192,7 +181,7 @@ router.post("/leave-wg", async (request: Request, response: Response, done: Func
             done(response.json({message: "not in a group"}));
 
         }
-    }).catch(done(sendServerError(response)));
+    }).catch(done(sendServerError(response, done)));
 });
 
 /**
@@ -217,7 +206,7 @@ router.get("/search-wg", (request: Request, response: Response, done: Function) 
             let accumulate = Array.from(groups).map(group => group.transfer(false))
             response.json(accumulate);
             done(response)
-        }).catch(done(sendServerError(response)))
+        }).catch(done(sendServerError(response, done)))
     }
 });
 
@@ -241,7 +230,7 @@ router.get("/followed-wgs", (request: Request, response: Response, done: Functio
             response.status = 400;
             done(response.json({message: "not in a group"}));
         }
-    }).catch(done(sendServerError(response)))
+    }).catch(done(sendServerError(response, done)))
 });
 
 /**
@@ -269,7 +258,7 @@ router.post("/follow-wg", async (request: Request, response: Response, done: Fun
                 response.status = 400;
                 done(response.json({message: "not in a group"}));
             }
-        }).catch(done(sendServerError(response)))
+        }).catch(done(sendServerError(response, done)))
     } else {
         response.status = 400;
         done(response.json({message: "group doesn't exist"}));
@@ -301,7 +290,7 @@ router.post("/unfollow-wg", async (request: Request, response: Response, done: F
                 response.status = 400;
                 done(response.json({message: "not in a group"}));
             }
-        }).catch(done(sendServerError(response)))
+        }).catch(done(sendServerError(response, done)))
     } else {
         response.status = 400;
         done(response.json({message: "group doesn't exist"}));
@@ -322,8 +311,8 @@ router.get("/current-challenge", (request: Request, response: Response, done: Fu
     done(response)
 });
 
-async function getCurrentChallenge() : Promise<Challenge>{
-    return getRepository(Challenge).findOne({where : {active : 1}});
+async function getCurrentChallenge(): Promise<Challenge> {
+    return getRepository(Challenge).findOne({where: {active: 1}});
 }
 
 /**
@@ -341,7 +330,7 @@ router.post("/complete-challenge", async (request: Request, response: Response, 
         let u_g = await getRepository(Group).save(u.group);
         response.json(u_g.transfer(true));
         done(response)
-    }).catch((response) =>{
+    }).catch((response) => {
         response.status = 400;
         done(response)
     })
@@ -365,7 +354,7 @@ router.get("/score", (request: Request, response: Response, done: Function) => {
             response.status = 400;
             done(response.json({message: "not in a group"}));
         }
-    }).catch(done(sendServerError(response)))
+    }).catch(done(sendServerError(response, done)))
 });
 
 /**
@@ -384,7 +373,7 @@ router.get("/completed-challenges", (request: Request, response: Response, done:
             response.status = 400;
             done(response.json({message: "not in a group"}));
         }
-    }).catch(done(sendServerError(response)))
+    }).catch(done(sendServerError(response, done)))
 });
 
 export {router as ApiContoller} ;

@@ -77,6 +77,10 @@ export class Group {
     }
 
     public getScore() : number {
-        return this.challengesCompleted.reduce((acc, val) => acc + val.score, 0)
+        let score = 0;
+        if(this.challengesCompleted) {
+            score += this.challengesCompleted.reduce((acc, val) => acc + val.score, 0)
+        }
+        return score;
     }
 }
