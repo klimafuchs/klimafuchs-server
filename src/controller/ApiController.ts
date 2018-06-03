@@ -7,6 +7,7 @@ import * as Url from "url";
 import * as QueryString from "querystring";
 import {query} from "express-validator/check";
 import {Challenge} from "../entity/Challenge";
+import {arraysAreEqual} from "tslint/lib/utils";
 
 let router = Router();
 
@@ -129,7 +130,7 @@ router.post("/update-wg", async (request: Request, response: Response, done: Fun
  * @apiSuccess {Object} group The current users new Group
  * @apiError {String} message The error
  * @apiDescription Lets users join a group they have the invite link of.
- * @apiParam {String} inviteId Join group with this invite link
+ * @apiParam {String} inviteLink Join group with this invite link
  */
 router.post("/join-wg", async (request: Request, response: Response, done: Function) => {
     loadRelations(request.user).then(u => {
@@ -181,7 +182,7 @@ router.post("/leave-wg", async (request: Request, response: Response, done: Func
             done(response.json({message: "not in a group"}));
 
         }
-    }).catch(done(sendServerError(response, done)));
+    })
 });
 
 /**
@@ -206,7 +207,7 @@ router.get("/search-wg", (request: Request, response: Response, done: Function) 
             let accumulate = Array.from(groups).map(group => group.transfer(false))
             response.json(accumulate);
             done(response)
-        }).catch(done(sendServerError(response, done)))
+        })
     }
 });
 
@@ -230,7 +231,7 @@ router.get("/followed-wgs", (request: Request, response: Response, done: Functio
             response.status = 400;
             done(response.json({message: "not in a group"}));
         }
-    }).catch(done(sendServerError(response, done)))
+    })
 });
 
 /**
@@ -258,7 +259,7 @@ router.post("/follow-wg", async (request: Request, response: Response, done: Fun
                 response.status = 400;
                 done(response.json({message: "not in a group"}));
             }
-        }).catch(done(sendServerError(response, done)))
+        })
     } else {
         response.status = 400;
         done(response.json({message: "group doesn't exist"}));
@@ -290,7 +291,7 @@ router.post("/unfollow-wg", async (request: Request, response: Response, done: F
                 response.status = 400;
                 done(response.json({message: "not in a group"}));
             }
-        }).catch(done(sendServerError(response, done)))
+        })
     } else {
         response.status = 400;
         done(response.json({message: "group doesn't exist"}));
@@ -306,13 +307,16 @@ router.post("/unfollow-wg", async (request: Request, response: Response, done: F
  * @apiSuccess {Object} challenge gets the current challenge
  * @apiError {String} message The error
  */
-router.get("/current-challenge", (request: Request, response: Response, done: Function) => {
-    response.json(JSON.stringify(getCurrentChallenge()));
-    done(response)
+router.get("/current-challenge", async (request: Request, response: Response, done: Function) => {
+    let challenge = await getCurrentChallenge()
+    response.json(challenge);
+
+    done()
 });
 
 async function getCurrentChallenge(): Promise<Challenge> {
-    return getRepository(Challenge).findOne({where: {active: 1}});
+    let c = await getRepository(Challenge).findOne({where: {active: 1}});
+    return c;
 }
 
 /**
@@ -354,7 +358,7 @@ router.get("/score", (request: Request, response: Response, done: Function) => {
             response.status = 400;
             done(response.json({message: "not in a group"}));
         }
-    }).catch(done(sendServerError(response, done)))
+    })
 });
 
 /**
@@ -373,7 +377,7 @@ router.get("/completed-challenges", (request: Request, response: Response, done:
             response.status = 400;
             done(response.json({message: "not in a group"}));
         }
-    }).catch(done(sendServerError(response, done)))
+    })
 });
 
 export {router as ApiContoller} ;
