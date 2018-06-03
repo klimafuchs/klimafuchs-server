@@ -112,13 +112,13 @@ router.post("/update-wg", async (request: Request, response: Response, done: Fun
                     response.json(g.transfer(true));
                     done(response)
                 }
-            }).catch(done(sendServerError(response, done)));
+            })
         } else {
             response.status = 400;
             response.json({message: "Group not found"});
             done(response)
         }
-    }).catch(done(sendServerError(response, done)));
+    })
 });
 
 /**
@@ -152,8 +152,8 @@ router.post("/join-wg", async (request: Request, response: Response, done: Funct
                 response.json(updated.transfer(true));
                 done(response)
             }
-        }).catch(done(sendServerError(response, done)))
-    }).catch(done(sendServerError(response, done)));
+        })
+    })
 });
 
 /**
