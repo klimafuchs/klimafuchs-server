@@ -38,7 +38,7 @@ export class User {
     group: Group;
 
     @Column()
-    role: Role;
+    role: Role = 0;
 
 
     @BeforeInsert()
