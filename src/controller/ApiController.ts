@@ -221,9 +221,14 @@ router.get("/search-wg", (request: Request, response: Response, done: Function) 
         done(response)
     } else {
         getRepository(Group).find({where: { name : Like("%"+queryString+"%") }}).then(groups => {
-            let accumulate = Array.from(groups).map(group => group.transfer(false))
-            response.json(accumulate);
-            done(response)
+            let accumulate = Array.from(groups).map(async group => await group.transfer(false))
+            Promise.all(accumulate).then((acc) => {
+                response.json(acc);
+                done()
+            }).catch((err) => {
+                console.log(err);
+                sendServerError(response, done);
+            })
         })
     }
 });
@@ -236,19 +241,24 @@ router.get("/search-wg", (request: Request, response: Response, done: Function) 
  * @apiSuccess {Object[]} groups Groups the users group is following
  * @apiError {String} message The error
  */
-router.get("/followed-wgs", (request: Request, response: Response, done: Function) => {
-    loadMembership(request.user).then(m => {
-        if (m.group) {
-            m.group.getFollows().then(groups => {
-                let accumulate = Array.from(groups).map(group => group.transfer(false))
-                response.json(accumulate);
-                done(response)
-            }).catch(response)
-        } else {
-            response.status = 400;
-            done(response.json({message: "not in a group"}));
-        }
-    })
+router.get("/followed-wgs", async (request: Request, response: Response, done: Function) => {
+    let m = await loadMembership(request.user);
+    if (m.group) {
+        m.group.getFollows().then(groups => {
+            let accumulate = Array.from(groups).map(async group => await group.transfer(false))
+            Promise.all(accumulate).then((acc) => {
+                response.json(acc);
+                done()
+            }).catch((err) => {
+                console.log(err);
+                sendServerError(response, done);
+            });
+        });
+    } else {
+        response.status = 400;
+        done(response.json({message: "not in a group"}));
+    }
+
 });
 
 /**
