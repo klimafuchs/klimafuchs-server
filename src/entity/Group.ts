@@ -11,6 +11,7 @@ import {
 } from "typeorm";
 import {User} from "./User";
 import {Challenge} from "./Challenge";
+import {Member} from "./Member";
 
 @Entity()
 export class Group {
@@ -22,8 +23,8 @@ export class Group {
     @Column()
     name: string = "placeholder";
 
-    @OneToMany(type => User, user => user.group, {eager: true})
-    members: User[];
+    @OneToMany(type => Member, member => member.group, {eager: true})
+    members: Member[];
 
     @Column()
     inviteId: string;
@@ -35,9 +36,10 @@ export class Group {
     @ManyToMany(type => Group, group => group.followees)
     follows: Group[];
 
-    @ManyToMany(type => Challenge, challenge => challenge.completedBy, {eager: true})
-    @JoinTable()
-    challengesCompleted: Challenge[];
+
+    // @ManyToMany(type => Challenge, challenge => challenge.completedBy, {eager: true})
+    // @JoinTable()
+    // challengesCompleted: Challenge[];
 
     @BeforeInsert()
     async generateInviteId() {
@@ -59,42 +61,74 @@ export class Group {
 */
     }
 
-    public transfer(fullProfile : boolean = false) {
-        let o;
-        if (fullProfile) {
-            o =   {
-                id : this.id,
-                name: this.name,
-                members : [],
-                inviteId : this.inviteId,
-                score: this.getScore(),
-            };
-            Array.from(this.members).forEach(value => {
-                o.members.push({id: value.id, screenName :value.screenName})
-            })
-        } else {
-            o =   {
-                id : this.id,
-                name: this.name,
-                members : [],
-                score: this.getScore(),
-            };
-            Array.from(this.members).forEach(value => {
-                o.members.push({id: value.id, screenName :value.screenName})
-            })
+    async completedChallenges() : Promise<Challenge[]> {
+
+        let m = await Group.asyncLoadUsers(this.members);
+
+        let membersChallenge = new Map();
+        let completedChallengIds = [];
+
+        m.forEach(m => {
+            m.completedChallenges.forEach(c => {
+                if (!membersChallenge.has(c.id)) {
+                    membersChallenge.set(c.id, [m.id]);
+                } else {
+                    let currentM = membersChallenge.get(c.id);
+                    currentM.push(m.id);
+                    membersChallenge.set(c.id,currentM);
+                }
+            });
+        });
+
+        membersChallenge.forEach( (k, v) => {
+            if(k.length == m.length) completedChallengIds.push(v);
+        });
+
+        let completedChallenges = [];
+
+        for (let i = 0; i < completedChallengIds.length; i++) {
+            let e = await getRepository(Challenge).findOne({where: {id: completedChallengIds[i]}});
+            completedChallenges.push(e);
         }
-        return o;
+
+        return completedChallenges;
     }
+
+    private static async asyncLoadUsers(members) {
+        let m = [];
+        for (let i = 0; i < members.length; i++) {
+            let e = await getRepository(Member).findOne({where: {id: members[i].id}, relations: ["user"]});
+            let temp = {
+                completedChallenges: e.challengesCompleted,
+                ...e.user.transfer(false),
+            }
+            m.push(temp);
+        }
+        return m;
+    }
+
+    public async transfer(fullProfile : boolean = false) {
+        let members = await Group.asyncLoadUsers(this.members);
+        return await {
+            id: this.id,
+            name: this.name,
+            members: members,
+            inviteId: fullProfile ? this.inviteId : '',
+            score: await this.getScore()
+        };
+    }
+
 
     public async getFollows() : Promise<Group[]>{
         const loadedRelations = await getRepository(Group).findOne({where: {id: this.id}, relations: ["followees"]});
         return loadedRelations.followees
     }
 
-    public getScore() : number {
+    async getScore(): Promise<number> {
         let score = 0;
-        if(this.challengesCompleted) {
-            score += this.challengesCompleted.reduce((acc, val) => acc + val.score, 0)
+        const completedChallenges = await this.completedChallenges();
+        if (completedChallenges) {
+            score += completedChallenges.reduce((acc, val) => acc + val.score, 0)
         }
         return score;
     }

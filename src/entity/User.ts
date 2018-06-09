@@ -1,7 +1,8 @@
-import {Entity, PrimaryGeneratedColumn, Column, BeforeInsert, ManyToOne} from "typeorm";
+import {Entity, PrimaryGeneratedColumn, Column, BeforeInsert, ManyToOne, OneToOne, CreateDateColumn} from "typeorm";
 import * as bcrypt from 'bcrypt-nodejs';
 import {Group} from "./Group";
 import {dateFormat} from "dateformat";
+import {Member} from "./Member";
 
 
 export enum Role {
@@ -21,7 +22,7 @@ export class User {
     @Column()
     screenName: string;
 
-    @Column()
+    @CreateDateColumn()
     dateCreated: Date;
 
     @Column()
@@ -34,21 +35,18 @@ export class User {
     hash: string;
     password: string;
 
-    @ManyToOne(type => Group, group => group.members)
-    group: Group;
+
 
     @Column()
     role: Role;
+
+    @OneToOne(type => Member, m => m.user, {eager: true})
+    membership: Member;
 
 
     @BeforeInsert()
     public encrypt () {
         this.hash = bcrypt.hashSync(this.password, bcrypt.genSaltSync()); //TODO make more async
-    }
-
-    @BeforeInsert()
-    private initDateCreated () {
-        this.dateCreated = new Date(Date.now());
     }
 
     public validatePassword(candidate: string): boolean {
@@ -65,7 +63,7 @@ export class User {
                 dateCreated: this.dateCreated,
                 emailConfirmed : this.emailConfirmed,
                 isBanned : this.isBanned,
-                group: !this.group ? '' : this.group.id
+                hasGroup: !!this.membership
             }
         } else {
             o =   {

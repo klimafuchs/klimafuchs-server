@@ -45,7 +45,7 @@
     "passport-jwt": "^4.0.0",
     "passport-local": "^1.0.0",
     "reflect-metadata": "^0.1.10",
-    "typeorm": "0.2.5"
+    "typeorm": "^0.2.7"
   },
   "scripts": {
     "start": "ts-node src/index.ts",
