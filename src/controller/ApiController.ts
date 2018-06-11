@@ -412,8 +412,9 @@ router.get("/completed-challenges", (request: Request, response: Response, done:
 
 router.get("/past-challenges", async (request: Request, response: Response, done: Function) => {
 
-    return await getRepository(Challenge).find({where: {endDate: LessThan(Date.now())}});
-
+    let p = await getRepository(Challenge).find({where: {endDate: LessThan(new Date(Date.now()))}});
+    response.json(p)
+    done();
 
 });
 
