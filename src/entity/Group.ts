@@ -65,8 +65,27 @@ export class Group {
 
         let m = await Group.asyncLoadUsers(this.members);
 
+        let membersChallenge = await this.challengeProgress();
+        let completedChallengeIds = [];
+
+        membersChallenge.forEach( (k, v) => {
+            if(k.length == m.length) completedChallengeIds.push(v);
+        });
+
+        let completedChallenges = [];
+
+        for (let i = 0; i < completedChallengeIds.length; i++) {
+            let e = await getRepository(Challenge).findOne({where: {id: completedChallengeIds[i]}});
+            completedChallenges.push(e);
+        }
+
+        return completedChallenges;
+    }
+
+    async challengeProgress() : Promise<Map<Number,[Number]>> {
+        let m = await Group.asyncLoadUsers(this.members);
+
         let membersChallenge = new Map();
-        let completedChallengIds = [];
 
         m.forEach(m => {
             m.completedChallenges.forEach(c => {
@@ -79,27 +98,17 @@ export class Group {
                 }
             });
         });
-
-        membersChallenge.forEach( (k, v) => {
-            if(k.length == m.length) completedChallengIds.push(v);
-        });
-
-        let completedChallenges = [];
-
-        for (let i = 0; i < completedChallengIds.length; i++) {
-            let e = await getRepository(Challenge).findOne({where: {id: completedChallengIds[i]}});
-            completedChallenges.push(e);
-        }
-
-        return completedChallenges;
+        return membersChallenge;
     }
 
     private static async asyncLoadUsers(members) {
         let m = [];
         for (let i = 0; i < members.length; i++) {
             let e = await getRepository(Member).findOne({where: {id: members[i].id}, relations: ["user"]});
+            const score = await e.getIndividualScore();
             let temp = {
                 completedChallenges: e.challengesCompleted,
+                score: score,
                 ...e.user.transfer(false),
             }
             m.push(temp);
@@ -125,11 +134,22 @@ export class Group {
     }
 
     async getScore(): Promise<number> {
+        let m = await Group.asyncLoadUsers(this.members);
+        const size = m.length;
         let score = 0;
-        const completedChallenges = await this.completedChallenges();
-        if (completedChallenges) {
-            score += completedChallenges.reduce((acc, val) => acc + val.score, 0)
-        }
+
+        //Get score for challenges
+        const challengeProgress = await this.challengeProgress();
+        let scoring : Promise<number>[] = Array.from(challengeProgress).map( async(k,v) => {
+            let c = await getRepository(Challenge).findOne({where: {id: k[0]}}); //wat
+            return (c.score * (k[1].length/size));
+        });
+        let scores = await Promise.all(scoring);
+        score += scores.reduce((acc, val) => acc + val, 0);
+
+        //Get individual scores from challenges
+        score += m.reduce((acc, val) => acc + val.score, 0);
+
         return score;
     }
 }

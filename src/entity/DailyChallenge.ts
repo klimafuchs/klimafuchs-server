@@ -31,6 +31,9 @@ export class DailyChallenge {
     @Column({ nullable: true })
     endDate: Date;
 
+    @Column()
+    active: boolean = false;
+
     @ManyToMany(type => Member, member => member.dailiesCompleted)
     completedBy: Member[];
 }

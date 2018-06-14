@@ -43,4 +43,8 @@ export class Member {
     @Column()
     active: Boolean = true;
 
+    public async getIndividualScore() : Promise<Number> {
+        return this.dailiesCompleted.reduce((acc, val) => acc + val.score, 0)
+    }
+
 }

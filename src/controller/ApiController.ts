@@ -10,6 +10,7 @@ import {Challenge} from "../entity/Challenge";
 import {arraysAreEqual} from "tslint/lib/utils";
 import {Member} from "../entity/Member";
 import {loadConfigurationFromPath} from "tslint/lib/configuration";
+import {DailyChallenge} from "../entity/DailyChallenge";
 
 let router = Router();
 
@@ -340,6 +341,16 @@ router.get("/current-challenge", async (request: Request, response: Response, do
     done()
 });
 
+async function getDaily() {
+    return await getRepository(DailyChallenge).findOne({where: {active: 1}});
+}
+
+router.get("/current-daily", async (request: Request, response: Response, done: Function) => {
+    let challenge = await getDaily();
+    response.json(challenge);
+    done()
+});
+
 async function getCurrentChallenge(): Promise<Challenge> {
     let c = await getRepository(Challenge).findOne({where: {active: 1}});
     return c;
@@ -364,7 +375,18 @@ router.post("/complete-challenge", async (request: Request, response: Response, 
         response.status = 400;
         done(response)
     })
+});
 
+router.post("/complete-daily", async (request: Request, response: Response, done: Function) => {
+    loadMembership(request.user).then(async m => {
+        m.dailiesCompleted.push(await getDaily());
+        await getRepository(Member).save(m);
+        response.json({message: "success"});
+        done(response)
+    }).catch((response) => {
+        response.status = 400;
+        done(response)
+    })
 });
 
 
@@ -380,6 +402,17 @@ router.get("/score", (request: Request, response: Response, done: Function) => {
     loadMembership(request.user).then(async m => {
         if (m.group) {
             done(response({"score": m.group.getScore()}));
+        } else {
+            response.status = 400;
+            done(response.json({message: "not in a group"}));
+        }
+    })
+});
+
+router.get("/my-score", (request: Request, response: Response, done: Function) => {
+    loadMembership(request.user).then(async m => {
+        if (m) {
+            done(response({"score": await m.getIndividualScore()}));
         } else {
             response.status = 400;
             done(response.json({message: "not in a group"}));
