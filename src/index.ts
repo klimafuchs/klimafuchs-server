@@ -1,5 +1,6 @@
 import "reflect-metadata";
-import {createConnection} from "typeorm";
+import {createConnection, getRepository, LessThan, MoreThan} from "typeorm";
+import {DateUtils} from "typeorm/util/DateUtils"
 import * as express from "express";
 import {Request, Response} from "express";
 import * as bodyParser from "body-parser";
@@ -14,7 +15,10 @@ import {ApiContoller} from "./controller/ApiController";
 import {passportConf} from "./PassportConfig";
 import {ApiLandingContoller} from "./controller/ApiLandingController";
 import * as cors from 'cors';
-
+import * as schedule from 'node-schedule';
+import {Challenge} from "./entity/Challenge";
+import {Tasks} from "./tasks";
+import {PushController} from "./controller/PushController";
 
 let config = require("../config.json");
 let RedisStore = require("connect-redis")(session);
@@ -24,7 +28,13 @@ let express_handlebars = require("express-handlebars")({defaultLayout: 'layout'}
 //     cert: fs.readFileSync(config.cert)
 // }
 
+
+
 createConnection().then(async connection => {
+
+
+    // init cron-like tasks
+    const tasks = new Tasks();
 
     // create express app
     const app = express();
@@ -60,6 +70,7 @@ createConnection().then(async connection => {
     app.use(passport.session());
     app.use(expressValidator());
 
+    app.use('/api/push', PushController);
     app.use('/api/', ApiLandingContoller);
     app.use('/api/auth', passport.authenticate('jwt', {session: false}), ApiContoller);
 
