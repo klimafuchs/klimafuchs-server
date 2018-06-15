@@ -141,8 +141,10 @@ router.post('/resetPassword', async (request: Request, response: Response, done:
         response.sendStatus(400);
     } else {
         resetToken.user.password = newPassword;
+        resetToken.user.encrypt();
         getRepository(User).save(resetToken.user).then((user) => {
             response.sendStatus(201);
+            getRepository(PasswordResetToken).delete({id: resetToken.id}).catch((err)=>console.error(err));
         }).catch((err) => {
             response.sendStatus(500);
         })
