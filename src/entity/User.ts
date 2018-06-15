@@ -1,8 +1,18 @@
-import {Entity, PrimaryGeneratedColumn, Column, BeforeInsert, ManyToOne, OneToOne, CreateDateColumn} from "typeorm";
+import {
+    Entity,
+    PrimaryGeneratedColumn,
+    Column,
+    BeforeInsert,
+    ManyToOne,
+    OneToOne,
+    CreateDateColumn,
+    JoinColumn
+} from "typeorm";
 import * as bcrypt from 'bcrypt-nodejs';
 import {Group} from "./Group";
 import {dateFormat} from "dateformat";
 import {Member} from "./Member";
+import {PasswordResetToken} from "./PasswordResetToken";
 
 
 export enum Role {
@@ -36,13 +46,14 @@ export class User {
     password: string;
 
 
-
     @Column()
     role: Role = 0;
 
     @OneToOne(type => Member, m => m.user, {eager: true})
     membership: Member;
 
+    @OneToOne(type => PasswordResetToken, p => p.user)
+    passwordResetToken: PasswordResetToken;
 
     @BeforeInsert()
     public encrypt () {

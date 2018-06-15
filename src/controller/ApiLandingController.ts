@@ -5,6 +5,8 @@ import * as jwt from "jsonwebtoken";
 import {Group} from "../entity/Group";
 import {getRepository} from "typeorm";
 import {Member} from "../entity/Member";
+import {PasswordResetToken} from "../entity/PasswordResetToken";
+import {Tasks} from "../tasks";
 
 let router = Router();
 const config = require("../../config.json");
@@ -105,4 +107,46 @@ router.post('/register', async (request: Request, response: Response, done: Func
     })
 });
 
+router.get('/resetPassword', async (request: Request, response: Response, done: Function) => {
+    const username = request.query.username;
+    let user = await getRepository(User).findOne({where: {userName: username}, relations: ["passwordResetToken"]});
+    if (user) {
+        if (!user.passwordResetToken) {
+            let resetToken = new PasswordResetToken();
+            resetToken.user = user;
+            await getRepository(PasswordResetToken).save(resetToken).catch((err) => {
+                console.error(err);
+                response.sendStatus(500);
+                done();
+            });
+        }
+        Tasks.sendPasswordReset(user.id).then((res) => {
+            response.sendStatus(201);
+            done();
+        }).catch((err) => {
+            response.sendStatus(400)
+            done();
+        });
+    } else {
+        response.sendStatus(400);
+        done();
+    }
+});
+
+router.post('/resetPassword', async (request: Request, response: Response, done: Function) => {
+    const token = request.body.resettoken;
+    const newPassword = request.body.password;
+    let resetToken = await getRepository(PasswordResetToken).findOne({where: {resetToken: token}});
+    if (!resetToken) {
+        response.sendStatus(400);
+    } else {
+        resetToken.user.password = newPassword;
+        getRepository(User).save(resetToken.user).then((user) => {
+            response.sendStatus(201);
+        }).catch((err) => {
+            response.sendStatus(500);
+        })
+    }
+
+});
 export {router as ApiLandingContoller} ;

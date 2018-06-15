@@ -4,6 +4,9 @@ import {NextFunction, Router, Request, Response} from "express";
 import {User} from "../entity/User";
 import * as passport from "passport";
 import {Group} from "../entity/Group";
+import {PasswordResetToken} from "../entity/PasswordResetToken";
+import {Tasks} from "../tasks";
+import {Member} from "../entity/Member";
 
 
 let router = Router();
@@ -31,7 +34,7 @@ function register(request: Request, response: Response, next: NextFunction) {
     return response.render('register', {reg_active: "active"});
 }
 
-async function postRegister(request: Request, response: Response, next: NextFunction) {
+async function postRegister(request: Request, response: Response, done: NextFunction) {
 
     //validate
     request.checkBody('username', 'Email is required').notEmpty();
@@ -52,21 +55,32 @@ async function postRegister(request: Request, response: Response, next: NextFunc
     let confirmPassword = request.body.confirm_password;
     let inviteLink = request.body.invite;
 
-    getRepository(User).findOne({userName: username}).then((user) => {
+    getRepository(User).findOne({userName: username}).then(async (user) => {
         if (user == null) {
             let newUser = new User();
             newUser.userName = username;
             newUser.screenName = screename;
             newUser.password = password;
             if (inviteLink != null) {
-                 getRepository(Group).findOne({inviteId: inviteLink}).then((group) => {
-                    newUser.group = group;
+                getRepository(Group).findOne({inviteId: inviteLink}).then(async (group) => {
+                    let m = new Member();
+                    m.group = group;
+                    m.user = request.user;
+                    await getRepository(Member).save(m);
+                    let updated = await getRepository(Group).findOne({id: group.id});
+                    response.json(updated.transfer(true));
                 })
             }
-            getRepository(User).insert(newUser);
-            return response.render('login', {login_active: "active"});
+            let user = await getRepository(User).insert(newUser);
+            if(user){
+                response.sendStatus(201);
+            } else {
+                response.sendStatus(400);
+            }
+            done();
         } else {
-            return response.render('register', {reg_active: "active", username: username});
+            response.sendStatus(400);
+            done();
         }
     })
 }

@@ -5,6 +5,9 @@ import * as schedule from 'node-schedule';
 import {DailyChallenge} from "./entity/DailyChallenge";
 import {Subscription} from "./entity/Subscription";
 import * as webPush from 'web-push';
+import * as nodemailer from 'nodemailer';
+//import * as sendmail from 'sendmail';
+import {PasswordResetToken} from "./entity/PasswordResetToken";
 
 export class Tasks {
 
@@ -103,5 +106,30 @@ export class Tasks {
 
     private static sendNotificationNewChallenge(newActiveChallenge: Challenge) {
         Tasks.sendNotification({title: "Neue Wochenchallenge", message: newActiveChallenge.title}).catch((err) => console.error(err))
+    }
+
+    public static async sendPasswordReset(userId) {
+
+        let token = await getRepository(PasswordResetToken).findOne({user: userId});
+        if(!token) return;
+        const sendmail = require('sendmail')({
+            logger: {
+                debug: console.log,
+                info: console.info,
+                warn: console.warn,
+                error: console.error
+            },
+            silent: false,
+            dkim: false,
+        })
+        sendmail({
+            from: 'no-reply@enviroommate.org',
+            to: token.user.userName,
+            subject: 'Enviroommate Passwort zurücksetzen',
+            text: 'https://enviroommate.org/#/resetPassword?resettoken=' + token.resetToken,
+        }, function(err, reply) {
+            console.log(err && err.stack);
+            console.log(reply);
+        });
     }
 }
