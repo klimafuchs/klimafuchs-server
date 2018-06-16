@@ -80,8 +80,11 @@ router.post('/register', async (request: Request, response: Response, done: Func
             newUser.userName = username;
             newUser.screenName = screenname;
             newUser.password = password;
+            await getRepository(User).insert(newUser);
+            let u = await getRepository(User).findOne({where:{userName: newUser.userName}});
+
             if (inviteLink != null) {
-                getRepository(Group).findOne({inviteId: request.body.inviteLink}).then(async g => {
+                getRepository(Group).findOne({inviteId: inviteLink}).then(async g => {
                     if (g == null) {
                         response.status = 400;
                         response.json({message: "Invalid invite link"});
@@ -89,15 +92,12 @@ router.post('/register', async (request: Request, response: Response, done: Func
                     } else {
                         let m = new Member();
                         m.group = g;
-                        m.user = request.user;
+                        m.user = u;
                         await getRepository(Member).save(m);
                         let updated = await getRepository(Group).findOne({id: g.id});
-                        response.json(updated.transfer(true));
-                        done(response)
                     }
                 }).catch(err => console.log(err))
             }
-            let u = await getRepository(User).insert(newUser);
             response.json(newUser.transfer(true));
             done();
         } else {
