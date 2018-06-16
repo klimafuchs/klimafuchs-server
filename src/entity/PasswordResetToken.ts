@@ -1,15 +1,5 @@
-import {
-    BeforeInsert,
-    Column,
-    CreateDateColumn,
-    Entity,
-    JoinColumn,
-    JoinTable,
-    OneToOne,
-    PrimaryGeneratedColumn
-} from "typeorm";
+import {BeforeInsert, Column, CreateDateColumn, Entity, JoinColumn, OneToOne, PrimaryGeneratedColumn} from "typeorm";
 import {User} from "./User";
-import {Member} from "./Member";
 
 @Entity()
 export class PasswordResetToken {
@@ -30,5 +20,5 @@ export class PasswordResetToken {
     @BeforeInsert()
     public genToken() {
         this.resetToken = Math.random().toString(36).substring(2)
-}
+    }
 }

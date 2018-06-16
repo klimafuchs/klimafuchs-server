@@ -11,6 +11,7 @@ import {arraysAreEqual} from "tslint/lib/utils";
 import {Member} from "../entity/Member";
 import {loadConfigurationFromPath} from "tslint/lib/configuration";
 import {DailyChallenge} from "../entity/DailyChallenge";
+import {Alert} from "../entity/Alert";
 
 let router = Router();
 
@@ -227,7 +228,7 @@ router.get("/search-wg", (request: Request, response: Response, done: Function) 
                 response.json(acc);
                 done()
             }).catch((err) => {
-                console.log(err);
+                console.error(err);
                 sendServerError(response, done);
             })
         })
@@ -251,7 +252,7 @@ router.get("/followed-wgs", async (request: Request, response: Response, done: F
                 response.json(acc);
                 done()
             }).catch((err) => {
-                console.log(err);
+                console.error(err);
                 sendServerError(response, done);
             });
         });
@@ -273,7 +274,6 @@ router.get("/followed-wgs", async (request: Request, response: Response, done: F
  */
 router.post("/follow-wg", async (request: Request, response: Response, done: Function) => {
     let idString: String = request.body.id;
-    console.log("queryString:" + idString);
     const groupToFollow = await getRepository(Group).findOne({where: {id: idString}});
     if (groupToFollow) {
         loadMembership(request.user).then(async m => {
@@ -304,7 +304,6 @@ router.post("/follow-wg", async (request: Request, response: Response, done: Fun
 router.post("/unfollow-wg", async (request: Request, response: Response, done: Function) => {
     let queryObject = QueryString.parse(Url.parse(request.url).query);
     let idString: String = queryObject.id.toString();
-    console.log("queryString:" + idString);
     const groupToFollow = await getRepository(Group).findOne({where: {id: idString}});
     if (groupToFollow) {
         loadMembership(request.user).then(async m => {
@@ -355,6 +354,16 @@ async function getCurrentChallenge(): Promise<Challenge> {
     let c = await getRepository(Challenge).findOne({where: {active: 1}});
     return c;
 }
+
+router.get("/alerts", async (request: Request, response: Response, done: Function) => {
+
+    let alerts = await getRepository(Alert).find().catch((err) => console.error(err));
+    if(alerts) {
+        alerts.filter(alert => alert.shouldSend)
+    }
+    response.json(alerts);
+    done();
+});
 
 /**
  * @api {post} /api/auth/complete-challenge Complete Challenge
@@ -432,7 +441,6 @@ router.get("/completed-challenges", (request: Request, response: Response, done:
     loadMembership(request.user).then(async m => {
         if (m.group) {
             const completetChallenges = await m.group.completedChallenges();
-            console.log(JSON.stringify(completetChallenges));
             response.json(completetChallenges);
             done();
         } else {
