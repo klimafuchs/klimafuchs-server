@@ -443,17 +443,38 @@ router.get("/my-score", (request: Request, response: Response, done: Function) =
  * @apiError {String} message The error
  */
 router.get("/completed-challenges", (request: Request, response: Response, done: Function) => {
-    loadMembership(request.user).then(async m => {
-        if (m.group) {
-            const completetChallenges = await m.group.completedChallenges();
-            response.json(completetChallenges);
+
+    if(request.query.id) {
+        getRepository(Group).findOne({id: request.query.id}).then(async g => {
+            const completetChallenges = await g.completedChallenges();
+            const scoreHistory = await g.getScoreHistory();
+            response.json({
+                completedChallenges: completetChallenges,
+                getScoreHistory: scoreHistory
+            });
             done();
-        } else {
-            response.status = 400;
-            response.json({message: "not in a group"});
+        }).catch(err => {
+            console.error(err);
+            response.sendStatus = 400;
             done();
-        }
-    })
+        })
+    } else {
+        loadMembership(request.user).then(async m => {
+            if (m.group) {
+                const completetChallenges = await m.group.completedChallenges();
+                const scoreHistory = await m.group.getScoreHistory();
+                response.json({
+                    completedChallenges: completetChallenges,
+                    scoreHistory: scoreHistory
+                });
+                done();
+            } else {
+                response.status = 400;
+                response.json({message: "not in a group"});
+                done();
+            }
+        })
+    }
 });
 
 router.get("/past-challenges", async (request: Request, response: Response, done: Function) => {

@@ -152,4 +152,19 @@ export class Group {
 
         return score;
     }
+
+    async getScoreHistory() {
+        let m = await Group.asyncLoadUsers(this.members);
+        const size = m.length;
+        let score = 0;
+
+        //Get score for challenges
+        const challengeProgress = await this.challengeProgress();
+        let scoring = Array.from(challengeProgress).map( async(k,v) => {
+            let c = await getRepository(Challenge).findOne({where: {id: k[0]}}); //wat
+            return {cId: k[0] , score: (c.score * (k[1].length/size)), maxScore: c.score};
+        });
+        let scores = await Promise.all(scoring);
+        return scores
+    }
 }
