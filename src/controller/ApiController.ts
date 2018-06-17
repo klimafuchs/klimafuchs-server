@@ -1,5 +1,5 @@
 import {Router, Request, Response} from "express";
-import {getRepository, LessThan, Like} from "typeorm";
+import {getRepository, LessThan, Like, MoreThan} from "typeorm";
 import {Group} from "../entity/Group";
 import {User} from "../entity/User";
 import * as bodyParser from "body-parser"
@@ -12,6 +12,7 @@ import {Member} from "../entity/Member";
 import {loadConfigurationFromPath} from "tslint/lib/configuration";
 import {DailyChallenge} from "../entity/DailyChallenge";
 import {Alert} from "../entity/Alert";
+import {DateUtils} from "typeorm/util/DateUtils";
 
 let router = Router();
 
@@ -123,17 +124,23 @@ router.post("/new-wg", async (request: Request, response: Response, done: Functi
 router.post("/update-wg", async (request: Request, response: Response, done: Function) => {
     let m = await loadMembership(request.user);
     if (m.group) {
-        m.group.name = request.body.newName;
-        getRepository(Group).save(m.group).then((g) => {
-            if (g == null) {
-                response.status = 400;
-                response.json({message: "Group not found"});
-                done(response)
-            } else {
-                response.json(g.transfer(true));
-                done(response)
-            }
-        })
+        const similar = await getRepository(Group).find({where: {name: request.body.name}});
+        if(similar.length > 0) {
+            response.sendStatus(409);
+            done();
+        } else {
+            m.group.name = request.body.newName;
+            getRepository(Group).save(m.group).then((g) => {
+                if (g == null) {
+                    response.status = 400;
+                    response.json({message: "Group not found"});
+                    done(response)
+                } else {
+                    response.json(g.transfer(true));
+                    done(response)
+                }
+            })
+        }
     } else {
         response.status = 400;
         response.json({message: "Group not found"});
@@ -302,15 +309,13 @@ router.post("/follow-wg", async (request: Request, response: Response, done: Fun
  * @apiError {String} message The error
  */
 router.post("/unfollow-wg", async (request: Request, response: Response, done: Function) => {
-    let queryObject = QueryString.parse(Url.parse(request.url).query);
-    let idString: String = queryObject.id.toString();
-    const groupToFollow = await getRepository(Group).findOne({where: {id: idString}});
-    if (groupToFollow) {
+    let idString: String = request.body.id;
+    const groupToUnfollow = await getRepository(Group).findOne({where: {id: idString}});
+    if (groupToUnfollow) {
         loadMembership(request.user).then(async m => {
             if (m.group) {
-                const loadedRelations = await getRepository(Group).findOne({where: {id: m.id}, relations: ["followees"]});
-                const i = loadedRelations.followees.indexOf(m.group);
-                if (i > -1) loadedRelations.followees.slice(i, 1);
+                const loadedRelations = await getRepository(Group).findOne({where: {id: m.group.id}, relations: ["followees"]});
+                loadedRelations.followees = loadedRelations.followees.filter((g) => g.id !== groupToUnfollow.id);
                 await getRepository(Group).save(loadedRelations);
                 response.json(loadedRelations.transfer(true))
             } else {
@@ -453,7 +458,9 @@ router.get("/completed-challenges", (request: Request, response: Response, done:
 
 router.get("/past-challenges", async (request: Request, response: Response, done: Function) => {
 
-    let p = await getRepository(Challenge).find({where: {endDate: LessThan(new Date(Date.now()))}});
+    let nowString = DateUtils.mixedDateToDatetimeString(new Date(Date.now()));
+
+    let p = await getRepository(Challenge).find({where: {endDate: LessThan(nowString)}});
     response.json(p)
     done();
 

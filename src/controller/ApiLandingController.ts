@@ -85,11 +85,7 @@ router.post('/register', async (request: Request, response: Response, done: Func
 
             if (inviteLink != null) {
                 getRepository(Group).findOne({inviteId: inviteLink}).then(async g => {
-                    if (g == null) {
-                        response.status = 400;
-                        response.json({message: "Invalid invite link"});
-                        done(response)
-                    } else {
+                    if (g != null) {
                         let m = new Member();
                         m.group = g;
                         m.user = u;

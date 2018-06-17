@@ -122,8 +122,8 @@ export class Group {
             id: this.id,
             name: this.name,
             members: members,
-            inviteId: fullProfile ? this.inviteId : '',
-            score: await this.getScore()
+            score: await this.getScore(),
+            inviteId: fullProfile ? this.inviteId : ''
         };
     }
 

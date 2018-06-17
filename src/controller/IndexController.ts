@@ -5,6 +5,6 @@ router.get('/', (req: Request, res: Response) =>{
     return res.render('index', {home_active: "active"})
 });
 
-//TODO: Other static pages like EULA etc...
+//Other static pages like EULA etc... moved to client
 
 export {router as IndexController} ;
