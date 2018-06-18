@@ -39,7 +39,7 @@ export class Challenge {
     @Column({ nullable: true })
     region: string;
 
-    @Column({ nullable: true })
+    @Column({  type: "text",nullable: true })
     co2_savings: string;
 
     @Column({ nullable: true })
