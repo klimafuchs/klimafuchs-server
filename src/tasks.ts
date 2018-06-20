@@ -14,13 +14,56 @@ export class Tasks {
     public dbChallengeUpdateJob;
     public dbDailyUpdateJob;
 
+    public mondayJob;
+    public thursdayJob;
+    public sundayJob;
+
     public constructor() {
+
+        // db updates
         let dbAdvanceChallengesTimer = new schedule.RecurrenceRule();
         dbAdvanceChallengesTimer.hour = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23];
         dbAdvanceChallengesTimer.minute = 0;
         this.dbChallengeUpdateJob = schedule.scheduleJob(dbAdvanceChallengesTimer, this.dbChallengeUpdate);
         this.dbDailyUpdateJob = schedule.scheduleJob(dbAdvanceChallengesTimer, this.dbDailyUpdate);
 
+        // notify monday
+        let mondayTimer = new schedule.RecurrenceRule();
+        mondayTimer.dayOfWeek = [1];
+        mondayTimer.hour = 17;
+        mondayTimer.minute = 0;
+        this.mondayJob = schedule.scheduleJob(mondayTimer, () => {
+            Tasks.sendNotification({
+                title: "Enviroommate",
+                message: "Eure neue Wochenchallenge ist online! Neugierig?"
+            }).catch((err) => console.error(err));
+        });
+
+        // notify thursday
+        let thursdayTimer = new schedule.RecurrenceRule();
+        thursdayTimer.dayOfWeek = [1];
+        thursdayTimer.hour = 17;
+        thursdayTimer.minute = 0;
+
+        this.thursdayJob = schedule.scheduleJob(thursdayTimer, () => {
+            Tasks.sendNotification({
+                title: "Enviroommate",
+                message: "Wie siehts aus bei unseren Enviroommates? Habt ihr Bock?"
+            }).catch((err) => console.error(err));
+        });
+
+        // notify sunday
+        let sundayTimer = new schedule.RecurrenceRule();
+        sundayTimer.dayOfWeek = [1];
+        sundayTimer.hour = 17;
+        sundayTimer.minute = 0;
+
+        this.sundayJob = schedule.scheduleJob(sundayTimer, () => {
+            Tasks.sendNotification({
+                title: "Enviroommate",
+                message: "Zeit eure Punkte einzusammeln! Wir sind gespannt, wie eure Woche gelaufen ist!"
+            }).catch((err) => console.error(err));
+        });
     }
 
 
@@ -48,7 +91,7 @@ export class Tasks {
             let deltaT = (currentActiveChallenge.endDate.getTime() - now.getTime())/ 36e5;
             console.log("Time remaining: " +deltaT)
             if(deltaT < 24 && deltaT > 22.9) {
-                Tasks.sendNotificationWarnChallengeExpire(deltaT).then().catch((err)=> console.log(err));
+                //Tasks.sendNotificationWarnChallengeExpire(deltaT).then().catch((err)=> console.log(err));
             }
         }
     }
