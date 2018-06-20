@@ -45,7 +45,6 @@ router.post('/register', async (request: Request, response: Response, done: Func
     }
 });
 
-const payloads = {};
 
 router.post('/sendNotification', (request: Request, response: Response, done: Function) => {
     const subscription = request.body.subscription;
@@ -55,7 +54,6 @@ router.post('/sendNotification', (request: Request, response: Response, done: Fu
     };
 
     setTimeout(function() {
-        payloads[request.body.subscription.endpoint] = payload;
         webPush.sendNotification(subscription, null, options)
             .then(function() {
                 response.sendStatus(201);
@@ -67,8 +65,5 @@ router.post('/sendNotification', (request: Request, response: Response, done: Fu
     }, 1 * 1000);
 });
 
-router.get('/getPayload', (request: Request, response: Response, done: Function) => {
-    response.send(payloads[request.query.endpoint]);
-});
 
 export {router as PushController} ;
