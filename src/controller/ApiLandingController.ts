@@ -37,6 +37,18 @@ router.post('/login', passport.authenticate('local', {session: false}), (req: Re
     done(res.json({id, token}));
 });
 
+router.get('/checkEmail', async (request: Request, response: Response, done: Function) => {
+    const userName = request.body.username;
+    getRepository(User).findOne({userName: userName}).then(async (user) => {
+        if (user == null) {
+            response.json({status: "false"});
+            done();
+        } else {
+            response.json({status: "true"});
+            done();
+        }
+    }).catch((err) => console.log(err));
+});
 /**
  * @api {post} /api/register Register
  * @apiName Register
