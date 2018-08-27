@@ -6,13 +6,16 @@ import {
     ManyToOne,
     OneToOne,
     CreateDateColumn,
-    JoinColumn
+    JoinColumn, OneToMany
 } from "typeorm";
+import {ObjectType, Field, Int} from "type-graphql";
 import * as bcrypt from 'bcrypt-nodejs';
 import {Group} from "./Group";
 import {dateFormat} from "dateformat";
 import {Member} from "./Member";
 import {PasswordResetToken} from "./PasswordResetToken";
+import {FeedPost} from "./FeedPost";
+import {FeedComment} from "./FeedComment";
 
 
 export enum Role {
@@ -21,23 +24,30 @@ export enum Role {
 }
 
 @Entity()
+@ObjectType()
 export class User {
 
+    @Field(type => Int)
     @PrimaryGeneratedColumn()
     id: number;
 
+    @Field(type => String)
     @Column()
     userName: string;
 
+    @Field(type => String)
     @Column()
     screenName: string;
 
+    @Field(type => Date)
     @CreateDateColumn()
     dateCreated: Date;
 
+    @Field(type => Boolean)
     @Column()
     emailConfirmed: boolean = false;
 
+    @Field(type => Boolean)
     @Column()
     isBanned: boolean = false;
 
@@ -45,7 +55,13 @@ export class User {
     hash: string;
     password: string;
 
+    @OneToMany(type => FeedPost, post => post.author)
+    posts: FeedPost[];
 
+    @OneToMany(type => FeedPost, post => post.author)
+    comments: FeedComment[];
+
+    @Field(type => Int)
     @Column()
     role: Role = 0;
 

@@ -1,5 +1,7 @@
 import "reflect-metadata";
-import {createConnection, getRepository, LessThan, MoreThan} from "typeorm";
+import {createConnection, useContainer} from "typeorm";
+import * as TypeGraphQL from "type-graphql";
+import {Container} from "typedi";
 import {DateUtils} from "typeorm/util/DateUtils"
 import * as express from "express";
 import {Request, Response} from "express";
@@ -19,6 +21,7 @@ import * as schedule from 'node-schedule';
 import {Challenge} from "./entity/Challenge";
 import {Tasks} from "./tasks";
 import {PushController} from "./controller/PushController";
+import {FeedController} from "./controller/FeedController";
 
 let config = require("../config.json");
 let RedisStore = require("connect-redis")(session);
@@ -30,16 +33,16 @@ let express_handlebars = require("express-handlebars")({defaultLayout: 'layout'}
 
 
 
+useContainer(Container);
+TypeGraphQL.useContainer(Container);
 createConnection().then(async connection => {
-
-
     // init cron-like tasks
     const tasks = new Tasks();
 
     // create express app
     const app = express();
-    // setup express app
 
+    // setup express app
     const logger = (request : Request, response : Response, done : Function) => {
         console.log("Got request to " + request.originalUrl);
         done()
@@ -73,6 +76,9 @@ createConnection().then(async connection => {
     app.use('/api/push', PushController);
     app.use('/api/', ApiLandingContoller);
     app.use('/api/auth', passport.authenticate('jwt', {session: false}), ApiContoller);
+    app.use('/api/gqltest', passport.authenticate('basic', {session: false}), FeedController);
+    app.use('/api/feed', passport.authenticate('jwt', {session: false}), FeedController);
+
 
     //setup views
     app.set('views', path.join(__dirname, 'views'));

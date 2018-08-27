@@ -3,7 +3,7 @@ import {getRepository} from "typeorm";
 import * as passportLocal from "passport-local";
 import * as passportJwt from "passport-jwt";
 import * as passport from "passport";
-
+import {BasicStrategy} from "passport-http";
 const config = require("../config.json");
 
 const LocalStrategy = passportLocal.Strategy;
@@ -46,6 +46,18 @@ passport.use( new JwtStrategy ( {
             return done(null,user);
         }).catch(err => {
             return done(err);
+        })
+    }
+));
+
+passport.use(new BasicStrategy(
+    function(userid, password, done) {
+        getRepository(User).findOne({userName: userid}).then(user => {
+            if(user == null) {
+                return done(undefined, null, {message: "Email not found"});
+            }
+            if(user.validatePassword(password)) return done(undefined, user);
+            return done(undefined, null, {message: "Invalid password!"});
         })
     }
 ));
