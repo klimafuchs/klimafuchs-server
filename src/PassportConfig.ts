@@ -56,7 +56,7 @@ passport.use(new BasicStrategy(
             if(user == null) {
                 return done(undefined, null, {message: "Email not found"});
             }
-            if(user.validatePassword(password)) return done(undefined, user);
+            if(user.validatePassword(password)) return done(null, user);
             return done(undefined, null, {message: "Invalid password!"});
         })
     }

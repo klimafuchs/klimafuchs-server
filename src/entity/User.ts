@@ -16,6 +16,7 @@ import {Member} from "./Member";
 import {PasswordResetToken} from "./PasswordResetToken";
 import {FeedPost} from "./FeedPost";
 import {FeedComment} from "./FeedComment";
+import {Media} from "./Media";
 
 
 export enum Role {
@@ -25,7 +26,7 @@ export enum Role {
 
 @Entity()
 @ObjectType()
-export class User {
+export class User { //TODO split into profile data and user data
 
     @Field(type => Int)
     @PrimaryGeneratedColumn()
@@ -50,6 +51,14 @@ export class User {
     @Field(type => Boolean)
     @Column()
     isBanned: boolean = false;
+
+    @Field(type => Media, {nullable: true})
+    @ManyToOne(type => Media, {nullable: true}) //  TODO eagerness?
+    avatar?: Media;
+
+    @Field(type => [Media])
+    @OneToMany(type => Media, media => media.uploader)
+    media: [Media];
 
     @Column()
     hash: string;

@@ -132,7 +132,7 @@ router.post("/update-wg", async (request: Request, response: Response, done: Fun
             m.group.name = request.body.newName;
             getRepository(Group).save(m.group).then((g) => {
                 if (g == null) {
-                    response.status = 400;
+                    response.status(400);
                     response.json({message: "Group not found"});
                     done(response)
                 } else {

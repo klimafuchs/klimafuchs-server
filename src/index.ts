@@ -22,6 +22,7 @@ import {Challenge} from "./entity/Challenge";
 import {Tasks} from "./tasks";
 import {PushController} from "./controller/PushController";
 import {FeedController} from "./controller/FeedController";
+import * as serveIndex from "serve-index";
 
 let config = require("../config.json");
 let RedisStore = require("connect-redis")(session);
@@ -76,32 +77,31 @@ createConnection().then(async connection => {
     app.use('/api/push', PushController);
     app.use('/api/', ApiLandingContoller);
     app.use('/api/auth', passport.authenticate('jwt', {session: false}), ApiContoller);
-    app.use('/api/gqltest', passport.authenticate('basic', {session: false}), FeedController);
+    app.use('/giql', passport.authenticate('basic', {session: false}), FeedController);
     app.use('/api/feed', passport.authenticate('jwt', {session: false}), FeedController);
 
-
-    //setup views
-    app.set('views', path.join(__dirname, 'views'));
-    app.engine('handlebars', express_handlebars);
-    app.set('view engine', 'handlebars');
-
-    //setup static assets
-    app.use(express.static('public'));
-
+    // setup static assets
+    // TODO replace with something less homebrew
+    app.use('/img',(req,res) => {
+        const filepath = path.join(__dirname, '..','img', req.url);
+        console.log("GET " +filepath);
+        res.sendFile(filepath, (err) => {
+            console.log(err);
+            res.status(404);
+            res.sendFile(path.join(__dirname, '..','img', 'default.png'));
+        });
+    });
     app.enable('view cache');
 
     // start express server
-    app.listen(config.port);
+    let listener = app.listen(config.port || 3000);
 
   //https.createServer(httpsOptions, app).listen(config.port || 443);
 
-
-    console.log("Express server has started on port 3000. Open http://localhost:3000/users to see results");
+    console.log(`Express server has started on port ${listener.address().port}. Open http://localhost:${listener.address().port}/giql to see results`);
 
     app._router.stack.forEach(function(r){
-        if (r.route && r.route.path){
-            console.log(r.route.path)
-        }
+            console.log(r)
     })
 
 

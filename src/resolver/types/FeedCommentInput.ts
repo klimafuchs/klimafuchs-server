@@ -9,7 +9,7 @@ export class FeedCommentInput {
     @Field(type => String)
     body: string;
 
-    @Field(type => Int)
+    @Field(type => Int, {nullable: true})
     parent?: number;
 
     @Field(type => Int)

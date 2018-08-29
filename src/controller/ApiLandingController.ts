@@ -29,16 +29,17 @@ const config = require("../../config.json");
  */
 router.post('/login', passport.authenticate('local', {session: false}), (req: Request, res: Response, done: Function) => {
     if (!req.user) {
-        res.status = 401;
+        res.status(401);
         done(res.json({message: "No such user!"}));
     }
     const id = req.user.id;
     const token = jwt.sign(id, config.tokenSecret);
-    done(res.json({id, token}));
+    res.json({id,token});
+    done();
 });
 
 router.get('/checkEmail', async (request: Request, response: Response, done: Function) => {
-    const userName = request.body.username;
+    const userName = request.query.username;
     getRepository(User).findOne({userName: userName}).then(async (user) => {
         if (user == null) {
             response.json({status: "false"});

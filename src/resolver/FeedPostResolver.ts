@@ -1,4 +1,4 @@
-import {Arg, Ctx, Int, Mutation, Query, Resolver} from "type-graphql"
+import {Arg, Authorized, Ctx, Int, Mutation, Query, Resolver} from "type-graphql"
 import {Repository} from "typeorm";
 import {FeedPost} from "../entity/FeedPost";
 import {InjectRepository} from "typeorm-typedi-extensions";
@@ -22,8 +22,9 @@ export class FeedPostResolver {
     }
 
     @Query(returns => [FeedPost])
-    posts(): Promise<FeedPost[]> {
-        return this.feedPostRepository.find();
+    async posts(): Promise<FeedPost[]> {
+        const posts= await this.feedPostRepository.find();
+        return posts;
     }
 
     @Query(returns => [FeedComment], {nullable: true})
@@ -47,6 +48,7 @@ export class FeedPostResolver {
         return this.feedPostRepository.save(post);
     }
 
+    @Authorized()
     @Mutation(returns => FeedComment)
     async addComment(@Arg("post") commentInput: FeedCommentInput, @Ctx() {user}: Context): Promise<FeedComment> {
         const post = await this.feedPostRepository.findOne({
@@ -59,7 +61,7 @@ export class FeedPostResolver {
             throw new Error("Invalid post ID");
         }
 
-        if (commentInput.parent !== null) { // explicitly check if value is not null, otherwise if cast falsy values even if present
+        if (commentInput.parent !== undefined) { // explicitly check if value is not null, otherwise if cast falsy values even if present
             const parent = await this.feedCommentRepository.findOne({
                 where: {
                     id: commentInput.parent
@@ -76,7 +78,7 @@ export class FeedPostResolver {
                 parent: parent,
                 author: user,
             });
-            return this.feedPostRepository.save(comment);
+            return this.feedCommentRepository.save(comment);
 
         } else {
             const comment = this.feedCommentRepository.create({
@@ -84,7 +86,7 @@ export class FeedPostResolver {
                 post: post,
                 author: user,
             });
-            return this.feedPostRepository.save(comment);
+            return this.feedCommentRepository.save(comment);
         }
     }
 }
