@@ -14,9 +14,9 @@ export const authChecker: AuthChecker<Context> = ({context: {user}}, roles) => {
 
     switch (user.role) {
         case Role.Admin:
-            return roles.includes("ADMIN");
+            return roles.filter((str) => str === "ADMIN").length == 1;
         case Role.User:
-            return roles.includes("USER");
+            return roles.filter((str) => str === "USER").length == 1;
         default:
             return false;
     }
