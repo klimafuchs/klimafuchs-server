@@ -12,7 +12,7 @@ export const authChecker: AuthChecker<Context> = ({context: {user}}, roles) => {
         return user !== undefined;
     }
 
-    switch (user.role) {
+    switch (user.role) { // TODO replace role ints with strings to make this less awkward
         case Role.Admin:
             return roles.filter((str) => str === "ADMIN").length == 1;
         case Role.User:

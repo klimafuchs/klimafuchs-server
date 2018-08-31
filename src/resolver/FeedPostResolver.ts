@@ -48,7 +48,44 @@ export class FeedPostResolver {
         return this.feedPostRepository.save(post);
     }
 
-    @Authorized()
+    @Mutation(returns => Boolean)
+    async removeOwnPost(@Arg("postId", type => Int) postId: number, @Ctx() {user}: Context): Promise<Boolean> {
+        const post = await this.feedPostRepository.findOne(postId);
+        if(post.author.id === user.id) {
+            await this.feedPostRepository.remove(post);
+            return true;
+        } else {
+            return false;
+        }
+    }
+
+    @Authorized("ADMIN")
+    @Mutation(returns => FeedPost)
+    async removePost(@Arg("postId", type => Int) postId: number): Promise<FeedPost> {
+        const post = await this.feedPostRepository.findOne(postId);
+        return this.feedPostRepository.remove(post);
+    }
+
+    @Mutation(returns => Boolean)
+    async removeOwnComment(@Arg("CommentId", type => Int) commentId: number, @Ctx() {user}: Context): Promise<Boolean> {
+        const comment = await this.feedCommentRepository.findOne(commentId);
+        if(comment.author.id === user.id) {
+            await this.feedCommentRepository.remove(comment);
+            return true;
+        } else {
+            return false;
+        }
+    }
+
+    @Authorized("ADMIN")
+    @Mutation(returns => FeedComment)
+    async removeComment(@Arg("CommentId", type => Int) commentId: number): Promise<FeedComment> {
+        const comment = await this.feedCommentRepository.findOne(commentId);
+        return this.feedCommentRepository.remove(comment);
+    }
+
+
+
     @Mutation(returns => FeedComment)
     async addComment(@Arg("post") commentInput: FeedCommentInput, @Ctx() {user}: Context): Promise<FeedComment> {
         const post = await this.feedPostRepository.findOne({
