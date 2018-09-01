@@ -9,11 +9,12 @@ import {Context} from "../resolver/types/Context";
 import {authChecker} from "../resolver/AuthChecker";
 import {apolloUploadExpress} from "apollo-upload-server";
 import {MediaResolver} from "../resolver/MediaResolver";
+import {UserResolver} from "../resolver/UserResolver";
 
 let router = Router();
 
 const schema = TypeGraphQl.buildSchemaSync({
-    resolvers: [FeedPostResolver, MediaResolver],
+    resolvers: [FeedPostResolver, MediaResolver, UserResolver],
     authChecker
 });
 
