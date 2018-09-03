@@ -1,4 +1,4 @@
-import {User} from "./entity/User";
+import {Role, User} from "./entity/User";
 import {getRepository} from "typeorm";
 import * as passportLocal from "passport-local";
 import * as passportJwt from "passport-jwt";
@@ -56,7 +56,7 @@ passport.use(new BasicStrategy(
             if(user == null) {
                 return done(undefined, null, {message: "Email not found"});
             }
-            if(user.validatePassword(password)) return done(null, user);
+            if(user.validatePassword(password)) return user.role === Role.Admin ? done(null, user) : done(undefined, null, {message: "Insufficient privilege"});
             return done(undefined, null, {message: "Invalid password!"});
         })
     }
