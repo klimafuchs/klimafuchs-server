@@ -105,7 +105,7 @@ export class Group {
         let m = [];
         for (let i = 0; i < members.length; i++) {
             let e = await getRepository(Member).findOne({where: {id: members[i].id}, relations: ["user"]});
-            const score = await e.getIndividualScore();
+            const score = 0; // TODO remove
             let temp = {
                 completedChallenges: e.challengesCompleted,
                 score: score,

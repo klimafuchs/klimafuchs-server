@@ -8,5 +8,6 @@
   "dev": true,
   "key": "../../server.key",
   "cert": "../../server.crt",
-  "domain": "https://localhost"
+  "domain": "https://localhost",
+  "wikiUrl": "https://wiki.localhost"
 }

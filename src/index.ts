@@ -100,9 +100,5 @@ createConnection().then(async connection => {
 
     console.log(`Express server has started on port ${listener.address().port}. Open http://localhost:${listener.address().port}/giql to see results`);
 
-    app._router.stack.forEach(function(r){
-            console.log(r)
-    })
-
 
 }).catch(error => console.log(error));

@@ -13,7 +13,6 @@ import {Group} from "./Group";
 import {User} from "./User";
 import {dateFormat} from "dateformat";
 import {Challenge} from "./Challenge";
-import {DailyChallenge} from "./DailyChallenge";
 
 @Entity()
 export class Member {
@@ -36,15 +35,9 @@ export class Member {
     @JoinTable()
     challengesCompleted: Challenge[];
 
-    @ManyToMany(type => DailyChallenge, challenge => challenge.completedBy, {eager: true})
-    @JoinTable()
-    dailiesCompleted: DailyChallenge[];
 
     @Column()
     active: Boolean = true;
 
-    public async getIndividualScore() : Promise<Number> {
-        return this.dailiesCompleted.reduce((acc, val) => acc + val.score, 0)
-    }
 
 }
