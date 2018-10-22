@@ -107,7 +107,6 @@ export class Group {
             let e = await getRepository(Member).findOne({where: {id: members[i].id}, relations: ["user"]});
             const score = 0; // TODO remove
             let temp = {
-                completedChallenges: e.challengesCompleted,
                 score: score,
                 ...e.user.transfer(false),
             }
@@ -134,37 +133,13 @@ export class Group {
     }
 
     async getScore(): Promise<number> {
-        let m = await Group.asyncLoadUsers(this.members);
-        const size = m.length;
-        let score = 0;
+        //TODO score teams
 
-        //Get score for challenges
-        const challengeProgress = await this.challengeProgress();
-        let scoring : Promise<number>[] = Array.from(challengeProgress).map( async(k,v) => {
-            let c = await getRepository(Challenge).findOne({where: {id: k[0]}}); //wat
-            return (c.score * (k[1].length/size));
-        });
-        let scores = await Promise.all(scoring);
-        score += scores.reduce((acc, val) => acc + val, 0);
-
-        //Get individual scores from challenges
-        score += m.reduce((acc, val) => acc + val.score, 0);
-
-        return score;
+        return 0;
     }
 
     async getScoreHistory() {
-        let m = await Group.asyncLoadUsers(this.members);
-        const size = m.length;
-        let score = 0;
-
-        //Get score for challenges
-        const challengeProgress = await this.challengeProgress();
-        let scoring = Array.from(challengeProgress).map( async(k,v) => {
-            let c = await getRepository(Challenge).findOne({where: {id: k[0]}}); //wat
-            return {cId: k[0] , score: (c.score * (k[1].length/size)), maxScore: c.score};
-        });
-        let scores = await Promise.all(scoring);
-        return scores
+        //TODO score history
+        return 0;
     }
 }

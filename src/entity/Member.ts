@@ -31,11 +31,6 @@ export class Member {
     @CreateDateColumn()
     joinedAt: Date;
 
-    @ManyToMany(type => Challenge, challenge => challenge.completedBy, {eager: true})
-    @JoinTable()
-    challengesCompleted: Challenge[];
-
-
     @Column()
     active: Boolean = true;
 

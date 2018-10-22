@@ -9,11 +9,12 @@ import axios, {AxiosRequestConfig, AxiosPromise} from "axios";
 
 //import * as sendmail from 'sendmail';
 import {PasswordResetToken} from "./entity/PasswordResetToken";
-import {WikiClient} from "./WikiClient";
+import {WikiClient} from "./wikiData/WikiClient";
 import {InjectRepository} from "typeorm-typedi-extensions";
 import {Topic} from "./entity/Topic";
-import {errorComparator} from "tslint/lib/verify/lintError";
+import {Container, Service} from "typedi";
 
+@Service()
 export class Tasks {
 
     public dbChallengeUpdateJob;
@@ -23,12 +24,9 @@ export class Tasks {
     public sundayJob;
 
     public syncWithWikiJob;
-    private wikiClient = new WikiClient();
+    private wikiClient = Container.get(WikiClient);
 
     public constructor(
-        @InjectRepository(Challenge) private readonly challengeRepository: Repository<Challenge>,
-        @InjectRepository(Topic) private readonly topicRepository: Repository<Topic>,
-
     ) {
 
         /*
@@ -87,15 +85,7 @@ export class Tasks {
 
     async syncWithWiki() {
         console.log("syncing data from wiki...");
-        const topics = await this.wikiClient.getTopics();
-        const challenges = await this.wikiClient.getChallenges();
-
-        this.topicRepository.save(topics)
-            .then(topics => console.log("Updated topic data from WikiClient!"))
-            .catch(err => console.error("WikiClient Error: " + err.toString()));
-        this.challengeRepository.save(challenges)
-            .then(challenges => console.log("Updated challenge data from WikiClient!"))
-            .catch(err => console.error("WikiClient Errror: " + err.toString()));
+        this.wikiClient.syncData().catch(err => console.error("Error: " + err.toString()))
     }
 
 

@@ -19,12 +19,10 @@ user.userName    = "test@testmail.com";
 user.hash        = "hash";
 user.screenName  = "testuser";
 user.dateCreated = new Date(Date.now());
-user.group       = group;
 
 group.id       = 99999;
 group.name     = "foo group";
 group.inviteId = "aaaaaaa"
-group.members  = [user]
 
 function createUserRepositoryMock() {
     return {

@@ -360,6 +360,7 @@ router.get("/alerts", async (request: Request, response: Response, done: Functio
 });
 
 /**
+ * TODO reimplement for users instead of teams
  * @api {post} /api/auth/complete-challenge Complete Challenge
  * @apiName Complete Challenge
  * @apiGroup ClientAPI
@@ -369,6 +370,7 @@ router.get("/alerts", async (request: Request, response: Response, done: Functio
  * @apiError {String} message The error
  */
 router.post("/complete-challenge", async (request: Request, response: Response, done: Function) => {
+    /*
     loadMembership(request.user).then(async m => {
         m.challengesCompleted.push(await getCurrentChallenge());
         await getRepository(Member).save(m);
@@ -378,6 +380,9 @@ router.post("/complete-challenge", async (request: Request, response: Response, 
         response.status = 400;
         done(response)
     })
+    */
+    response.status(500);
+    response.json({message: "not implemented"});
 });
 
 /**

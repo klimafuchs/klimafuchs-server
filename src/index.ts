@@ -38,7 +38,7 @@ useContainer(Container);
 TypeGraphQL.useContainer(Container);
 createConnection().then(async connection => {
     // init cron-like tasks
-    const tasks = new Tasks();
+    const tasks = Container.get(Tasks);
 
     // create express app
     const app = express();
