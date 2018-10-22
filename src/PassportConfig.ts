@@ -43,6 +43,7 @@ passport.use( new JwtStrategy ( {
     secretOrKey: process.env.API_SECRET || config.tokenSecret
     }, (jwtPayload, done: Function) => {
         getRepository(User).findOne({id: jwtPayload}).then(user => {
+            // TODO track login dates and count per user
             return done(null,user);
         }).catch(err => {
             return done(err);

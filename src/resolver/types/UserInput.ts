@@ -8,16 +8,16 @@ export class UserInput {
     id: number;
 
     @Field(type => String)
-    userName: string;
+    userName?: string;
 
     @Field(type => String)
-    screenName: string;
+    screenName?: string;
 
     @Field(type => Boolean)
-    emailConfirmed: boolean = false;
+    emailConfirmed?: boolean = false;
 
     @Field(type => Boolean)
-    isBanned: boolean = false;
+    isBanned?: boolean = false;
 
     @Field(type => String, {nullable: true})
     avatar?: String;
