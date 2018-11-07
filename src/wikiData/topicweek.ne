@@ -11,7 +11,7 @@ const lexer = moo.compile({
 %}
 @lexer lexer
 main -> (template word:*):+
-template -> %open ws:* templateName ws:* %word:* ( %delim  ws:* templateValue):+ ws:* %close
+template -> %open ws:* templateName %word:* ( %delim  ws:* templateValue):+ ws:* %close
 templateName -> word {%
                          function(d) {
                              return {

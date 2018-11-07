@@ -25,8 +25,11 @@ export class WikiClient {
         const res = await this.connection.get("/api.php?action=query&format=json&list=categorymembers&cmtitle=Kategorie%3AThemenwoche");
         console.log(res.data.query.categorymembers);
         const pages = res.data.query.categorymembers.map( (val) => ( val.title.slice(0,8) !== "Vorlage:" ) ? val.pageid : null).filter((val) => val !== null);
-        const wikiData = await this.connection.get( `/api.php?action=query&format=json&prop=revisions&pageids=${encodeURIComponent(pages.join('|'))}&rvprop=content&rvslots=main`);
-        this.parseTopicWeekTemplate(wikiData.data.query.pages[11].revisions[0].slots.main['*']);
+        // /wiki/api.php?action=query&format=json&prop=revisions&pageids=4&rvprop=content
+        const wikiData = await this.connection.get( `/api.php?action=query&format=json&prop=revisions&pageids=${encodeURIComponent(pages.join('|'))}&rvprop=content`);
+        pages.forEach((index) => this.parseTopicWeekTemplate(wikiData.data.query.pages[index].revisions[0]['*']));
+        //pages.forEach((index) => console.log(wikiData.data.query.pages[index].revisions[0]['*']));
+
         return undefined;
     }
 
