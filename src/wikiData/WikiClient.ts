@@ -11,10 +11,15 @@ let config = require("../../config.json");
 @Service()
 export class WikiClient {
 
+    private parser = new Nearley.Parser(Nearley.Grammar.fromCompiled(grammar));
+    private clean;
+
     constructor(
         @InjectRepository(Challenge) private readonly challengeRepository: Repository<Challenge>,
         @InjectRepository(Topic) private readonly topicRepository: Repository<Topic>,
-    ){}
+    ){
+        this.clean = this.parser.save();
+    }
 
     private connection = axios.create({
         baseURL: config.wikiUrl,
@@ -27,7 +32,8 @@ export class WikiClient {
         const pages = res.data.query.categorymembers.map( (val) => ( val.title.slice(0,8) !== "Vorlage:" ) ? val.pageid : null).filter((val) => val !== null);
         // /wiki/api.php?action=query&format=json&prop=revisions&pageids=4&rvprop=content
         const wikiData = await this.connection.get( `/api.php?action=query&format=json&prop=revisions&pageids=${encodeURIComponent(pages.join('|'))}&rvprop=content`);
-        pages.forEach((index) => this.parseTopicWeekTemplate(wikiData.data.query.pages[index].revisions[0]['*']));
+        const extractedData = pages.map((index) => this.parseWikiTemplates(wikiData.data.query.pages[index].revisions[0]['*']));
+        console.log(extractedData[0])
         //pages.forEach((index) => console.log(wikiData.data.query.pages[index].revisions[0]['*']));
 
         return undefined;
@@ -37,16 +43,15 @@ export class WikiClient {
         return wikiText.slice(2, 13) === "Themenwoche"
     }
 
-    private parseTopicWeekTemplate(wikiText: string): Topic {
-        const parser = new Nearley.Parser(Nearley.Grammar.fromCompiled(grammar))
+    private parseWikiTemplates(wikiText: string): [Object] {
+        this.parser.restore(this.clean);
         try {
-            parser.feed(wikiText);
+            this.parser.feed(wikiText);
+            return this.parser.results[0];
         } catch (e) {
             console.error(e + `\nText:\n${wikiText}`)
             return null;
         }
-        console.log(parser.results);
-        return undefined;
     }
 
     private extractTopicWeek(wikiText: string): String {

@@ -5,7 +5,7 @@ function id(x) { return x[0]; }
 
 const moo = require("moo");
 const lexer = moo.compile({
-  ws: /[ \t]+/,
+  ws: {match: /\s+/, lineBreaks: true},
   word: {match: /[^\{\{\}\}\|\s=]+/, lineBreaks: true},
   open: /\{\{/,
   close:/\}\}/,
@@ -23,30 +23,62 @@ var grammar = {
     {"name": "main$ebnf$1$subexpression$2$ebnf$1", "symbols": ["main$ebnf$1$subexpression$2$ebnf$1", "word"], "postprocess": function arrpush(d) {return d[0].concat([d[1]]);}},
     {"name": "main$ebnf$1$subexpression$2", "symbols": ["template", "main$ebnf$1$subexpression$2$ebnf$1"]},
     {"name": "main$ebnf$1", "symbols": ["main$ebnf$1", "main$ebnf$1$subexpression$2"], "postprocess": function arrpush(d) {return d[0].concat([d[1]]);}},
-    {"name": "main", "symbols": ["main$ebnf$1"]},
+    {"name": "main", "symbols": ["main$ebnf$1"], "postprocess": function(d) {return d[0].map(val => val[0])}},
     {"name": "template$ebnf$1", "symbols": []},
     {"name": "template$ebnf$1", "symbols": ["template$ebnf$1", "ws"], "postprocess": function arrpush(d) {return d[0].concat([d[1]]);}},
     {"name": "template$ebnf$2", "symbols": []},
-    {"name": "template$ebnf$2", "symbols": ["template$ebnf$2", (lexer.has("word") ? {type: "word"} : word)], "postprocess": function arrpush(d) {return d[0].concat([d[1]]);}},
-    {"name": "template$ebnf$3$subexpression$1$ebnf$1", "symbols": []},
-    {"name": "template$ebnf$3$subexpression$1$ebnf$1", "symbols": ["template$ebnf$3$subexpression$1$ebnf$1", "ws"], "postprocess": function arrpush(d) {return d[0].concat([d[1]]);}},
-    {"name": "template$ebnf$3$subexpression$1", "symbols": [(lexer.has("delim") ? {type: "delim"} : delim), "template$ebnf$3$subexpression$1$ebnf$1", "templateValue"]},
-    {"name": "template$ebnf$3", "symbols": ["template$ebnf$3$subexpression$1"]},
-    {"name": "template$ebnf$3$subexpression$2$ebnf$1", "symbols": []},
-    {"name": "template$ebnf$3$subexpression$2$ebnf$1", "symbols": ["template$ebnf$3$subexpression$2$ebnf$1", "ws"], "postprocess": function arrpush(d) {return d[0].concat([d[1]]);}},
-    {"name": "template$ebnf$3$subexpression$2", "symbols": [(lexer.has("delim") ? {type: "delim"} : delim), "template$ebnf$3$subexpression$2$ebnf$1", "templateValue"]},
-    {"name": "template$ebnf$3", "symbols": ["template$ebnf$3", "template$ebnf$3$subexpression$2"], "postprocess": function arrpush(d) {return d[0].concat([d[1]]);}},
-    {"name": "template$ebnf$4", "symbols": []},
-    {"name": "template$ebnf$4", "symbols": ["template$ebnf$4", "ws"], "postprocess": function arrpush(d) {return d[0].concat([d[1]]);}},
-    {"name": "template", "symbols": [(lexer.has("open") ? {type: "open"} : open), "template$ebnf$1", "templateName", "template$ebnf$2", "template$ebnf$3", "template$ebnf$4", (lexer.has("close") ? {type: "close"} : close)]},
-    {"name": "templateName", "symbols": ["word"]},
-    {"name": "templateValue$ebnf$1$subexpression$1", "symbols": ["ws", "word"]},
+    {"name": "template$ebnf$2", "symbols": ["template$ebnf$2", "ws"], "postprocess": function arrpush(d) {return d[0].concat([d[1]]);}},
+    {"name": "template$ebnf$3", "symbols": []},
+    {"name": "template$ebnf$3", "symbols": ["template$ebnf$3", "ws"], "postprocess": function arrpush(d) {return d[0].concat([d[1]]);}},
+    {"name": "template", "symbols": [(lexer.has("open") ? {type: "open"} : open), "template$ebnf$1", "templateName", "templateValues", "template$ebnf$2", (lexer.has("close") ? {type: "close"} : close), "template$ebnf$3"], "postprocess": 
+        function(d) {
+          let template = {...d[2], ...d[3]}
+          return template
+        }
+        },
+    {"name": "templateName", "symbols": ["word"], "postprocess": 
+        function(d) {
+            return {
+               templateName: d[0].value
+            }
+        }
+        },
+    {"name": "templateValues$ebnf$1$subexpression$1$ebnf$1", "symbols": []},
+    {"name": "templateValues$ebnf$1$subexpression$1$ebnf$1", "symbols": ["templateValues$ebnf$1$subexpression$1$ebnf$1", "ws"], "postprocess": function arrpush(d) {return d[0].concat([d[1]]);}},
+    {"name": "templateValues$ebnf$1$subexpression$1$ebnf$2", "symbols": []},
+    {"name": "templateValues$ebnf$1$subexpression$1$ebnf$2", "symbols": ["templateValues$ebnf$1$subexpression$1$ebnf$2", "ws"], "postprocess": function arrpush(d) {return d[0].concat([d[1]]);}},
+    {"name": "templateValues$ebnf$1$subexpression$1", "symbols": ["templateValues$ebnf$1$subexpression$1$ebnf$1", (lexer.has("delim") ? {type: "delim"} : delim), "templateValues$ebnf$1$subexpression$1$ebnf$2", "templateValue"]},
+    {"name": "templateValues$ebnf$1", "symbols": ["templateValues$ebnf$1$subexpression$1"]},
+    {"name": "templateValues$ebnf$1$subexpression$2$ebnf$1", "symbols": []},
+    {"name": "templateValues$ebnf$1$subexpression$2$ebnf$1", "symbols": ["templateValues$ebnf$1$subexpression$2$ebnf$1", "ws"], "postprocess": function arrpush(d) {return d[0].concat([d[1]]);}},
+    {"name": "templateValues$ebnf$1$subexpression$2$ebnf$2", "symbols": []},
+    {"name": "templateValues$ebnf$1$subexpression$2$ebnf$2", "symbols": ["templateValues$ebnf$1$subexpression$2$ebnf$2", "ws"], "postprocess": function arrpush(d) {return d[0].concat([d[1]]);}},
+    {"name": "templateValues$ebnf$1$subexpression$2", "symbols": ["templateValues$ebnf$1$subexpression$2$ebnf$1", (lexer.has("delim") ? {type: "delim"} : delim), "templateValues$ebnf$1$subexpression$2$ebnf$2", "templateValue"]},
+    {"name": "templateValues$ebnf$1", "symbols": ["templateValues$ebnf$1", "templateValues$ebnf$1$subexpression$2"], "postprocess": function arrpush(d) {return d[0].concat([d[1]]);}},
+    {"name": "templateValues", "symbols": ["templateValues$ebnf$1"], "postprocess": 
+        function(d) {
+          vals = d[0].map(val => val[3]).reduce(function(obj,item){
+            obj = {...obj, ...item}
+            return obj;
+          });
+          return vals
+        }
+        },
+    {"name": "templateValue$ebnf$1$subexpression$1", "symbols": ["sws", "word"]},
     {"name": "templateValue$ebnf$1", "symbols": ["templateValue$ebnf$1$subexpression$1"]},
-    {"name": "templateValue$ebnf$1$subexpression$2", "symbols": ["ws", "word"]},
+    {"name": "templateValue$ebnf$1$subexpression$2", "symbols": ["sws", "word"]},
     {"name": "templateValue$ebnf$1", "symbols": ["templateValue$ebnf$1", "templateValue$ebnf$1$subexpression$2"], "postprocess": function arrpush(d) {return d[0].concat([d[1]]);}},
-    {"name": "templateValue", "symbols": ["word", "ws", (lexer.has("eq") ? {type: "eq"} : eq), "templateValue$ebnf$1"]},
-    {"name": "word", "symbols": [(lexer.has("word") ? {type: "word"} : word)]},
-    {"name": "ws", "symbols": [(lexer.has("ws") ? {type: "ws"} : ws)], "postprocess": function(d) {return null;}}
+    {"name": "templateValue", "symbols": ["word", "ws", (lexer.has("eq") ? {type: "eq"} : eq), "templateValue$ebnf$1"], "postprocess": 
+        function(d) {
+          d = d.filter(val => val !== null);
+          head = d[0];
+          tail = d[2].map((val,i) => i === 0 ? val[1].value : val[0].value + val[1].value).join('');
+          return {[head]:tail};
+        }
+        },
+    {"name": "word", "symbols": [(lexer.has("word") ? {type: "word"} : word)], "postprocess": id},
+    {"name": "sws", "symbols": [(lexer.has("ws") ? {type: "ws"} : ws)], "postprocess": id},
+    {"name": "ws", "symbols": [(lexer.has("ws") ? {type: "ws"} : ws)], "postprocess": function(d) {return null}}
 ]
   , ParserStart: "main"
 }
