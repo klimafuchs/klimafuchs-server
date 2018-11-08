@@ -27,6 +27,11 @@ export class WikiClient {
     });
 
     public async getChallenges(): Promise<Challenge[]> {
+
+        return undefined;
+    }
+
+    public async getData(): Promise<Object[][]> {
         const res = await this.connection.get("/api.php?action=query&format=json&list=categorymembers&cmtitle=Kategorie%3AThemenwoche");
         console.log(res.data.query.categorymembers);
         const pages = res.data.query.categorymembers.map( (val) => ( val.title.slice(0,8) !== "Vorlage:" ) ? val.pageid : null).filter((val) => val !== null);
@@ -35,8 +40,7 @@ export class WikiClient {
         const extractedData = pages.map((index) => this.parseWikiTemplates(wikiData.data.query.pages[index].revisions[0]['*']));
         console.log(extractedData[0])
         //pages.forEach((index) => console.log(wikiData.data.query.pages[index].revisions[0]['*']));
-
-        return undefined;
+        return extractedData;
     }
 
     private isTopicWeekTemplate(wikiText:string): boolean {
@@ -64,6 +68,7 @@ export class WikiClient {
     }
 
     public async syncData() {
+        const wikiData = await this.getData();
         const topics = await this.getTopics();
         const challenges = await this.getChallenges();
 
