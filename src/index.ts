@@ -18,7 +18,7 @@ import {passportConf} from "./PassportConfig";
 import {ApiLandingContoller} from "./controller/ApiLandingController";
 import * as cors from 'cors';
 import * as schedule from 'node-schedule';
-import {Challenge} from "./entity/Challenge";
+import {Challenge} from "./entity/wiki-content/Challenge";
 import {Tasks} from "./tasks";
 import {PushController} from "./controller/PushController";
 import {FeedController} from "./controller/FeedController";

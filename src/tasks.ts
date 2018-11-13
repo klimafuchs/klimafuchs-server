@@ -1,4 +1,4 @@
-import {Challenge} from "./entity/Challenge";
+import {Challenge} from "./entity/wiki-content/Challenge";
 import {getRepository, LessThan, MoreThan, Repository} from "typeorm";
 import {DateUtils} from "typeorm/util/DateUtils";
 import * as schedule from 'node-schedule';

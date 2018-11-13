@@ -1,5 +1,5 @@
 import axios from "axios";
-import {Challenge} from "../entity/Challenge";
+import {Challenge} from "../entity/wiki-content/Challenge";
 import {Topic} from "../entity/Topic";
 import {Service} from "typedi";
 import {InjectRepository} from "typeorm-typedi-extensions";

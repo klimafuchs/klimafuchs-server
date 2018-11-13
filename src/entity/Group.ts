@@ -10,7 +10,7 @@ import {
     ManyToOne
 } from "typeorm";
 import {User} from "./User";
-import {Challenge} from "./Challenge";
+import {Challenge} from "./wiki-content/Challenge";
 import {Member} from "./Member";
 
 @Entity()

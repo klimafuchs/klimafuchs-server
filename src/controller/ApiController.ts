@@ -6,7 +6,7 @@ import * as bodyParser from "body-parser"
 import * as Url from "url";
 import * as QueryString from "querystring";
 import {query} from "express-validator/check";
-import {Challenge} from "../entity/Challenge";
+import {Challenge} from "../entity/wiki-content/Challenge";
 import {arraysAreEqual} from "tslint/lib/utils";
 import {Member} from "../entity/Member";
 import {loadConfigurationFromPath} from "tslint/lib/configuration";
