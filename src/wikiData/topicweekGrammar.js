@@ -15,15 +15,14 @@ const lexer = moo.compile({
 var grammar = {
     Lexer: lexer,
     ParserRules: [
-    {"name": "main$ebnf$1$subexpression$1$ebnf$1", "symbols": []},
-    {"name": "main$ebnf$1$subexpression$1$ebnf$1", "symbols": ["main$ebnf$1$subexpression$1$ebnf$1", "word"], "postprocess": function arrpush(d) {return d[0].concat([d[1]]);}},
-    {"name": "main$ebnf$1$subexpression$1", "symbols": ["template", "main$ebnf$1$subexpression$1$ebnf$1"]},
+    {"name": "main$ebnf$1$subexpression$1", "symbols": ["template", "external"]},
     {"name": "main$ebnf$1", "symbols": ["main$ebnf$1$subexpression$1"]},
-    {"name": "main$ebnf$1$subexpression$2$ebnf$1", "symbols": []},
-    {"name": "main$ebnf$1$subexpression$2$ebnf$1", "symbols": ["main$ebnf$1$subexpression$2$ebnf$1", "word"], "postprocess": function arrpush(d) {return d[0].concat([d[1]]);}},
-    {"name": "main$ebnf$1$subexpression$2", "symbols": ["template", "main$ebnf$1$subexpression$2$ebnf$1"]},
+    {"name": "main$ebnf$1$subexpression$2", "symbols": ["template", "external"]},
     {"name": "main$ebnf$1", "symbols": ["main$ebnf$1", "main$ebnf$1$subexpression$2"], "postprocess": function arrpush(d) {return d[0].concat([d[1]]);}},
     {"name": "main", "symbols": ["main$ebnf$1"], "postprocess": function(d) {return d[0].map(val => val[0])}},
+    {"name": "external$ebnf$1", "symbols": []},
+    {"name": "external$ebnf$1", "symbols": ["external$ebnf$1", "word"], "postprocess": function arrpush(d) {return d[0].concat([d[1]]);}},
+    {"name": "external", "symbols": ["external$ebnf$1"], "postprocess": function(d) {return null;}},
     {"name": "template$ebnf$1", "symbols": []},
     {"name": "template$ebnf$1", "symbols": ["template$ebnf$1", "ws"], "postprocess": function arrpush(d) {return d[0].concat([d[1]]);}},
     {"name": "template$ebnf$2", "symbols": []},
@@ -61,7 +60,7 @@ var grammar = {
             obj = {...obj, ...item}
             return obj;
           });
-          return vals
+          return {templateValues: vals}
         }
         },
     {"name": "templateValue$ebnf$1$subexpression$1", "symbols": ["sws", "word"]},
@@ -71,7 +70,7 @@ var grammar = {
     {"name": "templateValue", "symbols": ["word", "ws", (lexer.has("eq") ? {type: "eq"} : eq), "templateValue$ebnf$1"], "postprocess": 
         function(d) {
           d = d.filter(val => val !== null);
-          head = d[0];
+          head = d[0];              // drop leading spaces
           tail = d[2].map((val,i) => i === 0 ? val[1].value : val[0].value + val[1].value).join('');
           return {[head]:tail};
         }

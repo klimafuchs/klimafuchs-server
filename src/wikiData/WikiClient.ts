@@ -38,7 +38,7 @@ export class WikiClient {
         // /wiki/api.php?action=query&format=json&prop=revisions&pageids=4&rvprop=content
         const wikiData = await this.connection.get( `/api.php?action=query&format=json&prop=revisions&pageids=${encodeURIComponent(pages.join('|'))}&rvprop=content`);
         const extractedData = pages.map((index) => this.parseWikiTemplates(wikiData.data.query.pages[index].revisions[0]['*']));
-        console.log(extractedData[0])
+        console.log(JSON.stringify(extractedData))
         //pages.forEach((index) => console.log(wikiData.data.query.pages[index].revisions[0]['*']));
         return extractedData;
     }

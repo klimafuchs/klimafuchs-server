@@ -10,7 +10,8 @@ const lexer = moo.compile({
 });
 %}
 @lexer lexer
-main -> (template word:*):+ {% function(d) {return d[0].map(val => val[0])}%}
+main -> (template external):+ {% function(d) {return d[0].map(val => val[0])}%}
+external -> word:* {% function(d) {return null;} %}
 template -> %open ws:* templateName templateValues ws:* %close ws:* {%
   function(d) {
     let template = {...d[2], ...d[3]}
@@ -30,13 +31,13 @@ templateValues -> (ws:* %delim  ws:* templateValue):+ {%
       obj = {...obj, ...item}
       return obj;
     });
-    return vals
+    return {templateValues: vals}
   }
 %}
 templateValue -> word ws %eq (sws word):+ {%
 function(d) {
   d = d.filter(val => val !== null);
-  head = d[0];
+  head = d[0];              // drop leading spaces
   tail = d[2].map((val,i) => i === 0 ? val[1].value : val[0].value + val[1].value).join('');
   return {[head]:tail};
 }
