@@ -20,6 +20,4 @@ export class Topic {
     @Column({type: "text",})
     description: string;
 
-
-
 }
