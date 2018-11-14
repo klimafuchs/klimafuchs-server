@@ -4,7 +4,11 @@ import * as getTitleAtUrl from "get-title-at-url";
 @Entity()
 export class Quelle {
 
-    @PrimaryColumn()
+    @PrimaryGeneratedColumn()
+    id: number;
+
+    // don't use url as pk as  max text length > max key length
+    @Column()
     public url: string;
 
     @Column()

@@ -2,13 +2,14 @@ import {
     Column,
     CreateDateColumn,
     Entity,
-    JoinTable, ManyToOne,
+    JoinTable, ManyToMany, ManyToOne,
     OneToMany,
     PrimaryGeneratedColumn,
     UpdateDateColumn
 } from "typeorm";
 import {Oberthema} from "./Oberthema";
 import {Props} from "./Props";
+import {Challenge} from "./Challenge";
 
 @Entity()
 export class Kategorie {
@@ -19,7 +20,6 @@ export class Kategorie {
     @Column()
     name: string;
 
-    @JoinTable()
     @OneToMany(type => Oberthema, o => o.kategorie)
     oberthemen: Oberthema[];
 
@@ -28,6 +28,10 @@ export class Kategorie {
 
     @UpdateDateColumn()
     updatedAt: Date;
+
+    @ManyToMany(type => Challenge)
+    @JoinTable()
+    spareChallenges: Challenge[];
 
     @ManyToOne(type => Props)
     props: Props

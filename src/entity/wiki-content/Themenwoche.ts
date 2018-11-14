@@ -1,14 +1,15 @@
 import {
     Column,
     CreateDateColumn,
-    Entity, JoinTable,
+    Entity,
+    JoinTable,
     ManyToMany,
-    ManyToOne, OneToMany,
+    ManyToOne,
+    OneToMany,
     PrimaryGeneratedColumn,
     UpdateDateColumn
 } from "typeorm";
 import {Quelle} from "./Quelle";
-import {Media} from "../Media";
 import {Oberthema} from "./Oberthema";
 import {Challenge} from "./Challenge";
 import {Props} from "./Props";
@@ -37,13 +38,14 @@ export class Themenwoche{
     @ManyToOne(type => Oberthema, o => o.themenWochen)
     oberthema: Oberthema;
 
-    @OneToMany(type => Challenge, c => c.themenWoche)
+    @ManyToMany(type => Challenge, c => c.themenWoche)
+    @JoinTable()
     challenges: Challenge[];
 
     @ManyToOne(type => Props)
     props: Props;
 
-    @JoinTable()
     @ManyToMany(type => Quelle)
+    @JoinTable()
     quellen: Quelle[];
 }

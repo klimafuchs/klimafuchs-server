@@ -1,7 +1,7 @@
 import {
     Column,
     CreateDateColumn,
-    Entity, JoinTable,
+    Entity, JoinTable, ManyToMany,
     ManyToOne,
     OneToMany,
     PrimaryGeneratedColumn,
@@ -10,6 +10,7 @@ import {
 import {Kategorie} from "./Kategorie";
 import {Themenwoche} from "./Themenwoche";
 import {Props} from "./Props";
+import {Challenge} from "./Challenge";
 
 @Entity()
 export class Oberthema {
@@ -25,13 +26,15 @@ export class Oberthema {
     @UpdateDateColumn()
     updatedAt: Date;
 
-    @JoinTable()
     @ManyToOne(type => Kategorie, k => k.oberthemen)
     kategorie: Kategorie;
 
-    @JoinTable()
     @OneToMany(type => Themenwoche, t => t.oberthema)
     themenWochen: Themenwoche[];
+
+    @ManyToMany(type => Challenge)
+    @JoinTable()
+    spareChallenges: Challenge[];
 
     @ManyToOne(type => Props)
     props: Props

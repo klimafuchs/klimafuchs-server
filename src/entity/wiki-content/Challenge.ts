@@ -2,7 +2,7 @@ import {
     Column,
     CreateDateColumn,
     Entity,
-    JoinTable, ManyToOne,
+    JoinTable, ManyToMany, ManyToOne,
     OneToMany,
     PrimaryGeneratedColumn,
     UpdateDateColumn
@@ -34,8 +34,7 @@ export class Challenge {
     @UpdateDateColumn()
     updatedAt: Date;
 
-    @JoinTable()
-    @OneToMany(type => Themenwoche, t => t.challenges)
+    @ManyToMany(type => Themenwoche, t => t.challenges)
     themenWoche: Themenwoche;
 
     @ManyToOne(type => Props)

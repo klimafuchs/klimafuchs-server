@@ -22,4 +22,13 @@ export class Props {
 
     @UpdateDateColumn()
     updatedAt: Date;
+
+    public static create(wikiProps): Props {
+
+        let props = new Props();
+
+        return props;
+
+    }
+
 }

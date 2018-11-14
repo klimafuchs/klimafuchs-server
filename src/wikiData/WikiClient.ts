@@ -24,9 +24,9 @@ export class WikiClient {
         return {
             action: "query",
             format: "json",
-            prop: "revisions",
+            prop: "revisions|pageprops",
             pageids: encodeURIComponent(pageIds.join('|')),
-            rvprop: "content"
+            rvprop: "ids|timestamp|flags|comment|user|content"
         }
     }
 
@@ -63,7 +63,13 @@ export class WikiClient {
         const pages = res.data.query.categorymembers.map((val) => (val.title.slice(0, 8) !== "Vorlage:") ? val.pageid : null).filter((val) => val !== null);
         // /wiki/api.php?action=query&format=json&prop=revisions&pageids=4&rvprop=content
         const wikiData = await this.connection.get(this.paramObjectToUrl(WikiClient.requestTemplatesForPage(pages)));
-        const extractedData = pages.map((index) => this.parseWikiTemplates(wikiData.data.query.pages[index].revisions[0]['*']));
+        const extractedData = pages.map((index) => {
+            //let props = {wikiData.data.}
+            console.log(wikiData.data.query.pages[index])
+            const templateData = this.parseWikiTemplates(wikiData.data.query.pages[index].revisions[0]['*'])
+
+            return templateData
+        });
         console.log(JSON.stringify(extractedData))
         //pages.forEach((index) => console.log(wikiData.data.query.pages[index].revisions[0]['*']));
         return extractedData;
