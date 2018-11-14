@@ -40,4 +40,7 @@ export class Challenge {
     @ManyToOne(type => Props)
     props: Props
 
+    static fromTemplate(challengeTemplate: any) {
+        
+    }
 }

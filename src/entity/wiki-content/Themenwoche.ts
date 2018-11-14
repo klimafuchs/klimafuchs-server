@@ -48,4 +48,10 @@ export class Themenwoche{
     @ManyToMany(type => Quelle)
     @JoinTable()
     quellen: Quelle[];
+
+    static fromTemplate(templateValues: any) {
+        let themenWoche = new Themenwoche();
+
+        return undefined;
+    }
 }

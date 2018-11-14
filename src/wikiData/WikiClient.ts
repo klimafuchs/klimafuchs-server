@@ -6,6 +6,8 @@ import {InjectRepository} from "typeorm-typedi-extensions";
 import {Repository} from "typeorm";
 import * as Nearley from "nearley";
 import * as grammar from "./topicweekGrammar";
+import {Props, WikiProps} from "../entity/wiki-content/Props";
+import {Themenwoche} from "../entity/wiki-content/Themenwoche";
 
 let config = require("../../config.json");
 
@@ -65,10 +67,16 @@ export class WikiClient {
         const wikiData = await this.connection.get(this.paramObjectToUrl(WikiClient.requestTemplatesForPage(pages)));
         const extractedData = pages.map((index) => {
             //let props = {wikiData.data.}
-            console.log(wikiData.data.query.pages[index])
-            const templateData = this.parseWikiTemplates(wikiData.data.query.pages[index].revisions[0]['*'])
-
-            return templateData
+            const pageData = wikiData.data.query.pages[index];
+            const wikiProps: WikiProps = {
+                pageid: pageData.pageid,
+                revid: pageData.revisions[0].revid,
+                parentid: pageData.revisions[0].parentid,
+                user: pageData.revisions[0].user,
+                timestamp: new Date(pageData.revisions[0].timestamp)
+            };
+            const templateData = this.parseWikiTemplates(wikiData.data.query.pages[index].revisions[0]['*']);
+            return {wikiProps: wikiProps, templateData: templateData};
         });
         console.log(JSON.stringify(extractedData))
         //pages.forEach((index) => console.log(wikiData.data.query.pages[index].revisions[0]['*']));
@@ -96,17 +104,24 @@ export class WikiClient {
     }
 
     public gen(data) {
+        console.log(data);
         data.forEach((val, i) => {
+            //save meta info from wiki
+            const props: Props = Props.create(val.wikiProps);
             //download media
             //create topic data
-            let topic = val.filter((template) => template.templateName === "Themenwoche");
-            if(topic.length > 0) {
-                topic = topic[0];
+            let topicTemplate = val.templateData.filter((template) => template.templateName === "Themenwoche");
+            if (topicTemplate.length > 0) {
+                topicTemplate = topicTemplate[0];
             } else {
                 throw new EvalError("Wikipage contained no Topic")
             }
-
-            //create challenge data
+            let topic: Themenwoche = Themenwoche.fromTemplate(topicTemplate.templateValues);
+            let challengeTemplates = val.templateData.filter((template) => template.templateName === "Challenge");
+            const challenges: Challenge[] = challengeTemplates.map((challengeTemplate) => Challenge.fromTemplate(challengeTemplate));
+            console.log(props);
+            console.log(topicTemplate);
+            console.log(challengeTemplates);
         })
     }
 
