@@ -25,6 +25,9 @@ export class Challenge {
     @Column({ type: "text", nullable: true })
     tip: string;
 
+    @Column({nullable: true})
+    score: number;
+
     @Column()
     isSpare: boolean;
 
@@ -38,9 +41,14 @@ export class Challenge {
     themenWoche: Themenwoche;
 
     @ManyToOne(type => Props)
-    props: Props
+    props: Props;
 
-    static fromTemplate(challengeTemplate: any) {
-        
+    static fromTemplate(challengeTemplate): Challenge {
+        let challenge = new Challenge();
+        challenge.title = challengeTemplate.Name;
+        challenge.content = challengeTemplate.Text;
+        challenge.score = challengeTemplate.Ersparnis || undefined;
+        challenge.isSpare = challengeTemplate.Ersatzchallenge || false;
+        return challenge;
     }
 }

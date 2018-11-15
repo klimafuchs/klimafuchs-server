@@ -14,6 +14,7 @@ import {Oberthema} from "./Oberthema";
 import {Challenge} from "./Challenge";
 import {Props} from "./Props";
 import {WikiImage} from "./WikiImage";
+import {Kategorie} from "./Kategorie";
 
 @Entity()
 export class Themenwoche{
@@ -38,6 +39,9 @@ export class Themenwoche{
     @ManyToOne(type => Oberthema, o => o.themenWochen)
     oberthema: Oberthema;
 
+    @ManyToOne(type => Kategorie, k => k.themenWochen)
+    kategorie: Kategorie;
+
     @ManyToMany(type => Challenge, c => c.themenWoche)
     @JoinTable()
     challenges: Challenge[];
@@ -51,7 +55,8 @@ export class Themenwoche{
 
     static fromTemplate(templateValues: any) {
         let themenWoche = new Themenwoche();
-
-        return undefined;
+        themenWoche.title = templateValues.Titel;
+        themenWoche.content = templateValues.Beschreibung;
+        return themenWoche;
     }
 }

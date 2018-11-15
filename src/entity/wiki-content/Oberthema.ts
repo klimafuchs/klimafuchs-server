@@ -38,4 +38,8 @@ export class Oberthema {
 
     @ManyToOne(type => Props)
     props: Props
+
+    static fromWeekTemplate(templateValues: any) {
+        return undefined;
+    }
 }

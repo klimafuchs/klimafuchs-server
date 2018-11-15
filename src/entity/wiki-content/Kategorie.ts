@@ -10,6 +10,7 @@ import {
 import {Oberthema} from "./Oberthema";
 import {Props} from "./Props";
 import {Challenge} from "./Challenge";
+import {Themenwoche} from "./Themenwoche";
 
 @Entity()
 export class Kategorie {
@@ -23,6 +24,10 @@ export class Kategorie {
     @OneToMany(type => Oberthema, o => o.kategorie)
     oberthemen: Oberthema[];
 
+    @OneToMany(type => Themenwoche, t => t.kategorie)
+    themenWochen: Themenwoche[];
+
+
     @CreateDateColumn()
     createdAt: Date;
 
@@ -34,5 +39,9 @@ export class Kategorie {
     spareChallenges: Challenge[];
 
     @ManyToOne(type => Props)
-    props: Props
+    props: Props;
+
+    static fromWeekTemplate(templateVlaues: any) {
+        return undefined;
+    }
 }

@@ -1,6 +1,5 @@
-import {Column, CreateDateColumn, Entity, ManyToOne, PrimaryGeneratedColumn} from "typeorm";
+import {Column, CreateDateColumn, Entity, ManyToOne, PrimaryGeneratedColumn, UpdateDateColumn} from "typeorm";
 import {Props} from "./Props";
-import {Field, Int} from "type-graphql";
 
 @Entity()
 export class WikiImage {
@@ -8,14 +7,44 @@ export class WikiImage {
     @PrimaryGeneratedColumn()
     id: number;
 
-    @Field(type => String)
     @Column()
-    mimetype: String;
+    mimetype: string;
 
-    @Field(type => String)
     @Column()
-    url: String;
+    url: string;
+
+    @Column()
+    uploader: string;
+
+    @Column()
+    timestamp: Date;
+
+    @CreateDateColumn()
+    createdAt: Date;
+
+    @UpdateDateColumn()
+    updatedAt: Date;
+
+    @Column()
+    details: string;
+
+    @Column()
+    canonicalName: string;
 
     @ManyToOne(type => Props)
     props: Props
+
+    static fromRequest(query): WikiImage {
+        const queryResult = query.data.query;
+        console.log(queryResult.pages[queryResult.pageids[0]]);
+        const {title: canonicalName, imageinfo: [imageinfo], revisions: [revisions]} = queryResult.pages[queryResult.pageids[0]];
+        let wikiImage = new WikiImage();
+        wikiImage.canonicalName = canonicalName;
+        wikiImage.uploader = imageinfo.user;
+        wikiImage.timestamp = imageinfo.timestamp;
+        wikiImage.url = imageinfo.url;
+        wikiImage.mimetype = imageinfo.mime;
+        wikiImage.details = revisions['*'];
+        return wikiImage;
+    }
 }

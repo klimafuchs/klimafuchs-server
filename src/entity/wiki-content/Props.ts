@@ -1,4 +1,5 @@
-import {Column, CreateDateColumn, Entity, PrimaryColumn, UpdateDateColumn} from "typeorm";
+import {Column, CreateDateColumn, Entity, OneToOne, PrimaryColumn, UpdateDateColumn} from "typeorm";
+import {WikiWarning} from "./WikiWarning";
 
 export interface WikiProps {
     pageid: number;
@@ -30,6 +31,9 @@ export class Props {
 
     @UpdateDateColumn()
     updatedAt: Date;
+
+    @OneToOne(type => WikiWarning, warning => warning.props)
+    warnings: WikiWarning;
 
     public static create(wikiProps): Props {
         let props = new Props();
