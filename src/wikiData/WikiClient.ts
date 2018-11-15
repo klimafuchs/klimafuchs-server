@@ -3,7 +3,7 @@ import {Challenge} from "../entity/wiki-content/Challenge";
 import {Topic} from "../entity/Topic";
 import {Service} from "typedi";
 import {InjectRepository} from "typeorm-typedi-extensions";
-import {Repository} from "typeorm";
+import {Equal, Repository} from "typeorm";
 import * as Nearley from "nearley";
 import * as grammar from "./topicweekGrammar";
 import {Props, WikiProps} from "../entity/wiki-content/Props";
@@ -13,6 +13,7 @@ import {Oberthema} from "../entity/wiki-content/Oberthema";
 import {WikiImage} from "../entity/wiki-content/WikiImage";
 import {WikiWarning, WikiWarnings} from "../entity/wiki-content/WikiWarning";
 import {Quelle} from "../entity/wiki-content/Quelle";
+import {header} from "express-validator/check";
 
 let config = require("../../config.json");
 
@@ -57,6 +58,7 @@ export class WikiClient {
             rvprop: "content"
         }
     }
+
     constructor(
         @InjectRepository(Challenge) private readonly challengeRepository: Repository<Challenge>,
         @InjectRepository(Kategorie) private readonly kategorieRepository: Repository<Kategorie>,
@@ -102,6 +104,7 @@ export class WikiClient {
         return extractedData;
     }
 
+    //TODO refactor this
     public gen(data) {
         console.log(data);
         data.forEach(async (val, i) => {
@@ -110,48 +113,88 @@ export class WikiClient {
 
             props = await this.propsRepository.save(props);
 
+            let dbWarnings = await this.wikiWaringRepsitory.find({props: {pageid: props.pageid}});
+            this.wikiWaringRepsitory.remove(dbWarnings)
+                .then(_ => console.log(`Warnings on page ${props.pageid} cleared!`))
+                .catch(err => console.error("WikiClient Error: " + err.toString()));
+
+
             let warnings: WikiWarnings[] = [];
             try {
                 if (!val.templateData) {
-                    warnings.push(WikiWarnings.TemplateParsingError);
                     throw new Error(warnings.toString())
                 }
+
 
                 // extract structured data
                 let topicTemplate = val.templateData.filter((template) => template.templateName === "Themenwoche");
                 let challengeTemplates = val.templateData.filter((template) => template.templateName === "Challenge");
 
-                //validate data
-                if (topicTemplate.length > 0) {
-                    topicTemplate = topicTemplate[0];
+                if (!topicTemplate || topicTemplate.length === 0) {
+                    warnings.push(WikiWarnings.NoTopic)
                 } else {
-                    console.error("Wikipage contained no Topic");
+                    topicTemplate = topicTemplate[0];
+                    let themenwoche: Themenwoche = Themenwoche.fromTemplate(topicTemplate.templateValues);
+                    let kategorie: Kategorie = Kategorie.fromWeekTemplate(topicTemplate.templateValues);
+                    let oberthema: Oberthema = Oberthema.fromWeekTemplate(topicTemplate.templateValues);
+
+                    kategorie.props = props;
+                    kategorie.oberthemen.push(oberthema);
+                    kategorie = await this.kategorieRepository.save(kategorie);
+
+                    oberthema.props = props;
+                    oberthema.kategorie = kategorie;
+                    oberthema.themenWochen.push(themenwoche);
+                    oberthema = await this.oberthemaRepository.save(oberthema);
+
+                    themenwoche.props = props;
+                    themenwoche.oberthema = oberthema;
+                    themenwoche.kategorie = kategorie;
+
+                    try {
+                        let imageInfo = await this.connection.get(this.paramObjectToUrl(WikiClient.requestImagesForFile(topicTemplate.templateValues.HeaderImage)));
+                        let headerImage = WikiImage.fromRequest(imageInfo);
+                        headerImage.props = props;
+                        themenwoche.headerImage = await this.wikiImageRepository.save(headerImage);
+                    } catch (e) {
+                        console.log(e.message);
+                        warnings.push(WikiWarnings.NoHeaderImage);
+                    }
+
+                    this.themenwocheRepository.save(themenwoche);
+
+                    if (!challengeTemplates || challengeTemplates.length === 0) {
+                        warnings.push(WikiWarnings.NoChallenges);
+                    } else {
+                        let challenges: Challenge[] = challengeTemplates.map((challengeTemplate) => Challenge.fromTemplate(challengeTemplate.templateValues));
+                        if (challenges.filter(c => !c.isSpare).length < 4) warnings.push(WikiWarnings.NotEnoughDefaultChallenges);
+                        if (challenges.filter(c => c.isSpare).length <= 0) warnings.push(WikiWarnings.NoSpareChallenges);
+
+                        challenges.forEach( challenge => {
+                            challenge.props = props;
+                            challenge.themenWoche = themenwoche;
+                            challenge.kategorie = kategorie;
+                            challenge.oberthema = oberthema;
+                        });
+                        this.challengeRepository.save(challenges)
+                            .catch(err => console.error("WikiClient Error: " + err.toString()));
+                    }
+
                 }
-                let topic: Themenwoche = Themenwoche.fromTemplate(topicTemplate.templateValues);
-                let kategorie: Kategorie = Kategorie.fromWeekTemplate(topicTemplate.templateValues);
-                let oberthema: Oberthema = Oberthema.fromWeekTemplate(topicTemplate.templateValues);
-                let challenges: Challenge[] = challengeTemplates.map((challengeTemplate) => Challenge.fromTemplate(challengeTemplate.templateValues));
 
-                let imageInfo = await this.connection.get(this.paramObjectToUrl(WikiClient.requestImagesForFile(topicTemplate.templateValues.HeaderImage)));
-                let headerImage = WikiImage.fromRequest(imageInfo);
-                //TODO validate data
 
-                //persist
-                console.log(props);
-                console.log(topic);
-                console.log(challenges);
-                console.log(headerImage)
 
             } catch (e) {
                 console.error(e.message);
+                warnings.push(WikiWarnings.TemplateParsingError);
             }
             if (warnings.length > 0) {
                 let wikiWarning = WikiWarning.fromWarnings(warnings);
                 wikiWarning.props = props;
                 this.wikiWaringRepsitory.save(wikiWarning)
-                    .then(_ => console.log(`Logged warings on page ${props.pageid}!`))
+                    .then(_ => console.log(`Logged warnings on page ${props.pageid}!`))
                     .catch(err => console.error("WikiClient Error: " + err.toString()));
-
+            } else {
             }
 
         })

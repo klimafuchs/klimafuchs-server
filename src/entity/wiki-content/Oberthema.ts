@@ -3,7 +3,7 @@ import {
     CreateDateColumn,
     Entity, JoinTable, ManyToMany,
     ManyToOne,
-    OneToMany,
+    OneToMany, PrimaryColumn,
     PrimaryGeneratedColumn,
     UpdateDateColumn
 } from "typeorm";
@@ -14,10 +14,8 @@ import {Challenge} from "./Challenge";
 
 @Entity()
 export class Oberthema {
-    @PrimaryGeneratedColumn()
-    id: number;
 
-    @Column()
+    @PrimaryColumn()
     name: string;
 
     @CreateDateColumn()
@@ -32,14 +30,17 @@ export class Oberthema {
     @OneToMany(type => Themenwoche, t => t.oberthema)
     themenWochen: Themenwoche[];
 
-    @ManyToMany(type => Challenge)
+    @ManyToMany(type => Challenge, c => c.oberthema)
     @JoinTable()
-    spareChallenges: Challenge[];
+    challenges: Challenge[];
 
     @ManyToOne(type => Props)
     props: Props
 
     static fromWeekTemplate(templateValues: any) {
-        return undefined;
+        let oberthema = new Oberthema();
+        oberthema.themenWochen = [];
+        oberthema.name = templateValues.Oberthema;
+        return oberthema;
     }
 }

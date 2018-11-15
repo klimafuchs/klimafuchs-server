@@ -5,7 +5,7 @@ import {
     JoinTable,
     ManyToMany,
     ManyToOne,
-    OneToMany,
+    OneToMany, PrimaryColumn,
     PrimaryGeneratedColumn,
     UpdateDateColumn
 } from "typeorm";
@@ -18,10 +18,8 @@ import {Kategorie} from "./Kategorie";
 
 @Entity()
 export class Themenwoche{
-    @PrimaryGeneratedColumn()
-    id: number;
 
-    @Column()
+    @PrimaryColumn()
     title: string;
 
     @Column({type: "text"})

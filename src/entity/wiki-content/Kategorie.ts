@@ -3,7 +3,7 @@ import {
     CreateDateColumn,
     Entity,
     JoinTable, ManyToMany, ManyToOne,
-    OneToMany,
+    OneToMany, PrimaryColumn,
     PrimaryGeneratedColumn,
     UpdateDateColumn
 } from "typeorm";
@@ -15,10 +15,7 @@ import {Themenwoche} from "./Themenwoche";
 @Entity()
 export class Kategorie {
 
-    @PrimaryGeneratedColumn()
-    id: number;
-
-    @Column()
+    @PrimaryColumn()
     name: string;
 
     @OneToMany(type => Oberthema, o => o.kategorie)
@@ -26,7 +23,6 @@ export class Kategorie {
 
     @OneToMany(type => Themenwoche, t => t.kategorie)
     themenWochen: Themenwoche[];
-
 
     @CreateDateColumn()
     createdAt: Date;
@@ -36,12 +32,16 @@ export class Kategorie {
 
     @ManyToMany(type => Challenge)
     @JoinTable()
-    spareChallenges: Challenge[];
+    challenges: Challenge[];
 
     @ManyToOne(type => Props)
     props: Props;
 
-    static fromWeekTemplate(templateVlaues: any) {
-        return undefined;
+    static fromWeekTemplate(templateValues: any): Kategorie {
+        let kategorie = new Kategorie();
+        kategorie.oberthemen = [];
+        kategorie.challenges = [];
+        kategorie.name = templateValues.Kategorie;
+        return kategorie;
     }
 }
