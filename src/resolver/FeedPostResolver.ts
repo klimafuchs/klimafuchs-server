@@ -1,8 +1,8 @@
 import {Arg, Authorized, Ctx, Int, Mutation, Query, Resolver} from "type-graphql"
 import {Repository} from "typeorm";
-import {FeedPost} from "../entity/FeedPost";
+import {FeedPost} from "../entity/social/FeedPost";
 import {InjectRepository} from "typeorm-typedi-extensions";
-import {FeedComment} from "../entity/FeedComment";
+import {FeedComment} from "../entity/social/FeedComment";
 import {FeedPostInput} from "./types/FeedPostInput";
 import {Context} from "./types/Context";
 import {FeedCommentInput} from "./types/FeedCommentInput";

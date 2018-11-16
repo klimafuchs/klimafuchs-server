@@ -10,13 +10,13 @@ import {
 } from "typeorm";
 import {ObjectType, Field, Int} from "type-graphql";
 import * as bcrypt from 'bcrypt-nodejs';
-import {Group} from "./Group";
+import {Group} from "../social/Group";
 import {dateFormat} from "dateformat";
-import {Member} from "./Member";
+import {Member} from "../social/Member";
 import {PasswordResetToken} from "./PasswordResetToken";
-import {FeedPost} from "./FeedPost";
-import {FeedComment} from "./FeedComment";
-import {Media} from "./Media";
+import {FeedPost} from "../social/FeedPost";
+import {FeedComment} from "../social/FeedComment";
+import {Media} from "../Media";
 
 
 export enum Role {
@@ -36,6 +36,7 @@ export class User { //TODO split into profile data and user data
     @Column()
     userName: string;
 
+
     @Field(type => String)
     @Column()
     screenName: string;
@@ -52,23 +53,10 @@ export class User { //TODO split into profile data and user data
     @Column()
     isBanned: boolean = false;
 
-    @Field(type => Media, {nullable: true})
-    @ManyToOne(type => Media, {nullable: true}) //  TODO eagerness?
-    avatar?: Media;
-
-    @Field(type => [Media])
-    @OneToMany(type => Media, media => media.uploader)
-    media: [Media];
 
     @Column()
     hash: string;
     password: string;
-
-    @OneToMany(type => FeedPost, post => post.author)
-    posts: FeedPost[];
-
-    @OneToMany(type => FeedPost, post => post.author)
-    comments: FeedComment[];
 
     @Field(type => Int)
     @Column()
@@ -79,6 +67,20 @@ export class User { //TODO split into profile data and user data
 
     @OneToOne(type => PasswordResetToken, p => p.user)
     passwordResetToken: PasswordResetToken;
+
+    @Field(type => Media, {nullable: true})
+    @OneToOne(type => Media, {nullable: true}) //  TODO eagerness?
+    avatar?: Media;
+
+    @Field(type => [Media])
+    @OneToMany(type => Media, media => media.uploader)
+    media: [Media];
+
+    @OneToMany(type => FeedPost, post => post.author)
+    posts: FeedPost[];
+
+    @OneToMany(type => FeedPost, post => post.author)
+    comments: FeedComment[];
 
     @BeforeInsert()
     public encrypt () {

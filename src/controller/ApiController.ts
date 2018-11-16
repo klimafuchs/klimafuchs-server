@@ -1,14 +1,14 @@
 import {Router, Request, Response} from "express";
 import {getRepository, LessThan, Like, MoreThan} from "typeorm";
-import {Group} from "../entity/Group";
-import {User} from "../entity/User";
+import {Group} from "../entity/social/Group";
+import {User} from "../entity/user/User";
 import * as bodyParser from "body-parser"
 import * as Url from "url";
 import * as QueryString from "querystring";
 import {query} from "express-validator/check";
 import {Challenge} from "../entity/wiki-content/Challenge";
 import {arraysAreEqual} from "tslint/lib/utils";
-import {Member} from "../entity/Member";
+import {Member} from "../entity/social/Member";
 import {loadConfigurationFromPath} from "tslint/lib/configuration";
 import {Alert} from "../entity/Alert";
 import {DateUtils} from "typeorm/util/DateUtils";

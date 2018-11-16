@@ -1,11 +1,11 @@
 import {Request, Response, Router} from "express";
 import * as passport from "passport";
-import {User} from "../entity/User";
+import {User} from "../entity/user/User";
 import * as jwt from "jsonwebtoken";
-import {Group} from "../entity/Group";
+import {Group} from "../entity/social/Group";
 import {getRepository} from "typeorm";
-import {Member} from "../entity/Member";
-import {PasswordResetToken} from "../entity/PasswordResetToken";
+import {Member} from "../entity/social/Member";
+import {PasswordResetToken} from "../entity/user/PasswordResetToken";
 import {Tasks} from "../tasks";
 
 let router = Router();

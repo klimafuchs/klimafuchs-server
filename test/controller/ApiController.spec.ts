@@ -5,8 +5,8 @@ import * as typeOrm from "typeorm";
 import * as expect from "expect.js";
 import "mocha";
 import * as sinon from"sinon";
-import {User} from "../../src/entity/User";
-import {Group} from "../../src/entity/Group";
+import {User} from "../../src/entity/user/User";
+import {Group} from "../../src/entity/social/Group";
 
 
 //TODO how to test things with typescript?

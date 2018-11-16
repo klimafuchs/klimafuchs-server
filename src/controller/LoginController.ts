@@ -1,12 +1,12 @@
 import {getRepository} from "typeorm";
 import {NextFunction, Router, Request, Response} from "express";
 
-import {User} from "../entity/User";
+import {User} from "../entity/user/User";
 import * as passport from "passport";
-import {Group} from "../entity/Group";
-import {PasswordResetToken} from "../entity/PasswordResetToken";
+import {Group} from "../entity/social/Group";
+import {PasswordResetToken} from "../entity/user/PasswordResetToken";
 import {Tasks} from "../tasks";
-import {Member} from "../entity/Member";
+import {Member} from "../entity/social/Member";
 
 
 let router = Router();

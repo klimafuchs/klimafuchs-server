@@ -1,11 +1,8 @@
-import {Column, CreateDateColumn, Entity, ManyToOne, PrimaryGeneratedColumn, UpdateDateColumn} from "typeorm";
+import {Column, CreateDateColumn, Entity, ManyToOne, PrimaryColumn, UpdateDateColumn} from "typeorm";
 import {Props} from "./Props";
 
 @Entity()
 export class WikiImage {
-
-    @PrimaryGeneratedColumn()
-    id: number;
 
     @Column()
     mimetype: string;
@@ -28,7 +25,7 @@ export class WikiImage {
     @Column()
     details: string;
 
-    @Column()
+    @PrimaryColumn()
     canonicalName: string;
 
     @ManyToOne(type => Props)

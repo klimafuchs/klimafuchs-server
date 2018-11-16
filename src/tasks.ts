@@ -1,17 +1,11 @@
 import {Challenge} from "./entity/wiki-content/Challenge";
-import {getRepository, LessThan, MoreThan, Repository} from "typeorm";
-import {DateUtils} from "typeorm/util/DateUtils";
+import {getRepository} from "typeorm";
 import * as schedule from 'node-schedule';
-import {Subscription} from "./entity/Subscription";
+import {Subscription} from "./entity/user/Subscription";
 import * as webPush from 'web-push';
-import * as nodemailer from 'nodemailer';
-import axios, {AxiosRequestConfig, AxiosPromise} from "axios";
-
 //import * as sendmail from 'sendmail';
-import {PasswordResetToken} from "./entity/PasswordResetToken";
+import {PasswordResetToken} from "./entity/user/PasswordResetToken";
 import {WikiClient} from "./wikiData/WikiClient";
-import {InjectRepository} from "typeorm-typedi-extensions";
-import {Topic} from "./entity/Topic";
 import {Container, Service} from "typedi";
 
 @Service()
@@ -85,7 +79,7 @@ export class Tasks {
 
     async syncWithWiki() {
         console.log("syncing data from wiki...");
-        this.wikiClient.syncData().catch(err => console.error("Error: " + err.toString()))
+        this.wikiClient.syncAllPages().catch(err => console.error("Error: " + err.toString()))
     }
 
 

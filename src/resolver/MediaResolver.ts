@@ -6,7 +6,7 @@ import {GraphQLUpload, Upload} from "apollo-upload-server";
 import {Media} from "../entity/Media";
 import {generate} from "shortid";
 import * as fs from "fs";
-import {User} from "../entity/User";
+import {User} from "../entity/user/User";
 
 @Resolver(Media)
 export class MediaResolver {

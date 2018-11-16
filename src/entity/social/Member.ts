@@ -10,9 +10,9 @@ import {
 } from "typeorm";
 import * as bcrypt from 'bcrypt-nodejs';
 import {Group} from "./Group";
-import {User} from "./User";
+import {User} from "../user/User";
 import {dateFormat} from "dateformat";
-import {Challenge} from "./wiki-content/Challenge";
+import {Challenge} from "../wiki-content/Challenge";
 
 @Entity()
 export class Member {

@@ -9,8 +9,8 @@ import {
     PrimaryGeneratedColumn,
     ManyToOne
 } from "typeorm";
-import {User} from "./User";
-import {Challenge} from "./wiki-content/Challenge";
+import {User} from "../user/User";
+import {Challenge} from "../wiki-content/Challenge";
 import {Member} from "./Member";
 
 @Entity()

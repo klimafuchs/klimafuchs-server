@@ -1,6 +1,7 @@
 import {Column, CreateDateColumn, Entity, ManyToOne, PrimaryGeneratedColumn} from "typeorm";
-import {User} from "./User";
+import {User} from "./user/User";
 import {Field, Int, ObjectType} from "type-graphql";
+import {Profile} from "./social/Profile";
 
 @Entity()
 @ObjectType()

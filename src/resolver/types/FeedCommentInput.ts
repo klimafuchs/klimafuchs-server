@@ -1,6 +1,6 @@
 import {Field, InputType, Int} from "type-graphql";
 import {Column, ManyToOne} from "typeorm";
-import {FeedPost} from "../../entity/FeedPost";
+import {FeedPost} from "../../entity/social/FeedPost";
 
 @InputType()
 export class FeedCommentInput {

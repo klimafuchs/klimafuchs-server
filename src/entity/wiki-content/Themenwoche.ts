@@ -15,6 +15,7 @@ import {Challenge} from "./Challenge";
 import {Props} from "./Props";
 import {WikiImage} from "./WikiImage";
 import {Kategorie} from "./Kategorie";
+import {SeasonPlan} from "../game-state/SeasonPlan";
 
 @Entity()
 export class Themenwoche{
@@ -50,6 +51,10 @@ export class Themenwoche{
     @ManyToMany(type => Quelle)
     @JoinTable()
     quellen: Quelle[];
+
+    @ManyToMany(type => SeasonPlan, s => s.themenwoche)
+    @JoinTable()
+    usages: SeasonPlan[];
 
     static fromTemplate(templateValues: any) {
         let themenWoche = new Themenwoche();

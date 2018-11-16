@@ -1,4 +1,4 @@
-import {Role, User} from "./entity/User";
+import {Role, User} from "./entity/user/User";
 import {getRepository} from "typeorm";
 import * as passportLocal from "passport-local";
 import * as passportJwt from "passport-jwt";

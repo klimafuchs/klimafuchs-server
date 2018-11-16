@@ -2,7 +2,7 @@ import * as webPush from 'web-push';
 import {Router, Request, Response} from "express";
 import * as bodyParser from "body-parser"
 import {getRepository} from "typeorm";
-import {Subscription} from "../entity/Subscription";
+import {Subscription} from "../entity/user/Subscription";
 
 let config = require("../../config.json");
 

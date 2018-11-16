@@ -1,8 +1,8 @@
 import {Arg, Authorized, Int, Mutation, Query, Resolver} from "type-graphql";
 import {InjectRepository} from "typeorm-typedi-extensions";
-import {User} from "../entity/User";
+import {User} from "../entity/user/User";
 import {Repository} from "typeorm";
-import {FeedPost} from "../entity/FeedPost";
+import {FeedPost} from "../entity/social/FeedPost";
 import {UserInput} from "./types/UserInput";
 import {Media} from "../entity/Media";
 
