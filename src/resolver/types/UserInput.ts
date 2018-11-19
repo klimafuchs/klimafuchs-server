@@ -7,16 +7,16 @@ export class UserInput {
     @Field(type => Int)
     id: number;
 
-    @Field(type => String)
+    @Field(type => String, {nullable: true})
     userName?: string;
 
-    @Field(type => String)
+    @Field(type => String, {nullable: true})
     screenName?: string;
 
-    @Field(type => Boolean)
+    @Field(type => Boolean, {nullable: true})
     emailConfirmed?: boolean = false;
 
-    @Field(type => Boolean)
+    @Field(type => Boolean, {nullable: true})
     isBanned?: boolean = false;
 
     @Field(type => String, {nullable: true})

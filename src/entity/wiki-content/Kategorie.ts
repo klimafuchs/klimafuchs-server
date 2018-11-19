@@ -11,29 +11,38 @@ import {Oberthema} from "./Oberthema";
 import {Props} from "./Props";
 import {Challenge} from "./Challenge";
 import {Themenwoche} from "./Themenwoche";
+import {Field, ObjectType} from "type-graphql";
 
 @Entity()
+@ObjectType()
 export class Kategorie {
 
+    @Field(type => String)
     @PrimaryColumn()
     name: string;
 
+    @Field(type => [Oberthema])
     @OneToMany(type => Oberthema, o => o.kategorie)
     oberthemen: Oberthema[];
 
+    @Field(type => [Themenwoche])
     @OneToMany(type => Themenwoche, t => t.kategorie)
     themenWochen: Themenwoche[];
 
+    @Field(type => Date)
     @CreateDateColumn()
     createdAt: Date;
 
+    @Field(type => Date)
     @UpdateDateColumn()
     updatedAt: Date;
 
+    @Field(type => [Challenge])
     @ManyToMany(type => Challenge)
     @JoinTable()
     challenges: Challenge[];
 
+    @Field(type => Props)
     @ManyToOne(type => Props)
     props: Props;
 

@@ -1,5 +1,6 @@
 import {Column, CreateDateColumn, Entity, OneToOne, PrimaryColumn, UpdateDateColumn} from "typeorm";
 import {WikiWarning} from "./WikiWarning";
+import {Field, Int, ObjectType} from "type-graphql";
 
 export interface WikiProps {
     pageid: number;
@@ -10,28 +11,37 @@ export interface WikiProps {
 }
 
 @Entity()
+@ObjectType()
 export class Props {
+    @Field(type => Int)
     @PrimaryColumn()
     pageid: number;
 
+    @Field(type => Int)
     @Column()
     revid: number;
 
+    @Field(type => Int)
     @Column()
     parentid: number;
 
+    @Field(type => String)
     @Column()
     user: string;
 
+    @Field(type => Date)
     @Column()
     timestamp: Date;
 
+    @Field(type => Date)
     @CreateDateColumn()
     createdAt: Date;
 
+    @Field(type => Date)
     @UpdateDateColumn()
     updatedAt: Date;
 
+    @Field(type => WikiWarning)
     @OneToOne(type => WikiWarning, warning => warning.props)
     warnings: WikiWarning;
 

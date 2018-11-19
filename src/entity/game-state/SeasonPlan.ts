@@ -9,25 +9,33 @@ import {
 } from "typeorm";
 import {Season} from "./Season";
 import {Themenwoche} from "../wiki-content/Themenwoche";
+import {Field, Int, ObjectType} from "type-graphql";
 
 @Entity()
+@ObjectType()
 export class SeasonPlan {
 
+    @Field(type => Int)
     @PrimaryGeneratedColumn()
     id: number;
 
+    @Field(type => Season)
     @ManyToOne(type => Season, s => s.seasonPlan)
     season: Season;
 
+    @Field(type => Date)
     @CreateDateColumn()
     createdAt: Date;
 
+    @Field(type => Date)
     @UpdateDateColumn()
     updatedAt: Date;
 
+    @Field(type => Date)
     @Column()
     startDate: Date;
 
+    @Field(type => Int)
     @Column()
     duration: number;
 
@@ -39,6 +47,7 @@ export class SeasonPlan {
         }
     }
 
+    @Field(type => Themenwoche)
     @ManyToMany(type => Themenwoche, t => t.usages)
     themenwoche: Themenwoche
 }

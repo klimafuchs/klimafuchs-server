@@ -1,6 +1,6 @@
 import {Arg, Authorized, Int, Mutation, Query, Resolver} from "type-graphql";
 import {InjectRepository} from "typeorm-typedi-extensions";
-import {User} from "../entity/user/User";
+import {Role, User} from "../entity/user/User";
 import {Repository} from "typeorm";
 import {FeedPost} from "../entity/social/FeedPost";
 import {UserInput} from "./types/UserInput";
@@ -39,10 +39,13 @@ export class UserResolver {
     @Mutation(returns => User, {nullable: true})
     async changeUser(@Arg("user", type => UserInput) userInput: UserInput): Promise<User> {
         const user = await this.userRepository.findOne(userInput.id);
-        user.screenName= userInput.screenName;
-        user.userName = userInput.userName;
-        user.isBanned = userInput.isBanned;
-        user.emailConfirmed = userInput.emailConfirmed; // TODO reset Avatars
+        if (user.role === Role.Admin) {
+            throw new Error("Contact DB Admin to modify admin accounts!");
+        }
+        user.screenName= userInput.screenName ||user.screenName;
+        user.userName = userInput.userName || user.userName;
+        user.isBanned = userInput.isBanned || user.isBanned;
+        user.emailConfirmed = userInput.emailConfirmed || user.emailConfirmed; // TODO reset Avatars
         return this.userRepository.save(user)
     }
 

@@ -1,35 +1,46 @@
 import {Column, CreateDateColumn, Entity, ManyToOne, PrimaryColumn, UpdateDateColumn} from "typeorm";
 import {Props} from "./Props";
+import {Field, ObjectType} from "type-graphql";
 
 @Entity()
+@ObjectType()
 export class WikiImage {
 
+    @Field(type => String)
     @Column()
     mimetype: string;
 
+    @Field(type => String)
     @Column()
     url: string;
 
+    @Field(type => String)
     @Column()
     uploader: string;
 
+    @Field(type => Date)
     @Column()
     timestamp: Date;
 
+    @Field(type => Date)
     @CreateDateColumn()
     createdAt: Date;
 
+    @Field(type => Date)
     @UpdateDateColumn()
     updatedAt: Date;
 
+    @Field(type => String)
     @Column()
     details: string;
 
+    @Field(type => String)
     @PrimaryColumn()
     canonicalName: string;
 
+    @Field(type => Props)
     @ManyToOne(type => Props)
-    props: Props
+    props: Props;
 
     static fromRequest(query): WikiImage {
         const queryResult = query.data.query;

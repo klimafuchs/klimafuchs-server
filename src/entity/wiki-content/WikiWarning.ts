@@ -8,6 +8,7 @@ import {
     UpdateDateColumn
 } from "typeorm";
 import {Props} from "./Props";
+import {Field, Int, ObjectType} from "type-graphql";
 
 export enum WikiWarnings {
     NoTopic = "NoTopic",
@@ -21,21 +22,27 @@ export enum WikiWarnings {
 }
 
 @Entity()
+@ObjectType()
 export class WikiWarning {
 
+    @Field(type => Int)
     @PrimaryGeneratedColumn()
     id: number;
 
+    @Field(type => Date)
     @CreateDateColumn()
     createdAt: Date;
 
+    @Field(type => Date)
     @UpdateDateColumn()
     updatedAt: Date;
 
+    @Field(type => Props)
     @OneToOne(type => Props, prop => prop.warnings)
     @JoinColumn()
     props: Props;
 
+    @Field(type => String)
     @Column()
     warnings: string; // Simplicity > NF and TypeORMs non existent set support TODO make less broken
 

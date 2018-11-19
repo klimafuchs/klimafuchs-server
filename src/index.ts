@@ -74,12 +74,16 @@ createConnection().then(async connection => {
     app.use(passport.session());
     app.use(expressValidator());
 
-    app.use('/api/push', PushController);
-    app.use('/api/', ApiLandingContoller);
-    app.use('/api/auth', passport.authenticate('jwt', {session: false}), ApiContoller);
-    app.use('/giql', passport.authenticate('basic', {session: false}), FeedController);
-    app.use('/api/feed', passport.authenticate('jwt', {session: false}), FeedController);
-
+    try {
+        app.use('/api/push', PushController);
+        app.use('/api/', ApiLandingContoller);
+        app.use('/api/auth', passport.authenticate('jwt', {session: false}), ApiContoller);
+        app.use('/giql', passport.authenticate('basic', {session: false}), FeedController);
+        app.use('/api/feed', passport.authenticate('jwt', {session: false}), FeedController);
+    } catch (e) {
+        console.error(e);
+        process.exit(-1);
+    }
     // setup static assets
     // TODO replace with something less homebrew
     app.use('/img',(req,res) => {
