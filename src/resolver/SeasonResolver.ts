@@ -43,7 +43,7 @@ export class SeasonResolver {
         return this.seasonRepsitory.findOne({id: seasonId});
     }
 
-    @Mutation(returns => SeasonPlan, {nullable: true})
+    @Mutation(returns => Season, {nullable: true})
     async updateSeason(@Ctx() {user}, @Arg("season", type => SeasonInput) seasonInput: SeasonInput): Promise<Season> {
         let season: Season;
 
