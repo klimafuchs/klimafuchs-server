@@ -9,10 +9,10 @@ export class SeasonPlanInput {
     seasonId: number;
 
     @Field(type => String)
-    themenwocheTitle: string;
+    themenwocheId: string;
 
-    @Field(type => Date)
-    startDate: Date;
+    @Field(type => Int)
+    position: number;
 
     @Field(type => Int, {nullable: true})
     duration: number;

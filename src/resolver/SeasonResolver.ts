@@ -15,6 +15,7 @@ import {FeedPost} from "../entity/social/FeedPost";
 import {Media} from "../entity/Media";
 import {UserInput} from "./types/UserInput";
 import {SeasonPlanInput} from "./types/SeasonPlanInput";
+import {SeasonInput} from "./types/SeasonInput";
 
 @Resolver()
 export class SeasonResolver {
@@ -42,6 +43,20 @@ export class SeasonResolver {
         return this.seasonRepsitory.findOne({id: seasonId});
     }
 
+    @Mutation(returns => SeasonPlan, {nullable: true})
+    async updateSeason(@Ctx() {user}, @Arg("season", type => SeasonInput) seasonInput: SeasonInput): Promise<Season> {
+        let season: Season;
+
+        if(seasonInput.id) {
+            season = await this.seasonRepsitory.findOne(seasonInput.id);
+        }
+        season.startDate = seasonInput.startDate ||season.startDate;
+        season.endDate = seasonInput.endDate || season.endDate;
+        season.title = seasonInput.title || season.title;
+
+        return season;
+    }
+
     @Query(returns => [Themenwoche], {nullable: true})
     async themenwoches(@Ctx() {user}): Promise<Themenwoche[]> {
         return this.themenwocheRepository.find();
@@ -60,16 +75,20 @@ export class SeasonResolver {
         return season.seasonPlan;
     }
 
+    @Query(returns => SeasonPlan, {nullable: true})
+    async seasonPlan(@Ctx() {user}, @Arg("seasonId", type => Int) seasonId: number): Promise<SeasonPlan> {
+        return this.seasonPlanRepsitory.findOne(seasonId);
+    }
     @Mutation(returns => SeasonPlan, {nullable: true})
-    async seasonPlan(@Ctx() {user}, @Arg("seasonPlan", type => SeasonPlanInput) seasonPlanInput: SeasonPlanInput): Promise<SeasonPlan> {
+    async updateSeasonPlan(@Ctx() {user}, @Arg("seasonPlan", type => SeasonPlanInput) seasonPlanInput: SeasonPlanInput): Promise<SeasonPlan> {
         let seasonPlan: SeasonPlan;
         if( seasonPlanInput.id) {
             seasonPlan = await this.seasonPlanRepsitory.findOne({id: seasonPlanInput.id});
         }
         seasonPlan.season = seasonPlanInput.seasonId ? await this.seasonRepsitory.findOne({id: seasonPlanInput.seasonId}) : seasonPlan.season;
-        seasonPlan.themenwoche = seasonPlanInput.themenwocheTitle ? await this.themenwocheRepository.findOne({title: seasonPlanInput.themenwocheTitle}) : seasonPlan.themenwoche;
-        seasonPlan.startDate = seasonPlanInput.startDate ? seasonPlanInput.startDate : seasonPlan.startDate;
+        seasonPlan.themenwoche = seasonPlanInput.themenwocheId ? await this.themenwocheRepository.findOne({title: seasonPlanInput.themenwocheId}) : seasonPlan.themenwoche;
         seasonPlan.duration = seasonPlanInput.duration ? seasonPlanInput.duration : seasonPlan.duration;
+        seasonPlan.position = seasonPlanInput.position ? seasonPlanInput.position : seasonPlan.duration;
         return this.seasonPlanRepsitory.save(seasonPlan);
     }
 

@@ -1,4 +1,4 @@
-import {Column, Entity, OneToMany, OneToOne, PrimaryGeneratedColumn} from "typeorm";
+import {BeforeInsert, Column, Entity, OneToMany, OneToOne, PrimaryGeneratedColumn} from "typeorm";
 import {SeasonPlan} from "./SeasonPlan";
 import {Field, Int, ObjectType} from "type-graphql";
 
@@ -14,13 +14,27 @@ export class Season {
     @Column()
     startDate: Date;
 
+    @Field(type => Date)
+    @Column()
+    startOffsetDate: Date;
+
+    @Field(type => Date)
+    @Column()
+    endDate: Date;
+
     @Field(type => String)
     @Column()
-    seasonTitle: string;
+    title: string;
 
     @Field(type => [SeasonPlan])
     @OneToMany(type => SeasonPlan, sp => sp.season, {eager: true})
     seasonPlan: SeasonPlan[];
 
+    @BeforeInsert()
+    private checkLength() {
+        if( this.endDate < this.startDate) {
+            console.error("Durations are usually positive!")
+        }
+    }
 
 }

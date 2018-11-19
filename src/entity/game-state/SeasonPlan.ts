@@ -31,13 +31,13 @@ export class SeasonPlan {
     @UpdateDateColumn()
     updatedAt: Date;
 
-    @Field(type => Date)
-    @Column()
-    startDate: Date;
-
     @Field(type => Int)
     @Column()
     duration: number;
+
+    @Field(type => Int)
+    @Column()
+    position: number;
 
     @BeforeInsert()
     public setDefaultDuration() {
