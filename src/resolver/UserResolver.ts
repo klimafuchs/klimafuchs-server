@@ -45,7 +45,7 @@ export class UserResolver {
         user.screenName= userInput.screenName ||user.screenName;
         user.userName = userInput.userName || user.userName;
         user.isBanned = (userInput.isBanned === undefined) ? user.isBanned : userInput.isBanned;
-        user.emailConfirmed = (userInput.emailConfirmed === undefined) ? user.emailConfirmed ? userInput.emailConfirmed;
+        user.emailConfirmed = (userInput.emailConfirmed === undefined) ? user.emailConfirmed : userInput.emailConfirmed;
         // TODO reset Avatars
         return this.userRepository.save(user)
     }
