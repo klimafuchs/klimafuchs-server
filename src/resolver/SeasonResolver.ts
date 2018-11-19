@@ -56,7 +56,7 @@ export class SeasonResolver {
         season.endDate = seasonInput.endDate || season.endDate;
         season.title = seasonInput.title || season.title;
 
-        return season;
+        return this.seasonRepsitory.save(season);
     }
 
     @Query(returns => [Themenwoche], {nullable: true})
