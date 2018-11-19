@@ -11,15 +11,12 @@ export class Season {
     id: number;
 
     @Field(type => Date)
-    @Column({default: Date.now()})
     startDate: Date;
 
     @Field(type => Date)
-    @Column({default: new Date()})
     startOffsetDate: Date;
 
     @Field(type => Date)
-    @Column({default: Date.now()})
     endDate: Date;
 
     @Field(type => String)
@@ -31,10 +28,14 @@ export class Season {
     seasonPlan: SeasonPlan[];
 
     @BeforeInsert()
-    private checkLength() {
+    private fixThings() {
+        this.startDate = new Date(Date.now());
+        this.endDate = new Date(Date.now());
+        this.startOffsetDate = new Date();
         if( this.endDate < this.startDate) {
             console.error("Durations are usually positive!")
         }
     }
+
 
 }
