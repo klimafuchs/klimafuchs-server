@@ -11,12 +11,15 @@ export class Season {
     id: number;
 
     @Field(type => Date)
+    @Column()
     startDate: Date;
 
     @Field(type => Date)
+    @Column()
     startOffsetDate: Date;
 
     @Field(type => Date)
+    @Column()
     endDate: Date;
 
     @Field(type => String)
