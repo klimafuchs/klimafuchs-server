@@ -29,9 +29,9 @@ export class Season {
 
     @BeforeInsert()
     private fixThings() {
-        this.startDate = new Date(Date.now());
-        this.endDate = new Date(Date.now());
-        this.startOffsetDate = new Date();
+        this.startDate = this.startDate || new Date(Date.now());
+        this.endDate = this.endDate || new Date(Date.now());
+        this.startOffsetDate = this.startOffsetDate ||  new Date();
         if( this.endDate < this.startDate) {
             console.error("Durations are usually positive!")
         }
