@@ -49,6 +49,8 @@ export class SeasonResolver {
 
         if(seasonInput.id) {
             season = await this.seasonRepsitory.findOne(seasonInput.id);
+        } else {
+            season = new Season();
         }
         season.startDate = seasonInput.startDate ||season.startDate;
         season.endDate = seasonInput.endDate || season.endDate;
