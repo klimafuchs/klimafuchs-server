@@ -49,7 +49,9 @@ export class SeasonResolver {
 
     @Query(returns => Themenwoche, {nullable: true})
     async themenwoche(@Ctx() {user}, @Arg("themenwocheId", type => String) themenwocheId: string): Promise<Themenwoche> {
-        return this.themenwocheRepository.findOne({title: themenwocheId});
+        let themenwoche = await this.themenwocheRepository.findOne({where: {title: themenwocheId}});
+        console.log(themenwoche);
+        return themenwoche
     }
 
     @Query(returns => [SeasonPlan], {nullable: true})
@@ -59,7 +61,7 @@ export class SeasonResolver {
     }
 
     @Mutation(returns => SeasonPlan, {nullable: true})
-    async seasonPlan(@Ctx() {user}, @Arg("seasonPlan", type => SeasonPlan) seasonPlanInput: SeasonPlanInput): Promise<SeasonPlan> {
+    async seasonPlan(@Ctx() {user}, @Arg("seasonPlan", type => SeasonPlanInput) seasonPlanInput: SeasonPlanInput): Promise<SeasonPlan> {
         let seasonPlan: SeasonPlan;
         if( seasonPlanInput.id) {
             seasonPlan = await this.seasonPlanRepsitory.findOne({id: seasonPlanInput.id});

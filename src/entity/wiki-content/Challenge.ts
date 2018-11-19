@@ -1,7 +1,7 @@
 import {
     Column,
     CreateDateColumn,
-    Entity,
+    Entity, JoinTable,
     ManyToMany,
     ManyToOne,
     PrimaryGeneratedColumn,

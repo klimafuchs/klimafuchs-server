@@ -79,6 +79,8 @@ createConnection().then(async connection => {
         app.use('/api/', ApiLandingContoller);
         app.use('/api/auth', passport.authenticate('jwt', {session: false}), ApiContoller);
         app.use('/giql', passport.authenticate('basic', {session: false}), FeedController);
+        //app.use('/giql', FeedController);
+
         app.use('/api/gql', passport.authenticate('jwt', {session: false}), FeedController);
     } catch (e) {
         console.error(e);

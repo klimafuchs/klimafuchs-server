@@ -172,7 +172,6 @@ export class WikiClient {
                     warnings.push(WikiWarnings.NoHeaderImage);
                 }
 
-                this.themenwocheRepository.save(themenwoche);
 
                 if (!challengeTemplates || challengeTemplates.length === 0) {
                     warnings.push(WikiWarnings.NoChallenges);
@@ -185,7 +184,7 @@ export class WikiClient {
 
                         let dbChallenge = await this.challengeRepository.findOne(challenge);
 
-                        if(dbChallenge) {
+                        if (dbChallenge) {
                             challenge.id = dbChallenge.id
                         }
 
@@ -193,14 +192,15 @@ export class WikiClient {
                         challenge.themenWoche = themenwoche;
                         challenge.kategorie = kategorie;
                         challenge.oberthema = oberthema;
+                        this.challengeRepository.save(challenge).catch(e => console.error(e));
                         return challenge;
                     }));
 
-                    console.log(`Challenge on Page: ${challenges}`);
-
-                    this.challengeRepository.save(challenges)
-                        .catch(err => console.error("WikiClient Error: " + err.toString()));
+                    console.log(challenges[0].toString());
+                    themenwoche.challenges = challenges;
                 }
+                themenwoche = await this.themenwocheRepository.save(themenwoche);
+                console.log(themenwoche);
 
             }
         } catch (e) {
