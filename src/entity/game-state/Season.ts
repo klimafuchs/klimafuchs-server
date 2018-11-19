@@ -19,7 +19,7 @@ export class Season {
     seasonTitle: string;
 
     @Field(type => [SeasonPlan])
-    @OneToMany(type => SeasonPlan, sp => sp.season )
+    @OneToMany(type => SeasonPlan, sp => sp.season, {eager: true})
     seasonPlan: SeasonPlan[];
 
 

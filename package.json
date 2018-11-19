@@ -68,7 +68,7 @@
     "web-push": "^3.3.1"
   },
   "scripts": {
-    "start": "ts-node src/index.ts",
+    "start": "ts-node $NODE_DEBUG_OPTION src/index.ts",
     "test": "mocha -r ts-node/register test/**/*.ts",
     "doc": "apidoc -i src/ -o docs/"
   }

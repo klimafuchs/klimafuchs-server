@@ -48,6 +48,6 @@ export class SeasonPlan {
     }
 
     @Field(type => Themenwoche)
-    @ManyToMany(type => Themenwoche, t => t.usages)
+    @ManyToMany(type => Themenwoche, t => t.usages, {eager: true})
     themenwoche: Themenwoche
 }

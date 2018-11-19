@@ -29,9 +29,9 @@ export class Challenge {
     @Column({type: "text"})
     content: string;
 
-    @Field(type => String)
+    @Field(type => String, {nullable: true})
     @Column({ type: "text", nullable: true })
-    tip: string;
+    tip?: string;
 
     @Field(type => Int, {nullable: true})
     @Column({nullable: true})

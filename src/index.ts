@@ -21,7 +21,7 @@ import * as schedule from 'node-schedule';
 import {Challenge} from "./entity/wiki-content/Challenge";
 import {Tasks} from "./tasks";
 import {PushController} from "./controller/PushController";
-import {FeedController} from "./controller/FeedController";
+import {FeedController} from "./controller/GqlController";
 import * as serveIndex from "serve-index";
 
 let config = require("../config.json");
@@ -79,7 +79,7 @@ createConnection().then(async connection => {
         app.use('/api/', ApiLandingContoller);
         app.use('/api/auth', passport.authenticate('jwt', {session: false}), ApiContoller);
         app.use('/giql', passport.authenticate('basic', {session: false}), FeedController);
-        app.use('/api/feed', passport.authenticate('jwt', {session: false}), FeedController);
+        app.use('/api/gql', passport.authenticate('jwt', {session: false}), FeedController);
     } catch (e) {
         console.error(e);
         process.exit(-1);

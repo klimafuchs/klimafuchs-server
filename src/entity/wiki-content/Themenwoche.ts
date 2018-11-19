@@ -16,19 +16,22 @@ import {Props} from "./Props";
 import {WikiImage} from "./WikiImage";
 import {Kategorie} from "./Kategorie";
 import {SeasonPlan} from "../game-state/SeasonPlan";
-import {Field, ObjectType} from "type-graphql";
+import {Field, Int, ObjectType} from "type-graphql";
 
 @Entity()
 @ObjectType()
 export class Themenwoche{
 
+    @Field(type => String)
     @PrimaryColumn()
     title: string;
 
+    @Field(type => String)
     @Column({type: "text"})
     content: string;
 
-    @ManyToOne(type => WikiImage)
+    @Field(type => WikiImage)
+    @ManyToOne(type => WikiImage, {eager: true})
     headerImage: WikiImage;
 
     @Field(type => Date)
@@ -40,24 +43,24 @@ export class Themenwoche{
     updatedAt: Date;
 
     @Field(type => Oberthema)
-    @ManyToOne(type => Oberthema, o => o.themenWochen)
+    @ManyToOne(type => Oberthema, o => o.themenWochen, {eager: true})
     oberthema: Oberthema;
 
     @Field(type => Kategorie)
-    @ManyToOne(type => Kategorie, k => k.themenWochen)
+    @ManyToOne(type => Kategorie, k => k.themenWochen, {eager: true})
     kategorie: Kategorie;
 
     @Field(type => [Challenge])
-    @ManyToMany(type => Challenge, c => c.themenWoche)
+    @ManyToMany(type => Challenge, c => c.themenWoche, {eager: true})
     @JoinTable()
     challenges: Challenge[];
 
     @Field(type => Props)
-    @ManyToOne(type => Props)
+    @ManyToOne(type => Props, {eager: true})
     props: Props;
 
     @Field(type => Quelle)
-    @ManyToMany(type => Quelle)
+    @ManyToMany(type => Quelle, {eager: true})
     @JoinTable()
     quellen: Quelle[];
 

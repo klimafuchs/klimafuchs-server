@@ -181,12 +181,23 @@ export class WikiClient {
                     if (challenges.filter(c => !c.isSpare).length < 4) warnings.push(WikiWarnings.NotEnoughDefaultChallenges);
                     if (challenges.filter(c => c.isSpare).length <= 0) warnings.push(WikiWarnings.NoSpareChallenges);
 
-                    challenges.forEach( challenge => {
+                    challenges = await Promise.all(challenges.map(async challenge => {
+
+                        let dbChallenge = await this.challengeRepository.findOne(challenge);
+
+                        if(dbChallenge) {
+                            challenge.id = dbChallenge.id
+                        }
+
                         challenge.props = props;
                         challenge.themenWoche = themenwoche;
                         challenge.kategorie = kategorie;
                         challenge.oberthema = oberthema;
-                    });
+                        return challenge;
+                    }));
+
+                    console.log(`Challenge on Page: ${challenges}`);
+
                     this.challengeRepository.save(challenges)
                         .catch(err => console.error("WikiClient Error: " + err.toString()));
                 }
