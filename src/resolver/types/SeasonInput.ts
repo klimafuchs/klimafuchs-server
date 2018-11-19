@@ -11,6 +11,9 @@ export class SeasonInput {
     @Field(type => Date, {nullable: true})
     endDate: Date;
 
+    @Field(type => Date, {nullable: true})
+    startOffsetDate: Date;
+
     @Field(type => String, {nullable: true})
     title: string;
 }

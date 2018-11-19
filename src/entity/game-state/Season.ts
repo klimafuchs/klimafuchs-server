@@ -11,15 +11,15 @@ export class Season {
     id: number;
 
     @Field(type => Date)
-    @Column()
+    @Column({default: Date.now()})
     startDate: Date;
 
     @Field(type => Date)
-    @Column()
+    @Column({default: new Date()})
     startOffsetDate: Date;
 
     @Field(type => Date)
-    @Column()
+    @Column({default: Date.now()})
     endDate: Date;
 
     @Field(type => String)

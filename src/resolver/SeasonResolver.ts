@@ -53,6 +53,7 @@ export class SeasonResolver {
             season = new Season();
         }
         season.startDate = seasonInput.startDate ||season.startDate;
+        season.startOffsetDate = seasonInput.startOffsetDate ||season.startOffsetDate;
         season.endDate = seasonInput.endDate || season.endDate;
         season.title = seasonInput.title || season.title;
 
