@@ -1,4 +1,4 @@
-import {Arg, Ctx, Int, Mutation, Query, Resolver} from "type-graphql";
+import {Arg, Authorized, Ctx, Int, Mutation, Query, Resolver} from "type-graphql";
 import {Oberthema} from "../entity/wiki-content/Oberthema";
 import {Challenge} from "../entity/wiki-content/Challenge";
 import {Quelle} from "../entity/wiki-content/Quelle";
@@ -16,6 +16,7 @@ import {Media} from "../entity/Media";
 import {UserInput} from "./types/UserInput";
 import {SeasonPlanInput} from "./types/SeasonPlanInput";
 import {SeasonInput} from "./types/SeasonInput";
+import {Role} from "../entity/user/User";
 
 @Resolver()
 export class SeasonResolver {
@@ -43,6 +44,7 @@ export class SeasonResolver {
         return this.seasonRepsitory.findOne({id: seasonId});
     }
 
+    @Authorized(Role.Admin)
     @Mutation(returns => SeasonPlan, {nullable: true})
     async updateSeason(@Ctx() {user}, @Arg("season", type => SeasonInput) seasonInput: SeasonInput): Promise<Season> {
         let season: Season;
@@ -79,6 +81,8 @@ export class SeasonResolver {
     async seasonPlan(@Ctx() {user}, @Arg("seasonId", type => Int) seasonId: number): Promise<SeasonPlan> {
         return this.seasonPlanRepsitory.findOne(seasonId);
     }
+
+    @Authorized(Role.Admin)
     @Mutation(returns => SeasonPlan, {nullable: true})
     async updateSeasonPlan(@Ctx() {user}, @Arg("seasonPlan", type => SeasonPlanInput) seasonPlanInput: SeasonPlanInput): Promise<SeasonPlan> {
         let seasonPlan: SeasonPlan;
