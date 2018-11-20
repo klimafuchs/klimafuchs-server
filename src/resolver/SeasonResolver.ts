@@ -96,5 +96,4 @@ export class SeasonResolver {
         return this.seasonPlanRepsitory.save(seasonPlan);
     }
 
-
 }
