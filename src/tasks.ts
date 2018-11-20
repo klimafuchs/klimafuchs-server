@@ -23,20 +23,15 @@ export class Tasks {
     public constructor(
     ) {
 
-        /*
         // db updates
-        let dbAdvanceChallengesTimer = new schedule.RecurrenceRule();
-        dbAdvanceChallengesTimer.hour = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23];
-        dbAdvanceChallengesTimer.minute = 0;
-        this.dbChallengeUpdateJob = schedule.scheduleJob(dbAdvanceChallengesTimer, this.dbChallengeUpdate);
 
+        //update wiki data on server restart
+        this.syncWithWiki().then((res) => console.log(res));
 
         let syncWithWikiTimer = new schedule.RecurrenceRule();
         syncWithWikiTimer.hour = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23];
         syncWithWikiTimer.minute = 0;
         this.syncWithWikiJob = schedule.scheduleJob(syncWithWikiTimer, this.syncWithWiki);
-        */
-        this.syncWithWiki().then((res) => console.log(res));
 
         // notify monday
         let mondayTimer = new schedule.RecurrenceRule();
@@ -82,11 +77,6 @@ export class Tasks {
         this.wikiClient.syncAllPages().catch(err => console.error("Error: " + err.toString()))
     }
 
-
-    static async sendNotificationWarnChallengeExpire(deltaT: number) {
-        await Tasks.sendNotification({title: "Enviroommate",message: "Die aktuelle Challenge läuft nur noch " + deltaT.toFixed(0) + " Stunden." }).then(() => console.log("send reminder notifications")).catch(err => console.error(err))
-    }
-
     static async sendNotification(param) {
         const options = {
             TTL: 60 * 60 * 24
@@ -110,10 +100,6 @@ export class Tasks {
 
     private static deleteSubscriptionFromDatabase(id: number) {
         getRepository(Subscription).delete({id: id}).catch(err => console.log(err))
-    }
-
-    private static sendNotificationNewChallenge(newActiveChallenge: Challenge) {
-        Tasks.sendNotification({title: "Neue Wochenchallenge", message: newActiveChallenge.title}).catch((err) => console.error(err))
     }
 
     public static async sendPasswordReset(userId) {
