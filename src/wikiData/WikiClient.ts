@@ -86,7 +86,7 @@ export class WikiClient {
         }).join('').slice(0, -1);
     }
 
-    public syncPage(pageId: number) {
+    public async syncPage(pageId: number) {
         this.fetchPage(pageId)
             .then(data => this.extractPage(pageId, data))
             .catch(e => console.error(e))
