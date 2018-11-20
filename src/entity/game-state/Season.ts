@@ -31,10 +31,14 @@ export class Season {
     seasonPlan: SeasonPlan[];
 
     @BeforeInsert()
-    private checkLength() {
+    private fixThings() {
+        this.startDate = this.startDate || new Date(Date.now());
+        this.endDate = this.endDate || new Date(Date.now());
+        this.startOffsetDate = this.startOffsetDate ||  new Date();
         if( this.endDate < this.startDate) {
             console.error("Durations are usually positive!")
         }
     }
+
 
 }
