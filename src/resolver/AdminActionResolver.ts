@@ -9,7 +9,7 @@ export class AdminActionResolver {
 
     private wikiClient = Container.get(WikiClient);
 
-    @Authorized(Role.Admin)
+    @Authorized("ADMIN")
     @Mutation(returns => String)
     public async syncWikiData(@Ctx() {user}): Promise<String> {
         return this.wikiClient.syncAllPages()
@@ -20,7 +20,7 @@ export class AdminActionResolver {
             });
     }
 
-    @Authorized(Role.Admin)
+    @Authorized("ADMIN")
     @Mutation(returns => String)
     public async syncWikiPage(@Ctx() {user}, @Arg("pageId") pageId: number): Promise<String> {
         return this.wikiClient.syncPage(pageId)

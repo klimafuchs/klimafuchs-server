@@ -44,7 +44,7 @@ export class SeasonResolver {
         return this.seasonRepsitory.findOne({id: seasonId});
     }
 
-    @Authorized(Role.Admin)
+    @Authorized("ADMIN")
     @Mutation(returns => SeasonPlan, {nullable: true})
     async updateSeason(@Ctx() {user}, @Arg("season", type => SeasonInput) seasonInput: SeasonInput): Promise<Season> {
         let season: Season;
@@ -82,7 +82,7 @@ export class SeasonResolver {
         return this.seasonPlanRepsitory.findOne(seasonId);
     }
 
-    @Authorized(Role.Admin)
+    @Authorized("ADMIN")
     @Mutation(returns => SeasonPlan, {nullable: true})
     async updateSeasonPlan(@Ctx() {user}, @Arg("seasonPlan", type => SeasonPlanInput) seasonPlanInput: SeasonPlanInput): Promise<SeasonPlan> {
         let seasonPlan: SeasonPlan;
