@@ -18,6 +18,7 @@ import {Oberthema} from "../entity/wiki-content/Oberthema";
 import {WikiImage} from "../entity/wiki-content/WikiImage";
 import {WikiWarning, WikiWarnings} from "../entity/wiki-content/WikiWarning";
 import {Quelle} from "../entity/wiki-content/Quelle";
+import Maybe from "graphql/tsutils/Maybe";
 
 let config = require("../../config.json");
 
@@ -235,4 +236,8 @@ export class WikiClient {
     }
 
 
+    public async getWarnings(pageId: number): Promise<WikiWarning> {
+        const props = await this.propsRepository.findOne(pageId);
+        return props.warnings || undefined;
+    }
 }

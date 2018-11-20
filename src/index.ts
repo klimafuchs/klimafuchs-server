@@ -23,6 +23,7 @@ import {Tasks} from "./tasks";
 import {PushController} from "./controller/PushController";
 import {FeedController} from "./controller/GqlController";
 import * as serveIndex from "serve-index";
+import {WikiSyncController} from "./controller/WikiSyncController";
 
 let config = require("../config.json");
 let RedisStore = require("connect-redis")(session);
@@ -78,6 +79,7 @@ createConnection().then(async connection => {
         app.use('/api/push', PushController);
         app.use('/api/', ApiLandingContoller);
         app.use('/api/auth', passport.authenticate('jwt', {session: false}), ApiContoller);
+        app.use('/api/sync', WikiSyncController);
         app.use('/giql', passport.authenticate('basic', {session: false}), FeedController);
         //app.use('/giql', FeedController);
 

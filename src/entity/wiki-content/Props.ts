@@ -42,7 +42,7 @@ export class Props {
     updatedAt: Date;
 
     @Field(type => WikiWarning)
-    @OneToOne(type => WikiWarning, warning => warning.props)
+    @OneToOne(type => WikiWarning, warning => warning.props, {eager: true})
     warnings: WikiWarning;
 
     public static create(wikiProps): Props {

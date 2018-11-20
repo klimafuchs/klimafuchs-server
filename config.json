@@ -9,5 +9,6 @@
   "key": "../../server.key",
   "cert": "../../server.crt",
   "domain": "https://localhost",
-  "wikiUrl": "https://enviroommate.org/wiki"
+  "wikiUrl": "https://enviroommate.org/wiki",
+  "wikiKey": "secret"
 }
