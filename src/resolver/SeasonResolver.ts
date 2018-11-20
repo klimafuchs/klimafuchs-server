@@ -1,4 +1,4 @@
-import {Arg, Ctx, Int, Mutation, Query, Resolver} from "type-graphql";
+import {Arg, Authorized, Ctx, Int, Mutation, Query, Resolver} from "type-graphql";
 import {Oberthema} from "../entity/wiki-content/Oberthema";
 import {Challenge} from "../entity/wiki-content/Challenge";
 import {Quelle} from "../entity/wiki-content/Quelle";
