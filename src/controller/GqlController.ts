@@ -11,12 +11,13 @@ import {apolloUploadExpress} from "apollo-upload-server";
 import {MediaResolver} from "../resolver/MediaResolver";
 import {UserResolver} from "../resolver/UserResolver";
 import {SeasonResolver} from "../resolver/SeasonResolver";
+import {AdminActionResolver} from "../resolver/AdminActionResolver";
 
 let router = Router();
 
 try {
     const schema = TypeGraphQl.buildSchemaSync({
-        resolvers: [FeedPostResolver, MediaResolver, SeasonResolver, UserResolver],
+        resolvers: [AdminActionResolver, FeedPostResolver, MediaResolver, SeasonResolver, UserResolver],
         authChecker
     });
 
