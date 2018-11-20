@@ -8,7 +8,7 @@ import axios from "axios";
 import {Challenge} from "../entity/wiki-content/Challenge";
 import {Service} from "typedi";
 import {InjectRepository} from "typeorm-typedi-extensions";
-import {Repository} from "typeorm";
+import {IsNull, Repository} from "typeorm";
 import * as Nearley from "nearley";
 import * as grammar from "./topicweekGrammar";
 import {Props, WikiProps} from "../entity/wiki-content/Props";
@@ -235,6 +235,9 @@ export class WikiClient {
         }
     }
 
+    public async  getAllPagesWithWarnings(): Promise<Props[]> {
+        return this.propsRepository.find({where: {warning: null}});
+    }
 
     public async getWarnings(pageId: number): Promise<WikiWarning> {
         const props = await this.propsRepository.findOne(pageId);

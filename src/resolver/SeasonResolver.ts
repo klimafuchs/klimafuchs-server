@@ -11,16 +11,17 @@ import {Repository} from "typeorm";
 import {Props} from "../entity/wiki-content/Props";
 import {Season} from "../entity/game-state/Season";
 import {SeasonPlan} from "../entity/game-state/SeasonPlan";
-import {FeedPost} from "../entity/social/FeedPost";
-import {Media} from "../entity/Media";
-import {UserInput} from "./types/UserInput";
 import {SeasonPlanInput} from "./types/SeasonPlanInput";
 import {SeasonInput} from "./types/SeasonInput";
-import {Role} from "../entity/user/User";
+import {WikiClient} from "../wikiData/WikiClient";
+import {Container} from "typedi";
+
 
 @Resolver()
 export class SeasonResolver {
-    
+
+    private wikiClient = Container.get(WikiClient);
+
     constructor(
         @InjectRepository(Challenge) private readonly challengeRepository: Repository<Challenge>,
         @InjectRepository(Kategorie) private readonly kategorieRepository: Repository<Kategorie>,
@@ -96,5 +97,9 @@ export class SeasonResolver {
         return this.seasonPlanRepsitory.save(seasonPlan);
     }
 
+    @Query(returns => [Props], {nullable: true})
+    async allPagesWithWarings(@Ctx() {user}): Promise<Props[]> {
+        return this.wikiClient.getAllPagesWithWarnings();
+    }
 
 }
