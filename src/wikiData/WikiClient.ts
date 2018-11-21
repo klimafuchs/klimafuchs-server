@@ -236,7 +236,8 @@ export class WikiClient {
     }
 
     public async  getAllPagesWithWarnings(): Promise<Props[]> {
-        return this.propsRepository.find({where: {warning: null}});
+        const pages = await this.propsRepository.find();
+        return pages.filter((page) => page.warnings != undefined);
     }
 
     public async getWarnings(pageId: number): Promise<WikiWarning> {
