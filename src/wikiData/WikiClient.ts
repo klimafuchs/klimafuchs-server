@@ -241,6 +241,9 @@ export class WikiClient {
 
     public async getWarnings(pageId: number): Promise<WikiWarning> {
         const props = await this.propsRepository.findOne(pageId);
-        return props.warnings || undefined;
+        if(props)
+            return props.warnings
+        else
+            return undefined;
     }
 }

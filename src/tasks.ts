@@ -11,14 +11,11 @@ import {Container, Service} from "typedi";
 @Service()
 export class Tasks {
 
-    public dbChallengeUpdateJob;
-
     public mondayJob;
     public thursdayJob;
     public sundayJob;
 
     public syncWithWikiJob;
-    private wikiClient = Container.get(WikiClient);
 
     public constructor(
     ) {
@@ -74,7 +71,7 @@ export class Tasks {
 
     async syncWithWiki() {
         console.log("syncing data from wiki...");
-        this.wikiClient.syncAllPages().catch(err => console.error("Error: " + err.toString()))
+        Container.get(WikiClient).syncAllPages().catch(err => console.error("Error: " + err.toString()))
     }
 
     static async sendNotification(param) {
