@@ -89,7 +89,7 @@ export class WikiClient {
 
     public async syncPage(pageId: number) {
         this.fetchPage(pageId)
-            .then(data => this.extractPage(pageId, data))
+            .then(data => this.fetchPage(pageId))
             .catch(e => console.error(e))
     }
 
@@ -114,7 +114,6 @@ export class WikiClient {
     }
 
     extractPage(pageId: number, wikiData): WikiPageData {
-        console.log(wikiData);
         const pageData = wikiData.data.query.pages[pageId];
         const wikiProps: WikiProps = {
             pageid: pageData.pageid,
