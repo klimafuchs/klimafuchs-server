@@ -114,6 +114,7 @@ export class WikiClient {
     }
 
     extractPage(pageId: number, wikiData): WikiPageData {
+        console.log(wikiData);
         const pageData = wikiData.data.query.pages[pageId];
         const wikiProps: WikiProps = {
             pageid: pageData.pageid,
