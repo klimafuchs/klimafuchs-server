@@ -70,7 +70,7 @@ export class Challenge {
         challenge.title = challengeTemplate.Name;
         challenge.content = challengeTemplate.Text;
         challenge.score = challengeTemplate.Ersparnis || undefined;
-        challenge.isSpare = challengeTemplate.Ersatzchallenge || false;
+        challenge.isSpare = !!challengeTemplate.Ersatzchallenge || false;
         return challenge;
     }
 }

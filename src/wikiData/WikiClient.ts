@@ -89,7 +89,9 @@ export class WikiClient {
 
     public async syncPage(pageId: number) {
         this.fetchPage(pageId)
-            .then(data => this.fetchPage(pageId))
+            .then(async (data) => {
+                this.savePage(data);
+            })
             .catch(e => console.error(e))
     }
 
@@ -189,7 +191,7 @@ export class WikiClient {
 
                     challenges = await Promise.all(challenges.map(async challenge => {
 
-                        let dbChallenge = await this.challengeRepository.findOne(challenge);
+                        let dbChallenge = await this.challengeRepository.findOne({where: {title: challenge.title, props: {pageid: props.pageid}}});
 
                         if (dbChallenge) {
                             challenge.id = dbChallenge.id
@@ -203,11 +205,9 @@ export class WikiClient {
                         return challenge;
                     }));
 
-                    console.log(challenges[0].toString());
                     themenwoche.challenges = challenges;
                 }
                 themenwoche = await this.themenwocheRepository.save(themenwoche);
-                console.log(themenwoche);
 
             }
         } catch (e) {
