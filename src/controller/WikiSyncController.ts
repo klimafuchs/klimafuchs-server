@@ -79,7 +79,7 @@ router.get('/pagesWithWarnings/:apiKey', async (req: Request, res: Response) => 
 
     wikiClient.getAllPagesWithWarnings()
         .then((wikiProps) => {
-            const warnings = wikiProps.map(prop => {return {pageId: prop.pageid, warnings: prop.warnings.warnings}});
+            const warnings = wikiProps ? wikiProps.map(prop => {return {pageId: prop.pageid, warnings: prop.warnings.warnings}}) : undefined;
             res.status(200).send(JSON.stringify({status: "success", warnings: JSON.stringify(warnings) || ""}));
         })
         .catch((e) => {
