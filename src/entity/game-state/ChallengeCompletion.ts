@@ -1,10 +1,10 @@
 import {CreateDateColumn, Entity, ManyToOne, PrimaryGeneratedColumn, UpdateDateColumn} from "typeorm";
-import {ObjectType} from "type-graphql";
+import {Field, ObjectType} from "type-graphql";
 import {User} from "../user/User";
 
 @Entity()
-@ObjectType()
 export class ChallengeCompletion {
+
 
     @PrimaryGeneratedColumn()
     id: number;

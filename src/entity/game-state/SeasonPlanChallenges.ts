@@ -6,7 +6,6 @@ import {Challenge} from "../wiki-content/Challenge";
 import {SeasonPlanChallenge} from "./SeasonPlanChallenge";
 
 @Entity()
-@ObjectType()
 export class SeasonPlanChallenges {
 
     @PrimaryGeneratedColumn()
