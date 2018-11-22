@@ -135,10 +135,8 @@ export class WikiClient {
         props = await this.propsRepository.save(props);
 
         let dbWarnings = await this.wikiWaringRepsitory.find({props: {pageid: props.pageid}});
-        this.wikiWaringRepsitory.remove(dbWarnings)
-            .then(() => console.log(`Warnings on page ${props.pageid} cleared!`))
+        await this.wikiWaringRepsitory.remove(dbWarnings)
             .catch(err => console.error("WikiClient Error: " + err.toString()));
-
 
         let warnings: WikiWarnings[] = [];
         try {

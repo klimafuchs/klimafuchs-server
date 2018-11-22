@@ -19,23 +19,19 @@ router.post('/:apiKey/:pageId?', async (req: Request, res: Response, done: Funct
         wikiClient.syncPage(pageId)
             .then(() => {
                 res.status(200).send(JSON.stringify({status: "success"}));
-                done();
             })
             .catch((e) => {
                 console.error(e);
                 res.status(500).send(JSON.stringify({status: e.message}));
-                done();
             })
     } else {
         wikiClient.syncAllPages()
             .then(() => {
                 res.status(200).send(JSON.stringify({status: "success"}));
-                done();
             })
             .catch((e) => {
                 console.error(e);
                 res.status(500).send(JSON.stringify({status: e.message}));
-                done();
             })
     }
 });
