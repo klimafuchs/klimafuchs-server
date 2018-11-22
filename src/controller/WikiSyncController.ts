@@ -47,11 +47,11 @@ router.get('/warnings/:apiKey/:pageId', async (req: Request, res: Response) => {
     const wikiClient = Container.get(WikiClient);
     const pageId = req.params.pageId;
     if (pageId) {
-        wikiClient.getWarnings(pageId)
-            .then((wikiWarning) => {
+        wikiClient.getProps(pageId)
+            .then((props) => {
                 let warnings;
-                if (wikiWarning)
-                    res.status(200).send(JSON.stringify({status: "success", warnings: wikiWarning.warnings}));
+                if (props)
+                    res.status(200).send(JSON.stringify({status: "success", warnings: props.warnings.warnings, lastSyncedRevId: props.revid}));
                 else
                     res.status(400).send(JSON.stringify({status: `Page ${pageId} not indexed`}));
             })

@@ -238,10 +238,10 @@ export class WikiClient {
         return pages.filter((page) => page.warnings != undefined);
     }
 
-    public async getWarnings(pageId: number): Promise<WikiWarning> {
+    public async getProps(pageId: number): Promise<Props> {
         const props = await this.propsRepository.findOne(pageId);
         if(props)
-            return props.warnings
+            return props;
         else
             return undefined;
     }
