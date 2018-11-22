@@ -17,6 +17,7 @@ import {PasswordResetToken} from "./PasswordResetToken";
 import {FeedPost} from "../social/FeedPost";
 import {FeedComment} from "../social/FeedComment";
 import {Media} from "../Media";
+import {ChallengeCompletion} from "../game-state/ChallengeCompletion";
 
 
 export enum Role {
@@ -81,6 +82,9 @@ export class User { //TODO split into profile data and user data
 
     @OneToMany(type => FeedPost, post => post.author)
     comments: FeedComment[];
+
+    @OneToMany(type => ChallengeCompletion, cc => cc.owner)
+    challengeCompletions: ChallengeCompletion[];
 
     @BeforeInsert()
     public encrypt () {

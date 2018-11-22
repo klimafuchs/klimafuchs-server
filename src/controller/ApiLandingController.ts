@@ -85,7 +85,11 @@ router.post('/register', async (request: Request, response: Response, done: Func
     let screenname = request.body.screenname;
     let password = request.body.password;
     let confirmPassword = request.body.confirm_password;
-    let inviteLink = request.body.invite;
+
+    if(confirmPassword !== password){
+        response.status(422);
+        done(response.json({message: "'Passwort' und 'Passwort wiederholen' stimmen nicht überein!"}));
+    }
 
     getRepository(User).findOne({userName: username}).then(async (user) => {
         if (user == null) {
@@ -96,17 +100,6 @@ router.post('/register', async (request: Request, response: Response, done: Func
             await getRepository(User).insert(newUser);
             let u = await getRepository(User).findOne({where:{userName: newUser.userName}});
 
-            if (inviteLink != null) {
-                getRepository(Group).findOne({inviteId: inviteLink}).then(async g => {
-                    if (g != null) {
-                        let m = new Member();
-                        m.group = g;
-                        m.user = u;
-                        await getRepository(Member).save(m);
-                        let updated = await getRepository(Group).findOne({id: g.id});
-                    }
-                }).catch(err => console.log(err))
-            }
             response.json(newUser.transfer(true));
             done();
         } else {
