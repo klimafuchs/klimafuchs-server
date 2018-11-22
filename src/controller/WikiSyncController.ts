@@ -51,7 +51,7 @@ router.get('/warnings/:apiKey/:pageId', async (req: Request, res: Response) => {
             .then((props) => {
                 let warnings;
                 if (props)
-                    res.status(200).send(JSON.stringify({status: "success", warnings: props.warnings.warnings, lastSyncedRevId: props.revid}));
+                    res.status(200).send(JSON.stringify({status: "success", warnings: props.warnings ? props.warnings.warnings : "", lastSyncedRevId: props.revid}));
                 else
                     res.status(400).send(JSON.stringify({status: `Page ${pageId} not indexed`}));
             })
