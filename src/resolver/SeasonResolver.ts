@@ -46,18 +46,20 @@ export class SeasonResolver {
     }
 
     @Authorized("ADMIN")
-    @Mutation(returns => SeasonPlan, {nullable: true})
+    @Mutation(returns => Season, {nullable: true})
     async updateSeason(@Ctx() {user}, @Arg("season", type => SeasonInput) seasonInput: SeasonInput): Promise<Season> {
         let season: Season;
 
         if(seasonInput.id) {
             season = await this.seasonRepsitory.findOne(seasonInput.id);
+        } else {
+            season = new Season();
         }
         season.startDate = seasonInput.startDate ||season.startDate;
         season.endDate = seasonInput.endDate || season.endDate;
         season.title = seasonInput.title || season.title;
 
-        return season;
+        return this.seasonRepsitory.save(season);
     }
 
     @Query(returns => [Themenwoche], {nullable: true})
