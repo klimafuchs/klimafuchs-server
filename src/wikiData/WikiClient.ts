@@ -158,12 +158,10 @@ export class WikiClient {
 
                 kategorie.props = props;
                 kategorie.oberthemen.push(oberthema);
-                kategorie = await this.kategorieRepository.save(kategorie);
 
                 oberthema.props = props;
                 oberthema.kategorie = kategorie;
                 oberthema.themenWochen.push(themenwoche);
-                oberthema = await this.oberthemaRepository.save(oberthema);
 
                 themenwoche.props = props;
                 themenwoche.oberthema = oberthema;
@@ -204,7 +202,11 @@ export class WikiClient {
                     }));
 
                     themenwoche.challenges = challenges;
+                    oberthema.challenges = challenges;
+                    kategorie.challenges = challenges;
                 }
+                oberthema = await this.oberthemaRepository.save(oberthema);
+                kategorie = await this.kategorieRepository.save(kategorie);
                 themenwoche = await this.themenwocheRepository.save(themenwoche);
 
             }
