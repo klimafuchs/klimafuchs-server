@@ -62,8 +62,9 @@ export class FeedPostResolver {
     @Authorized("ADMIN")
     @Mutation(returns => FeedPost)
     async removePost(@Arg("postId", type => Int) postId: number): Promise<FeedPost> {
-        const post = await this.feedPostRepository.findOne(postId);
-        return this.feedPostRepository.remove(post);
+        let post = await this.feedPostRepository.findOne(postId);
+        post = await this.feedPostRepository.remove(post);
+        return post;
     }
 
     @Mutation(returns => Boolean)
