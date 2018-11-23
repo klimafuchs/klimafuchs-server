@@ -22,7 +22,7 @@ export class Kategorie {
     name: string;
 
     @Field(type => [Oberthema])
-    @OneToMany(type => Oberthema, o => o.kategorie)
+    @OneToMany(type => Oberthema, o => o.kategorie, {eager: true})
     oberthemen: Oberthema[];
 
     @Field(type => [Themenwoche])
@@ -38,7 +38,7 @@ export class Kategorie {
     updatedAt: Date;
 
     @Field(type => [Challenge])
-    @ManyToMany(type => Challenge)
+    @ManyToMany(type => Challenge, {eager: true})
     @JoinTable()
     challenges: Challenge[];
 

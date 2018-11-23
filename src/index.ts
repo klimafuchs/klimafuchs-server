@@ -80,8 +80,11 @@ createConnection().then(async connection => {
         app.use('/api/', ApiLandingContoller);
         app.use('/api/auth', passport.authenticate('jwt', {session: false}), ApiContoller);
         app.use('/api/sync', WikiSyncController);
-        app.use('/giql', passport.authenticate('basic', {session: false}), FeedController);
-        //app.use('/giql', FeedController);
+        if(process.env.NODE_ENV === "production") {
+            app.use('/giql', passport.authenticate('basic', {session: false}), FeedController);
+        } else {
+            app.use('/giql', FeedController);
+        }
 
         app.use('/api/gql', passport.authenticate('jwt', {session: false}), FeedController);
     } catch (e) {

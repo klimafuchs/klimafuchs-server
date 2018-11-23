@@ -43,31 +43,31 @@ export class Themenwoche{
     updatedAt: Date;
 
     @Field(type => Oberthema)
-    @ManyToOne(type => Oberthema, o => o.themenWochen, {eager: true})
-    oberthema: Oberthema;
+    @ManyToOne(type => Oberthema, o => o.themenWochen)
+    oberthema: Promise<Oberthema>;
 
     @Field(type => Kategorie)
-    @ManyToOne(type => Kategorie, k => k.themenWochen, {eager: true})
-    kategorie: Kategorie;
+    @ManyToOne(type => Kategorie, k => k.themenWochen)
+    kategorie: Promise<Kategorie>;
 
     @Field(type => [Challenge])
-    @ManyToMany(type => Challenge, c => c.themenWoche, {eager: true})
+    @ManyToMany(type => Challenge, c => c.themenWoche)
     @JoinTable()
-    challenges: Challenge[];
+    challenges: Promise<Challenge[]>;
 
     @Field(type => Props)
-    @ManyToOne(type => Props, {eager: true})
-    props: Props;
+    @ManyToOne(type => Props)
+    props: Promise<Props>;
 
     @Field(type => Quelle)
-    @ManyToMany(type => Quelle, {eager: true})
+    @ManyToMany(type => Quelle)
     @JoinTable()
-    quellen: Quelle[];
+    quellen: Promise<Quelle[]>;
 
     @Field(type => [SeasonPlan])
     @ManyToMany(type => SeasonPlan, s => s.themenwoche)
     @JoinTable()
-    usages: SeasonPlan[];
+    usages: Promise<SeasonPlan[]>;
 
     static fromTemplate(templateValues: any) {
         let themenWoche = new Themenwoche();

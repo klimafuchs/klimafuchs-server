@@ -157,23 +157,29 @@ export class WikiClient {
                 let oberthema: Oberthema = Oberthema.fromWeekTemplate(topicTemplate.templateValues);
 
                 kategorie.props = props;
+                kategorie = await this.kategorieRepository.findOne({where: {name: kategorie.name}}) || kategorie;
                 kategorie.oberthemen.push(oberthema);
 
                 oberthema.props = props;
                 oberthema.kategorie = kategorie;
-                oberthema.themenWochen.push(themenwoche);
+                oberthema.themenWochen = Promise.resolve([... await oberthema.themenWochen, themenwoche]);
+                oberthema = await this.oberthemaRepository.save(oberthema);
 
-                themenwoche.props = props;
-                themenwoche.oberthema = oberthema;
-                themenwoche.kategorie = kategorie;
+                themenwoche.props = Promise.resolve(props);
+                themenwoche.oberthema = Promise.resolve(oberthema);
+                themenwoche.kategorie = Promise.resolve(kategorie);
 
-                try {
-                    let imageInfo = await this.connection.get(this.paramObjectToUrl(WikiClient.requestImagesForFile(topicTemplate.templateValues.HeaderImage)));
-                    let headerImage = WikiImage.fromRequest(imageInfo);
-                    headerImage.props = props;
-                    themenwoche.headerImage = await this.wikiImageRepository.save(headerImage);
-                } catch (e) {
-                    console.log(e.message);
+                if(topicTemplate.templateValues.HeaderImage){
+                    try {
+                        let imageInfo = await this.connection.get(this.paramObjectToUrl(WikiClient.requestImagesForFile(topicTemplate.templateValues.HeaderImage)));
+                        let headerImage = WikiImage.fromRequest(imageInfo);
+                        headerImage.props = props;
+                        themenwoche.headerImage = await this.wikiImageRepository.save(headerImage);
+                    } catch (e) {
+                        console.log(e.message);
+                        warnings.push(WikiWarnings.NoHeaderImage);
+                    }
+                } else {
                     warnings.push(WikiWarnings.NoHeaderImage);
                 }
 
@@ -201,12 +207,12 @@ export class WikiClient {
                         return challenge;
                     }));
 
-                    themenwoche.challenges = challenges;
+                    themenwoche.challenges = Promise.resolve(challenges);
                     oberthema.challenges = challenges;
                     kategorie.challenges = challenges;
                 }
                 oberthema = await this.oberthemaRepository.save(oberthema);
-                kategorie = await this.kategorieRepository.save(kategorie);
+                console.log({name: oberthema.name, kategorie: oberthema.kategorie.name, kategorie_oberthemen: kategorie.oberthemen.map(o => o.name)})
                 themenwoche = await this.themenwocheRepository.save(themenwoche);
 
             }

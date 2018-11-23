@@ -67,15 +67,12 @@ export class SeasonResolver {
 
     @Query(returns => Themenwoche, {nullable: true})
     async themenwoche(@Ctx() {user}, @Arg("themenwocheId", type => String) themenwocheId: string): Promise<Themenwoche> {
-        let themenwoche = await this.themenwocheRepository.findOne({where: {title: themenwocheId}});
-        console.log(themenwoche);
-        return themenwoche
+        return this.themenwocheRepository.findOne({where: {title: themenwocheId}});
     }
 
     @Query(returns => [SeasonPlan], {nullable: true})
-    async seasonPlans(@Ctx() {user}, @Arg("seasonId", type => Int) seasonId: number): Promise<SeasonPlan[]> {
-        const season = await this.seasonRepsitory.findOne({id: seasonId});
-        return season.seasonPlan;
+    async seasonPlans(@Ctx() {user}): Promise<SeasonPlan[]> {
+        return this.seasonPlanRepsitory.find();
     }
 
     @Query(returns => SeasonPlan, {nullable: true})
@@ -101,5 +98,33 @@ export class SeasonResolver {
     async allPagesWithWarings(@Ctx() {user}): Promise<Props[]> {
         return this.wikiClient.getAllPagesWithWarnings();
     }
+
+    @Query(returns => Props, {nullable: true})
+    async getPageProps(@Ctx() {user}, @Arg("pageId", type => Int) pageId: number): Promise<Props> {
+        return this.propsRepository.findOne(pageId);
+    }
+
+    @Query(returns => [Kategorie], {nullable: true})
+    async kategories(@Ctx() {user}): Promise<Kategorie[]> {
+        const kategories = await this.kategorieRepository.find();
+        return kategories;
+    }
+
+    @Query(returns => Kategorie, {nullable: true})
+    async kategorie(@Ctx() {user}, @Arg("kategorieId", type => String) kategorieId: string): Promise<Kategorie> {
+        return this.kategorieRepository.findOne(kategorieId)
+    }
+
+    @Query(returns => [Oberthema], {nullable: true})
+    async oberthemas(@Ctx() {user}): Promise<Oberthema[]> {
+        return this.oberthemaRepository.find();
+    }
+
+    @Query(returns => Oberthema, {nullable: true})
+    async oberthema(@Ctx() {user}, @Arg("oberthemaId", type => String) oberthemaId: string): Promise<Oberthema> {
+        return this.oberthemaRepository.findOne(oberthemaId)
+    }
+
+
 
 }

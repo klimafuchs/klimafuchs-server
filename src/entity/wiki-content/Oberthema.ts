@@ -35,10 +35,10 @@ export class Oberthema {
 
     @Field(type => [Themenwoche])
     @OneToMany(type => Themenwoche, t => t.oberthema)
-    themenWochen: Themenwoche[];
+    themenWochen: Promise<Themenwoche[]>;
 
     @Field(type => [Challenge])
-    @ManyToMany(type => Challenge, c => c.oberthema)
+    @ManyToMany(type => Challenge, c => c.oberthema, {eager: true})
     @JoinTable()
     challenges: Challenge[];
 
@@ -48,7 +48,6 @@ export class Oberthema {
 
     static fromWeekTemplate(templateValues: any) {
         let oberthema = new Oberthema();
-        oberthema.themenWochen = [];
         oberthema.name = templateValues.Oberthema;
         return oberthema;
     }
