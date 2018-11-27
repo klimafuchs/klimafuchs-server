@@ -24,6 +24,7 @@ import {PushController} from "./controller/PushController";
 import {FeedController} from "./controller/GqlController";
 import * as serveIndex from "serve-index";
 import {WikiSyncController} from "./controller/WikiSyncController";
+import {GameProgressionManager} from "./gameLogic/GameProgressionManager";
 
 let config = require("../config.json");
 let RedisStore = require("connect-redis")(session);
@@ -39,7 +40,7 @@ TypeGraphQL.useContainer(Container);
 createConnection().then(async connection => {
     // init cron-like tasks
     const tasks = Container.get(Tasks);
-
+    const gameProgressionManager = Container.get(GameProgressionManager);
     // create express app
     const app = express();
 

@@ -1,4 +1,4 @@
-import {BeforeInsert, Column, Entity, OneToMany, OneToOne, PrimaryGeneratedColumn} from "typeorm";
+import {AfterLoad, BeforeInsert, Column, Entity, OneToMany, OneToOne, PrimaryGeneratedColumn} from "typeorm";
 import {SeasonPlan} from "./SeasonPlan";
 import {Field, Int, ObjectType} from "type-graphql";
 
@@ -38,6 +38,11 @@ export class Season {
         if( this.endDate < this.startDate) {
             console.error("Durations are usually positive!")
         }
+    }
+
+    @AfterLoad()
+    private sortSeasonPlans() {
+        this.seasonPlan = this.seasonPlan.sort((a,b) => a.position - b.position)
     }
 
 
