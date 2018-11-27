@@ -1,5 +1,5 @@
 import {Challenge} from "./entity/wiki-content/Challenge";
-import {getRepository} from "typeorm";
+import {getRepository, Repository} from "typeorm";
 import * as schedule from 'node-schedule';
 import {Subscription} from "./entity/user/Subscription";
 import * as webPush from 'web-push';
@@ -7,6 +7,7 @@ import * as webPush from 'web-push';
 import {PasswordResetToken} from "./entity/user/PasswordResetToken";
 import {WikiClient} from "./wikiData/WikiClient";
 import {Container, Service} from "typedi";
+import {Role, User} from "./entity/user/User";
 
 @Service()
 export class Tasks {
@@ -67,6 +68,26 @@ export class Tasks {
                 message: "Zeit eure Punkte einzusammeln! Wir sind gespannt, wie eure Woche gelaufen ist!"
             }).catch((err) => console.error(err));
         });
+
+        if (process.env.NODE_ENV !== "production") {
+            const defaultAdmin = new User();
+            defaultAdmin.userName = "root";
+            defaultAdmin.password = "root";
+            defaultAdmin.screenName = "root";
+            defaultAdmin.role = Role.Admin;
+            const defaultUser = new User();
+            defaultUser.userName = "user";
+            defaultUser.password = "user";
+            defaultUser.screenName = "user";
+            defaultUser.role = Role.User;
+
+            const userRepo = getRepository(User);
+            userRepo.save(defaultUser)
+                .catch(e => console.error(e));
+            userRepo.save(defaultAdmin)
+                .catch(e => console.error(e));
+
+        }
     }
 
     async syncWithWiki() {

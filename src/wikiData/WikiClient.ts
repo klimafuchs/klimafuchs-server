@@ -156,12 +156,15 @@ export class WikiClient {
                 let kategorie: Kategorie = Kategorie.fromWeekTemplate(topicTemplate.templateValues);
                 let oberthema: Oberthema = Oberthema.fromWeekTemplate(topicTemplate.templateValues);
 
-                kategorie.props = props;
                 kategorie = await this.kategorieRepository.findOne({where: {name: kategorie.name}}) || kategorie;
-                kategorie.oberthemen.push(oberthema);
+                kategorie.props = Promise.resolve(props);
+                let kategorieOberthemen = await kategorie.oberthemen;
+                kategorieOberthemen.push(oberthema);
+                kategorie.oberthemen = Promise.resolve(kategorieOberthemen);
+                kategorie = await this.kategorieRepository.save(kategorie);
 
-                oberthema.props = props;
-                oberthema.kategorie = kategorie;
+                oberthema.props = Promise.resolve(props);
+                oberthema.kategorie = Promise.resolve(kategorie);
                 oberthema.themenWochen = Promise.resolve([... await oberthema.themenWochen, themenwoche]);
                 oberthema = await this.oberthemaRepository.save(oberthema);
 
@@ -173,7 +176,7 @@ export class WikiClient {
                     try {
                         let imageInfo = await this.connection.get(this.paramObjectToUrl(WikiClient.requestImagesForFile(topicTemplate.templateValues.HeaderImage)));
                         let headerImage = WikiImage.fromRequest(imageInfo);
-                        headerImage.props = props;
+                        headerImage.props = Promise.resolve(props);
                         themenwoche.headerImage = await this.wikiImageRepository.save(headerImage);
                     } catch (e) {
                         console.log(e.message);
@@ -199,20 +202,19 @@ export class WikiClient {
                             challenge.id = dbChallenge.id
                         }
 
-                        challenge.props = props;
-                        challenge.themenWoche = themenwoche;
-                        challenge.kategorie = kategorie;
-                        challenge.oberthema = oberthema;
+                        challenge.props = Promise.resolve(props);
+                        challenge.themenWoche = Promise.resolve(themenwoche);
+                        challenge.kategorie = Promise.resolve(kategorie);
+                        challenge.oberthema = Promise.resolve(oberthema);
                         this.challengeRepository.save(challenge).catch(e => console.error(e));
                         return challenge;
                     }));
 
                     themenwoche.challenges = Promise.resolve(challenges);
-                    oberthema.challenges = challenges;
-                    kategorie.challenges = challenges;
+                    oberthema.challenges = Promise.resolve(challenges);
+                    kategorie.challenges = Promise.resolve(challenges);
                 }
                 oberthema = await this.oberthemaRepository.save(oberthema);
-                console.log({name: oberthema.name, kategorie: oberthema.kategorie.name, kategorie_oberthemen: kategorie.oberthemen.map(o => o.name)})
                 themenwoche = await this.themenwocheRepository.save(themenwoche);
 
             }

@@ -51,19 +51,19 @@ export class Challenge {
 
     @Field(type => Themenwoche)
     @ManyToMany(type => Themenwoche, t => t.challenges)
-    themenWoche: Themenwoche;
+    themenWoche: Promise<Themenwoche>;
 
     @Field(type => Kategorie)
     @ManyToOne(type => Kategorie, k => k.challenges)
-    kategorie: Kategorie;
+    kategorie: Promise<Kategorie>;
 
     @Field(type => Oberthema)
     @ManyToOne(type => Oberthema, o => o.challenges)
-    oberthema: Oberthema;
+    oberthema: Promise<Oberthema>;
 
     @Field(type => Props)
     @ManyToOne(type => Props)
-    props: Props;
+    props: Promise<Props>;
 
     static fromTemplate(challengeTemplate): Challenge {
         let challenge = new Challenge();

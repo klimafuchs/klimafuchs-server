@@ -40,7 +40,7 @@ export class WikiImage {
 
     @Field(type => Props)
     @ManyToOne(type => Props)
-    props: Props;
+    props: Promise<Props>;
 
     static fromRequest(query): WikiImage {
         const queryResult = query.data.query;

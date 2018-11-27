@@ -90,7 +90,7 @@ export class SeasonResolver {
             seasonPlan = await this.seasonPlanRepsitory.findOne({id: seasonPlanInput.id});
         }
         seasonPlan.season = seasonPlanInput.seasonId ? await this.seasonRepsitory.findOne({id: seasonPlanInput.seasonId}) : seasonPlan.season;
-        seasonPlan.themenwoche = seasonPlanInput.themenwocheId ? await this.themenwocheRepository.findOne({title: seasonPlanInput.themenwocheId}) : seasonPlan.themenwoche;
+        seasonPlan.themenwoche = Promise.resolve(seasonPlanInput.themenwocheId ? await this.themenwocheRepository.findOne({title: seasonPlanInput.themenwocheId}) : seasonPlan.themenwoche);
         seasonPlan.duration = seasonPlanInput.duration ? seasonPlanInput.duration : seasonPlan.duration;
         seasonPlan.position = seasonPlanInput.position ? seasonPlanInput.position : seasonPlan.duration;
         return this.seasonPlanRepsitory.save(seasonPlan);

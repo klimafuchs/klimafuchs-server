@@ -31,7 +31,7 @@ export class Oberthema {
 
     @Field(type => Kategorie)
     @ManyToOne(type => Kategorie, k => k.oberthemen)
-    kategorie: Kategorie;
+    kategorie: Promise<Kategorie>;
 
     @Field(type => [Themenwoche])
     @OneToMany(type => Themenwoche, t => t.oberthema)
@@ -40,11 +40,11 @@ export class Oberthema {
     @Field(type => [Challenge])
     @ManyToMany(type => Challenge, c => c.oberthema, {eager: true})
     @JoinTable()
-    challenges: Challenge[];
+    challenges: Promise<Challenge[]>;
 
     @Field(type => Props)
     @ManyToOne(type => Props)
-    props: Props
+    props: Promise<Props>;
 
     static fromWeekTemplate(templateValues: any) {
         let oberthema = new Oberthema();

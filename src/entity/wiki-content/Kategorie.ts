@@ -23,11 +23,11 @@ export class Kategorie {
 
     @Field(type => [Oberthema])
     @OneToMany(type => Oberthema, o => o.kategorie, {eager: true})
-    oberthemen: Oberthema[];
+    oberthemen: Promise<Oberthema[]>;
 
     @Field(type => [Themenwoche])
     @OneToMany(type => Themenwoche, t => t.kategorie)
-    themenWochen: Themenwoche[];
+    themenWochen: Promise<Themenwoche[]>;
 
     @Field(type => Date)
     @CreateDateColumn()
@@ -40,16 +40,16 @@ export class Kategorie {
     @Field(type => [Challenge])
     @ManyToMany(type => Challenge, {eager: true})
     @JoinTable()
-    challenges: Challenge[];
+    challenges: Promise<Challenge[]>;
 
     @Field(type => Props)
     @ManyToOne(type => Props)
-    props: Props;
+    props: Promise<Props>;
 
     static fromWeekTemplate(templateValues: any): Kategorie {
         let kategorie = new Kategorie();
-        kategorie.oberthemen = [];
-        kategorie.challenges = [];
+        kategorie.oberthemen = Promise.resolve([]);
+        kategorie.challenges = Promise.resolve([]);
         kategorie.name = templateValues.Kategorie;
         return kategorie;
     }

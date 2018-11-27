@@ -3,13 +3,14 @@ import {
     Column,
     CreateDateColumn,
     Entity, ManyToMany,
-    ManyToOne,
+    ManyToOne, OneToMany,
     PrimaryGeneratedColumn,
     UpdateDateColumn
 } from "typeorm";
 import {Season} from "./Season";
 import {Themenwoche} from "../wiki-content/Themenwoche";
 import {Field, Int, ObjectType} from "type-graphql";
+import {SeasonPlanChallenge} from "./SeasonPlanChallenge";
 
 @Entity()
 @ObjectType()
@@ -49,5 +50,9 @@ export class SeasonPlan {
 
     @Field(type => Themenwoche)
     @ManyToMany(type => Themenwoche, t => t.usages, {eager: true})
-    themenwoche: Themenwoche
+    themenwoche: Promise<Themenwoche>;
+
+    @Field(type => [SeasonPlanChallenge])
+    @OneToMany(type => SeasonPlanChallenge, s => s.plan)
+    challenges: Promise<SeasonPlanChallenge[]>;
 }
