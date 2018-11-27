@@ -3,12 +3,12 @@ import {Context} from "./types/Context";
 import {Role} from "../entity/user/User";
 
 export const authChecker: AuthChecker<Context> = ({context: {user}}, roles) => {
-    if(!user) {
+    if (!user) {
         console.log("User not in context")
         return false
     }
 
-    if(roles.length === 0) {
+    if (roles.length === 0) {
         return user !== undefined;
     }
 
@@ -20,4 +20,6 @@ export const authChecker: AuthChecker<Context> = ({context: {user}}, roles) => {
         default:
             return false;
     }
+
+
 }

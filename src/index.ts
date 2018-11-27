@@ -34,7 +34,6 @@ let express_handlebars = require("express-handlebars")({defaultLayout: 'layout'}
 // }
 
 
-
 useContainer(Container);
 TypeGraphQL.useContainer(Container);
 createConnection().then(async connection => {
@@ -45,14 +44,14 @@ createConnection().then(async connection => {
     const app = express();
 
     // setup express app
-    const logger = (request : Request, response : Response, done : Function) => {
+    const logger = (request: Request, response: Response, done: Function) => {
         console.log("Got request to " + request.originalUrl);
         done()
     };
     app.use(cors());
     app.options('*', cors());
 
-   app.use(function(req, res, next) {
+    app.use(function (req, res, next) {
         res.header("Access-Control-Allow-Origin", "*");
         res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
         next();
@@ -61,14 +60,14 @@ createConnection().then(async connection => {
 
     app.use(logger);
     app.use(bodyParser.json());
-    app.use(bodyParser.urlencoded({ extended: false }));
+    app.use(bodyParser.urlencoded({extended: false}));
     app.use(cookieParser());
     //
     app.use(session({
         secret: process.env.SECRET || config.secret,
         resave: false,
         saveUninitialized: true,
-        cookie: { secure: !config.dev }
+        cookie: {secure: !config.dev}
     }));
     app.use(flash());
     app.use(passportConf);
@@ -80,12 +79,7 @@ createConnection().then(async connection => {
         app.use('/api/', ApiLandingContoller);
         app.use('/api/auth', passport.authenticate('jwt', {session: false}), ApiContoller);
         app.use('/api/sync', WikiSyncController);
-        if(process.env.NODE_ENV === "production") {
-            app.use('/giql', passport.authenticate('basic', {session: false}), FeedController);
-        } else {
-            app.use('/giql', FeedController);
-        }
-
+        app.use('/giql', passport.authenticate('basic', {session: false}), FeedController);
         app.use('/api/gql', passport.authenticate('jwt', {session: false}), FeedController);
     } catch (e) {
         console.error(e);
@@ -93,13 +87,13 @@ createConnection().then(async connection => {
     }
     // setup static assets
     // TODO replace with something less homebrew
-    app.use('/img',(req,res) => {
-        const filepath = path.join(__dirname, '..','img', req.url);
-        console.log("GET " +filepath);
+    app.use('/img', (req, res) => {
+        const filepath = path.join(__dirname, '..', 'img', req.url);
+        console.log("GET " + filepath);
         res.sendFile(filepath, (err) => {
             console.log(err);
             res.status(404);
-            res.sendFile(path.join(__dirname, '..','img', 'default.png'));
+            res.sendFile(path.join(__dirname, '..', 'img', 'default.png'));
         });
     });
     app.enable('view cache');
@@ -107,7 +101,7 @@ createConnection().then(async connection => {
     // start express server
     let listener = app.listen(config.port || 3000);
 
-  //https.createServer(httpsOptions, app).listen(config.port || 443);
+    //https.createServer(httpsOptions, app).listen(config.port || 443);
 
     console.log(`Express server has started on port ${listener.address().port}. Open http://localhost:${listener.address().port}/giql to see results`);
 
