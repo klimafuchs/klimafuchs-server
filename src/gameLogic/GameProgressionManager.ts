@@ -42,7 +42,7 @@ export class GameProgressionManager {
                             const nextSeasonPlanAt = GameProgressionManager.getAbsoluteEndTimeOfSeasonPlan(this.currentSeason, this.currentSeasonPlan);
                             this.advanceToNextPlanJob = Schedule.scheduleJob(nextSeasonPlanAt, this.advanceToNextPlan.bind(this));
                         } else {
-                            const nextSeasonPlanAt = (Date.now() - (season.startDate.getTime() + season.startOffsetDate.getTime()));
+                            const nextSeasonPlanAt = (Date.now() - (season.startOffsetDate.getTime()));
                             this.advanceToNextPlanJob = Schedule.scheduleJob(nextSeasonPlanAt, this.advanceToFirstPlan.bind(this));
                         }
                         this.advanceToNextSeasonJob = Schedule.scheduleJob(new Date(this.currentSeason.endDate.getTime() + 2000), this.init.bind(this));
@@ -65,7 +65,7 @@ export class GameProgressionManager {
             return acc + cur.duration;
         }, 0)
 
-        let millis = season.startDate.getTime() + season.startOffsetDate.getTime();
+        let millis = season.startOffsetDate.getTime();
         return new Date(millis + secsInSeasonPlansBefore * 1000);
     }
 
@@ -86,7 +86,7 @@ export class GameProgressionManager {
     }
 
     private async findCurrentSeasonPlan(season: Season): Promise<SeasonPlan> { //TODO wait for start offset date
-        let timeInSeason = (Date.now() - (season.startDate.getTime() + season.startOffsetDate.getTime())) / 1000;
+        let timeInSeason = (Date.now() - (season.startOffsetDate.getTime())) / 1000;
         if (timeInSeason < 0) {
             // we are in the season startDate - startOffsetDate gap, so no SeasonPlan should be activated.
             // TODO define meaningful pre-season content
