@@ -3,15 +3,32 @@ import {Challenge} from "../entity/wiki-content/Challenge";
 import {ChallengeCompletion} from "../entity/game-state/ChallengeCompletion";
 import {SeasonPlanChallenge} from "../entity/game-state/SeasonPlanChallenge";
 import {InjectRepository} from "typeorm-typedi-extensions";
-import {LessThan, MoreThan, Repository} from "typeorm";
+import {EntitySubscriberInterface, EventSubscriber, InsertEvent, LessThan, MoreThan, Repository} from "typeorm";
 import {User} from "../entity/user/User";
 import * as Schedule from 'node-schedule';
 import {Season} from "../entity/game-state/Season";
 import {SeasonPlan} from "../entity/game-state/SeasonPlan";
 import {ChallengeRejection} from "../entity/game-state/ChallengeRejection";
+import {DateUtils} from "typeorm/util/DateUtils";
 
 @Service()
-export class GameProgressionManager {
+@EventSubscriber()
+export class GameProgressionManager implements EntitySubscriberInterface{
+
+    afterUpdate(event: InsertEvent<any>) {
+        if(event.entity instanceof Season || event.entity instanceof SeasonPlan) {
+            console.log(`BEFORE ENTITY INSERTED: `, event.entity);
+            this.init();
+        }
+    }
+
+    afterInsert(event: InsertEvent<any>) {
+        if(event.entity instanceof Season || event.entity instanceof SeasonPlan) {
+            console.log(`BEFORE ENTITY INSERTED: `, event.entity);
+            this.init();
+        }
+    }
+
 
     public currentSeason: Season;
     public currentSeasonPlan: SeasonPlan;
@@ -32,6 +49,9 @@ export class GameProgressionManager {
     }
 
     private init() {
+        if (this.advanceToNextSeasonJob) this.advanceToNextSeasonJob.cancel();
+        if (this.advanceToNextPlanJob) this.advanceToNextPlanJob.cancel();
+
         this.findCurrentSeason()
             .then(season => {
                 this.currentSeason = season;
@@ -42,8 +62,11 @@ export class GameProgressionManager {
                             const nextSeasonPlanAt = GameProgressionManager.getAbsoluteEndTimeOfSeasonPlan(this.currentSeason, this.currentSeasonPlan);
                             this.advanceToNextPlanJob = Schedule.scheduleJob(nextSeasonPlanAt, this.advanceToNextPlan.bind(this));
                         } else {
-                            const nextSeasonPlanAt = (Date.now() - (season.startOffsetDate.getTime()));
-                            this.advanceToNextPlanJob = Schedule.scheduleJob(nextSeasonPlanAt, this.advanceToFirstPlan.bind(this));
+                            // we are in preseason or the season has no seasonPlans yet
+                            const nextSeasonPlanAt = season.startOffsetDate.getTime();
+                            this.advanceToNextPlanJob = Schedule.scheduleJob(new Date(nextSeasonPlanAt), this.advanceToFirstPlan.bind(this));
+                            if (!this.advanceToNextPlanJob) // the seasonoffsetDate
+                                throw new Error("Season has no seasonPlans!");
                         }
                         this.advanceToNextSeasonJob = Schedule.scheduleJob(new Date(this.currentSeason.endDate.getTime() + 2000), this.init.bind(this));
 
@@ -71,16 +94,18 @@ export class GameProgressionManager {
 
     private async findCurrentSeason(): Promise<Season> {
         let now = new Date(Date.now());
+        let nowString = DateUtils.mixedDateToDatetimeString(now);
         let currentSeason = await this.seasonRepository.findOne({
             where: {
-                startDate: MoreThan(now),
-                endDate: LessThan(now)
+                startDate: LessThan(nowString),
+                endDate: MoreThan(nowString)
             }
         })
             .catch(err => {
                 console.error(err);
-                return undefined;
+                throw Error("No Current Season");
             });
+        console.log(currentSeason);
         if (currentSeason == undefined) throw Error("No Current Season");
         return currentSeason;
     }
@@ -101,7 +126,7 @@ export class GameProgressionManager {
     }
 
     private advanceToFirstPlan() {
-        return this.currentSeason.seasonPlan[0]
+        this.currentSeasonPlan = this.currentSeason.seasonPlan[0]
     }
 
     private advanceToNextPlan() {

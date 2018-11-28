@@ -37,13 +37,13 @@ export class SeasonPlan {
     duration: number;
 
     @Field(type => Int)
-    @Column()
+    @Column({default: 0})
     position: number;
 
     @BeforeInsert()
     public setDefaultDuration() {
         if (!this.duration || this.duration < 1) {
-            let config = require("../config.json");
+            let config = require("../../../config.json"); //todo replace with container var
             this.duration = config.defaultWeekDuration || 7 * 24 * 60 * 60 // s per week
         }
     }
