@@ -12,12 +12,13 @@ import {MediaResolver} from "../resolver/MediaResolver";
 import {UserResolver} from "../resolver/UserResolver";
 import {SeasonResolver} from "../resolver/SeasonResolver";
 import {AdminActionResolver} from "../resolver/AdminActionResolver";
+import {GameStateResolver} from "../resolver/GameStateResolver";
 
 let router = Router();
 
 try {
     const schema = TypeGraphQl.buildSchemaSync({
-        resolvers: [AdminActionResolver, FeedPostResolver, MediaResolver, SeasonResolver, UserResolver],
+        resolvers: [AdminActionResolver, FeedPostResolver, GameStateResolver, MediaResolver, SeasonResolver, UserResolver],
         authChecker
     });
 

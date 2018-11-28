@@ -8,12 +8,13 @@ import {User} from "../entity/user/User";
 import * as Schedule from 'node-schedule';
 import {Season} from "../entity/game-state/Season";
 import {SeasonPlan} from "../entity/game-state/SeasonPlan";
+import {ChallengeRejection} from "../entity/game-state/ChallengeRejection";
 
 @Service()
 export class GameProgressionManager {
 
-    private currentSeason: Season;
-    private currentSeasonPlan: SeasonPlan;
+    public currentSeason: Season;
+    public currentSeasonPlan: SeasonPlan;
 
     private advanceToNextPlanJob;
     private advanceToNextSeasonJob;
@@ -24,6 +25,7 @@ export class GameProgressionManager {
         @InjectRepository(Challenge) private readonly challengeRepository: Repository<Challenge>,
         @InjectRepository(SeasonPlanChallenge) private readonly seasonPlanChallengeRepository: Repository<SeasonPlanChallenge>,
         @InjectRepository(ChallengeCompletion) private readonly challengeCompletionRepository: Repository<ChallengeCompletion>,
+        @InjectRepository(ChallengeRejection) private readonly challengeRejectionRepository: Repository<ChallengeRejection>,
     ) {
         console.log("Starting GameProgressionManager...");
         this.init();
@@ -85,7 +87,7 @@ export class GameProgressionManager {
 
     private async findCurrentSeasonPlan(season: Season): Promise<SeasonPlan> { //TODO wait for start offset date
         let timeInSeason = (Date.now() - (season.startDate.getTime() + season.startOffsetDate.getTime())) / 1000;
-        if(timeInSeason < 0) {
+        if (timeInSeason < 0) {
             // we are in the season startDate - startOffsetDate gap, so no SeasonPlan should be activated.
             // TODO define meaningful pre-season content
             return undefined
@@ -108,5 +110,37 @@ export class GameProgressionManager {
             console.log("Reached end of SeasonPlans in current Season")
         }
         this.currentSeasonPlan = nextSeasonPlan;
+    }
+
+    public async completeChallenge(user: User, seasonPlanChallengeId: number): Promise<ChallengeCompletion> {
+        let seasonPlanChallenge: SeasonPlanChallenge = await this.getSeasonPlanChallengeFromCurrentSeasonPlanById(seasonPlanChallengeId);
+        // check the spc exists
+        if (!seasonPlanChallenge) return Promise.reject("SeasonPlanChallenge not found in current SeasonPlan!");
+        // check that it wasn't rejected
+        let challengeRejection: ChallengeRejection = await this.challengeRejectionRepository.findOne(
+            {where: {owner: user, seasonPlanChallenge: seasonPlanChallenge}}
+        );
+        if (challengeRejection) return Promise.reject("SeasonPlanChallenge has previously rejected!");
+        // complete challenge
+        let challengeCompletion: ChallengeCompletion = new ChallengeCompletion();
+        challengeCompletion.owner = Promise.resolve(user);
+        challengeCompletion.seasonPlanChallenge = Promise.resolve(seasonPlanChallenge);
+        return this.challengeCompletionRepository.save(challengeCompletion);
+    }
+
+    public async rejectChallenge(user: User, seasonPlanChallengeId: number): Promise<ChallengeRejection> {
+        let seasonPlanChallenge: SeasonPlanChallenge = await this.getSeasonPlanChallengeFromCurrentSeasonPlanById(seasonPlanChallengeId);
+        if (!seasonPlanChallenge) return Promise.reject("SeasonPlanChallenge not found in current SeasonPlan!");
+        // TODO check jokers
+        let challengeRejection: ChallengeRejection = new ChallengeRejection();
+        challengeRejection.owner = Promise.resolve(user);
+        challengeRejection.seasonPlanChallenge = Promise.resolve(seasonPlanChallenge);
+        return this.challengeCompletionRepository.save(challengeRejection);
+    }
+
+    private getSeasonPlanChallengeFromCurrentSeasonPlanById(seasonPlanChallengeId: number): Promise<SeasonPlanChallenge> {
+        return this.currentSeasonPlan.challenges.then(seasonPlanChallenges =>
+            seasonPlanChallenges.find(
+                sp => sp.id == seasonPlanChallengeId));
     }
 }
