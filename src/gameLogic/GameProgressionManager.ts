@@ -53,13 +53,13 @@ export class GameProgressionManager implements EntitySubscriberInterface{
         if (this.advanceToNextPlanJob) this.advanceToNextPlanJob.cancel();
 
         this.findCurrentSeason()
-            .then(season => {
+            .then(async season => {
                 this.currentSeason = season;
                 this.findCurrentSeasonPlan(season)
-                    .then(seasonPlan => {
+                    .then(async seasonPlan => {
                         this.currentSeasonPlan = seasonPlan;
                         if (seasonPlan) {
-                            const nextSeasonPlanAt = GameProgressionManager.getAbsoluteEndTimeOfSeasonPlan(this.currentSeason, this.currentSeasonPlan);
+                            const nextSeasonPlanAt = await GameProgressionManager.getAbsoluteEndTimeOfSeasonPlan(this.currentSeason, this.currentSeasonPlan);
                             this.advanceToNextPlanJob = Schedule.scheduleJob(nextSeasonPlanAt, this.advanceToNextPlan.bind(this));
                         } else {
                             // we are in preseason or the season has no seasonPlans yet
@@ -79,11 +79,13 @@ export class GameProgressionManager implements EntitySubscriberInterface{
             });
     }
 
-    static getAbsoluteEndTimeOfSeasonPlan(season: Season, seasonPlan: SeasonPlan): Date {
-        const idx = season.seasonPlan.indexOf(seasonPlan);
+    static async getAbsoluteEndTimeOfSeasonPlan(season: Season, seasonPlan: SeasonPlan): Promise<Date> {
+        let seasonPlans = await season.seasonPlan;
+
+        const idx = seasonPlans.indexOf(seasonPlan);
         if (idx < 0) throw new Error("Illegal argument: seasonPlan is not part of season!");
 
-        const seasonPlansBefore = season.seasonPlan.slice(0, idx + 1);
+        const seasonPlansBefore = seasonPlans.slice(0, idx + 1);
         const secsInSeasonPlansBefore = seasonPlansBefore.reduce((acc, cur) => {
             return acc + cur.duration;
         }, 0)
@@ -117,7 +119,8 @@ export class GameProgressionManager implements EntitySubscriberInterface{
             // TODO define meaningful pre-season content
             return undefined
         }
-        return season.seasonPlan.slice(0).reduce((acc, cur) => { // don't do that to reduce, it has done nothing wrong! :(
+        let seasonPlans = await season.seasonPlan;
+        return seasonPlans.slice(0).reduce((acc, cur) => { // don't do that to reduce, it has done nothing wrong! :(
             timeInSeason = timeInSeason - cur.duration;
             if (timeInSeason <= 0) {
                 return cur;
@@ -129,8 +132,10 @@ export class GameProgressionManager implements EntitySubscriberInterface{
         this.currentSeasonPlan = this.currentSeason.seasonPlan[0]
     }
 
-    private advanceToNextPlan() {
-        const nextSeasonPlan = this.currentSeason.seasonPlan[this.currentSeason.seasonPlan.indexOf(this.currentSeasonPlan) + 1]
+    private async advanceToNextPlan() {
+        let seasonPlans = await this.currentSeason.seasonPlan;
+
+        const nextSeasonPlan = seasonPlans[seasonPlans.indexOf(this.currentSeasonPlan) + 1]
         if (!nextSeasonPlan) {
             console.log("Reached end of SeasonPlans in current Season")
         }

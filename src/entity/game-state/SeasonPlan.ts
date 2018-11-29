@@ -2,7 +2,7 @@ import {
     BeforeInsert,
     Column,
     CreateDateColumn,
-    Entity, ManyToMany,
+    Entity, JoinTable, ManyToMany,
     ManyToOne, OneToMany,
     PrimaryGeneratedColumn,
     UpdateDateColumn
@@ -22,7 +22,7 @@ export class SeasonPlan {
 
     @Field(type => Season)
     @ManyToOne(type => Season, s => s.seasonPlan)
-    season: Season;
+    season: Promise<Season>;
 
     @Field(type => Date)
     @CreateDateColumn()
@@ -49,7 +49,7 @@ export class SeasonPlan {
     }
 
     @Field(type => Themenwoche)
-    @ManyToMany(type => Themenwoche, t => t.usages, {eager: true})
+    @ManyToOne(type => Themenwoche, t => t.usages)
     themenwoche: Promise<Themenwoche>;
 
     @Field(type => [SeasonPlanChallenge])

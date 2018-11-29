@@ -65,8 +65,7 @@ export class Themenwoche{
     quellen: Promise<Quelle[]>;
 
     @Field(type => [SeasonPlan])
-    @ManyToMany(type => SeasonPlan, s => s.themenwoche)
-    @JoinTable()
+    @OneToMany(type => SeasonPlan, s => s.themenwoche)
     usages: Promise<SeasonPlan[]>;
 
     static fromTemplate(templateValues: any) {

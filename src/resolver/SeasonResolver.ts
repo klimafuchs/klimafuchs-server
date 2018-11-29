@@ -91,11 +91,21 @@ export class SeasonResolver {
             seasonPlan.position = 0;
         }
         if(!seasonPlan) seasonPlan = new SeasonPlan();
-        seasonPlan.season = seasonPlanInput.seasonId ? await this.seasonRepsitory.findOne({id: seasonPlanInput.seasonId}) : seasonPlan.season;
-        seasonPlan.themenwoche = Promise.resolve(seasonPlanInput.themenwocheId ? await this.themenwocheRepository.findOne({title: seasonPlanInput.themenwocheId}) : seasonPlan.themenwoche);
+        seasonPlan.season = Promise.resolve(seasonPlanInput.seasonId ? await this.seasonRepsitory.findOne({id: seasonPlanInput.seasonId}) : await seasonPlan.season);
+        let themenwoche = seasonPlanInput.themenwocheId ? await this.themenwocheRepository.findOne({title: seasonPlanInput.themenwocheId}) : await seasonPlan.themenwoche;
+        let usages = await themenwoche.usages;
+        if (usages)
+            usages.push(seasonPlan);
+        else
+            usages = [seasonPlan];
+        themenwoche.usages = Promise.resolve(usages);
+        themenwoche = await this.themenwocheRepository.save(themenwoche);
+        seasonPlan.themenwoche = Promise.resolve(themenwoche);
         seasonPlan.duration = seasonPlanInput.duration ? seasonPlanInput.duration : seasonPlan.duration;
         seasonPlan.position = seasonPlanInput.position ? seasonPlanInput.position : seasonPlan.duration;
-        return this.seasonPlanRepsitory.save(seasonPlan);
+        seasonPlan = await  this.seasonPlanRepsitory.save(seasonPlan);
+        console.log(seasonPlan);
+        return seasonPlan;
     }
 
     @Query(returns => [Props], {nullable: true})

@@ -27,8 +27,8 @@ export class Season {
     title: string;
 
     @Field(type => [SeasonPlan])
-    @OneToMany(type => SeasonPlan, sp => sp.season, {eager: true})
-    seasonPlan: SeasonPlan[];
+    @OneToMany(type => SeasonPlan, sp => sp.season)
+    seasonPlan: Promise<SeasonPlan[]>;
 
     @BeforeInsert()
     private fixThings() {
@@ -41,8 +41,9 @@ export class Season {
     }
 
     @AfterLoad()
-    private sortSeasonPlans() {
-        this.seasonPlan = this.seasonPlan.sort((a,b) => a.position - b.position)
+    private async sortSeasonPlans() {
+        let sp = await this.seasonPlan;
+        this.seasonPlan = Promise.resolve(sp.sort((a,b) => a.position - b.position));
     }
 
 
