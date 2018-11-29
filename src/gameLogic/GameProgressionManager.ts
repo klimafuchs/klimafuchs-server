@@ -29,9 +29,16 @@ export class GameProgressionManager implements EntitySubscriberInterface{
         }
     }
 
+    private _currentSeason: Season;
+    private _currentSeasonPlan: SeasonPlan;
 
-    public currentSeason: Season;
-    public currentSeasonPlan: SeasonPlan;
+    get currentSeason(): Season {
+        return this._currentSeason;
+    }
+
+    get currentSeasonPlan(): SeasonPlan {
+        return this._currentSeasonPlan;
+    }
 
     private advanceToNextPlanJob;
     private advanceToNextSeasonJob;
@@ -54,12 +61,12 @@ export class GameProgressionManager implements EntitySubscriberInterface{
 
         this.findCurrentSeason()
             .then(async season => {
-                this.currentSeason = season;
+                this._currentSeason = season;
                 this.findCurrentSeasonPlan(season)
                     .then(async seasonPlan => {
-                        this.currentSeasonPlan = seasonPlan;
+                        this._currentSeasonPlan = seasonPlan;
                         if (seasonPlan) {
-                            const nextSeasonPlanAt = await GameProgressionManager.getAbsoluteEndTimeOfSeasonPlan(this.currentSeason, this.currentSeasonPlan);
+                            const nextSeasonPlanAt = await GameProgressionManager.getAbsoluteEndTimeOfSeasonPlan(this._currentSeason, this._currentSeasonPlan);
                             this.advanceToNextPlanJob = Schedule.scheduleJob(nextSeasonPlanAt, this.advanceToNextPlan.bind(this));
                         } else {
                             // we are in preseason or the season has no seasonPlans yet
@@ -68,7 +75,7 @@ export class GameProgressionManager implements EntitySubscriberInterface{
                             if (!this.advanceToNextPlanJob) // the seasonoffsetDate
                                 throw new Error("Season has no seasonPlans!");
                         }
-                        this.advanceToNextSeasonJob = Schedule.scheduleJob(new Date(this.currentSeason.endDate.getTime() + 2000), this.init.bind(this));
+                        this.advanceToNextSeasonJob = Schedule.scheduleJob(new Date(this._currentSeason.endDate.getTime() + 2000), this.init.bind(this));
 
                         console.log(`Advancing to next SeasonPlan at ${this.advanceToNextPlanJob.nextInvocation()}. 
                                     \n Advancing to next Season at ${this.advanceToNextSeasonJob.nextInvocation()}`);
@@ -129,17 +136,17 @@ export class GameProgressionManager implements EntitySubscriberInterface{
     }
 
     private advanceToFirstPlan() {
-        this.currentSeasonPlan = this.currentSeason.seasonPlan[0]
+        this._currentSeasonPlan = this._currentSeason.seasonPlan[0]
     }
 
     private async advanceToNextPlan() {
-        let seasonPlans = await this.currentSeason.seasonPlan;
+        let seasonPlans = await this._currentSeason.seasonPlan;
 
-        const nextSeasonPlan = seasonPlans[seasonPlans.indexOf(this.currentSeasonPlan) + 1]
+        const nextSeasonPlan = seasonPlans[seasonPlans.indexOf(this._currentSeasonPlan) + 1]
         if (!nextSeasonPlan) {
             console.log("Reached end of SeasonPlans in current Season")
         }
-        this.currentSeasonPlan = nextSeasonPlan;
+        this._currentSeasonPlan = nextSeasonPlan;
     }
 
     public async completeChallenge(user: User, seasonPlanChallengeId: number): Promise<ChallengeCompletion> {
@@ -169,7 +176,7 @@ export class GameProgressionManager implements EntitySubscriberInterface{
     }
 
     private getSeasonPlanChallengeFromCurrentSeasonPlanById(seasonPlanChallengeId: number): Promise<SeasonPlanChallenge> {
-        return this.currentSeasonPlan.challenges.then(seasonPlanChallenges =>
+        return this._currentSeasonPlan.challenges.then(seasonPlanChallenges =>
             seasonPlanChallenges.find(
                 sp => sp.id == seasonPlanChallengeId));
     }
