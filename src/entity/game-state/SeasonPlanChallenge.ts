@@ -1,4 +1,4 @@
-import {Entity, ManyToMany, ManyToOne, PrimaryGeneratedColumn} from "typeorm";
+import {Entity, JoinTable, ManyToMany, ManyToOne, OneToMany, PrimaryGeneratedColumn} from "typeorm";
 import {Field, Int, ObjectType} from "type-graphql";
 import {ChallengeCompletion} from "./ChallengeCompletion";
 import {SeasonPlan} from "./SeasonPlan";
@@ -13,7 +13,7 @@ export class SeasonPlanChallenge {
     id: number;
 
     @Field(type => ChallengeCompletion)
-    @ManyToMany(type => ChallengeCompletion, c => c.seasonPlanChallenge)
+    @OneToMany(type => ChallengeCompletion, c => c.seasonPlanChallenge)
     completions: Promise<ChallengeCompletion[]>;
 
     @Field(type => SeasonPlan)

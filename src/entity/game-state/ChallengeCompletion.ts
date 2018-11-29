@@ -25,7 +25,7 @@ export class ChallengeCompletion {
     owner: Promise<User>;
 
     @Field(type => SeasonPlanChallenge)
-    @ManyToMany(type => SeasonPlanChallenge, s => s.completions)
+    @ManyToOne(type => SeasonPlanChallenge, s => s.completions)
     seasonPlanChallenge: Promise<SeasonPlanChallenge>;
 
 }

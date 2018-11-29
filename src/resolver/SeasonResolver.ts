@@ -15,6 +15,7 @@ import {SeasonPlanInput} from "./types/SeasonPlanInput";
 import {SeasonInput} from "./types/SeasonInput";
 import {WikiClient} from "../wikiData/WikiClient";
 import {Container} from "typedi";
+import {SeasonPlanChallenge} from "../entity/game-state/SeasonPlanChallenge";
 
 
 @Resolver()
@@ -33,6 +34,7 @@ export class SeasonResolver {
         @InjectRepository(WikiWarning) private readonly wikiWaringRepsitory: Repository<WikiWarning>,
         @InjectRepository(Season) private readonly seasonRepsitory: Repository<Season>,
         @InjectRepository(SeasonPlan) private readonly seasonPlanRepsitory: Repository<SeasonPlan>,
+        @InjectRepository(SeasonPlanChallenge) private readonly seasonPlanChallengeRepsitory: Repository<SeasonPlanChallenge>,
     ) {}
 
     @Query(returns => [Season], {nullable: true})
@@ -101,8 +103,19 @@ export class SeasonResolver {
         themenwoche.usages = Promise.resolve(usages);
         themenwoche = await this.themenwocheRepository.save(themenwoche);
         seasonPlan.themenwoche = Promise.resolve(themenwoche);
+
         seasonPlan.duration = seasonPlanInput.duration ? seasonPlanInput.duration : seasonPlan.duration;
         seasonPlan.position = seasonPlanInput.position ? seasonPlanInput.position : seasonPlan.duration;
+        seasonPlan = await  this.seasonPlanRepsitory.save(seasonPlan);
+
+        let seasonPlanChallenges: SeasonPlanChallenge[] = await Promise.all((await themenwoche.challenges).map( async (challenge): Promise<SeasonPlanChallenge> => {
+            let seasonPlanChallenge = new SeasonPlanChallenge();
+            seasonPlanChallenge.challenge = Promise.resolve(challenge);
+            seasonPlanChallenge.plan = Promise.resolve(seasonPlan);
+            return this.seasonPlanChallengeRepsitory.save(seasonPlanChallenge);
+        }));
+
+        seasonPlan.challenges = Promise.resolve(seasonPlanChallenges);
         seasonPlan = await  this.seasonPlanRepsitory.save(seasonPlan);
         console.log(seasonPlan);
         return seasonPlan;
