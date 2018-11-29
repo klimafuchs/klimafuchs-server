@@ -15,6 +15,9 @@ import {DateUtils} from "typeorm/util/DateUtils";
 @EventSubscriber()
 export class GameProgressionManager implements EntitySubscriberInterface{
 
+    // Subscribing to updates to Season and SeasonPlan provides a way to reinitialize the game state if new seasons are added.
+    // This is useful in testing to be able to insert a new _current_ season and making it the currentSeason without restarting the server.
+    // In production, this could be used to fix errors in the current season and immediately reflect these changes in the app.
     afterUpdate(event: InsertEvent<any>) {
         if(event.entity instanceof Season || event.entity instanceof SeasonPlan) {
             console.log(`BEFORE ENTITY INSERTED: `, event.entity);
