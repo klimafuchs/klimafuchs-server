@@ -1,4 +1,13 @@
-import {AfterLoad, BeforeInsert, Column, Entity, OneToMany, OneToOne, PrimaryGeneratedColumn} from "typeorm";
+import {
+    AfterLoad,
+    BeforeInsert,
+    Column,
+    Entity,
+    OneToMany,
+    OneToOne,
+    PrimaryGeneratedColumn,
+    RelationOptions
+} from "typeorm";
 import {SeasonPlan} from "./SeasonPlan";
 import {Field, Int, ObjectType} from "type-graphql";
 
@@ -27,7 +36,7 @@ export class Season {
     title: string;
 
     @Field(type => [SeasonPlan])
-    @OneToMany(type => SeasonPlan, sp => sp.season)
+    @OneToMany(type => SeasonPlan, sp => sp.season, {cascade: ["remove"]})
     seasonPlan: Promise<SeasonPlan[]>;
 
     @BeforeInsert()

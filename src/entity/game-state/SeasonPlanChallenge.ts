@@ -17,11 +17,11 @@ export class SeasonPlanChallenge {
     completions: Promise<ChallengeCompletion[]>;
 
     @Field(type => SeasonPlan)
-    @ManyToOne(type => SeasonPlan)
+    @ManyToOne(type => SeasonPlan, { onDelete: 'SET NULL' })
     plan: Promise<SeasonPlan>;
 
     @Field(type => Challenge)
-    @ManyToOne(type => Challenge)
+    @ManyToOne(type => Challenge,{ onDelete: 'SET NULL' })
     challenge: Promise<Challenge>;
 
 }

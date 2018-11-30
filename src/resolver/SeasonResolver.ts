@@ -65,6 +65,27 @@ export class SeasonResolver {
         return this.seasonRepsitory.save(season);
     }
 
+    @Authorized("ADMIN")
+    @Mutation(returns => Season, {nullable: true})
+    async removeSeason(@Ctx() {user}, @Arg("seasonId", type => Int) seasonId: number): Promise<Season> {
+        const season = await this.seasonRepsitory.findOne(seasonId);
+        if(season)
+            return this.seasonRepsitory.remove(season);
+        else
+            return Promise.reject("Season not found!")
+    }
+
+    @Authorized("ADMIN")
+    @Mutation(returns => SeasonPlan, {nullable: true})
+    async removeSeasonPlan(@Ctx() {user}, @Arg("seasonPlanId", type => Int) seasonPlanId: number): Promise<SeasonPlan> {
+        const seasonPlan = await this.seasonPlanRepsitory.findOne(seasonPlanId);
+        if(seasonPlan)
+            return this.seasonPlanRepsitory.remove(seasonPlan);
+        else
+            return Promise.reject("Season not found!")
+    }
+
+
     @Query(returns => [Themenwoche], {nullable: true})
     async themenwoches(@Ctx() {user}): Promise<Themenwoche[]> {
         return this.themenwocheRepository.find();
