@@ -10,7 +10,7 @@ import {User} from "../entity/user/User";
 
 @Resolver(Media)
 export class MediaResolver {
-    private static uploadDir: String = './img';
+    private static uploadDir: string = './img';
 
     constructor(
         @InjectRepository(Media) private readonly mediaRepository: Repository<Media>,
