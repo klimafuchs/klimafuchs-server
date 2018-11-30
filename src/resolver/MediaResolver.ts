@@ -21,7 +21,7 @@ export class MediaResolver {
 
     private static storeFile(stream, filename) {
         const id = generate();
-        const path = `${this.uploadDir}/${id}-${filename}`;
+        const path = `${MediaResolver.uploadDir}/${id}-${filename}`;
         return new Promise(((resolve, reject) =>
                 stream.on('error', err => {
                     if (stream.truncated) fs.unlinkSync(path);
