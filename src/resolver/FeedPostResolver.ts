@@ -40,11 +40,10 @@ export class FeedPostResolver {
     }
 
     @Mutation(returns => FeedPost)
-    addPost(@Arg("post") postInput: FeedPostInput, @Ctx() {user}: Context): Promise<FeedPost> {
-        const post = this.feedPostRepository.create({
-            ...postInput,
-            author: Promise.resolve(user),
-        });
+    async addPost(@Arg("post") postInput: FeedPostInput, @Ctx() {user}: Context): Promise<FeedPost> {
+        let post = new FeedPost();
+        post.author = Promise.resolve(user);
+        Object.assign(post, postInput)
         return this.feedPostRepository.save(post);
     }
 
@@ -88,7 +87,7 @@ export class FeedPostResolver {
 
 
     @Mutation(returns => FeedComment)
-    async addComment(@Arg("post") commentInput: FeedCommentInput, @Ctx() {user}: Context): Promise<FeedComment> {
+    async addComment(@Arg("comment") commentInput: FeedCommentInput, @Ctx() {user}: Context): Promise<FeedComment> {
         const post = await this.feedPostRepository.findOne({
             where: {
                 id: commentInput.post
@@ -99,32 +98,24 @@ export class FeedPostResolver {
             throw new Error("Invalid post ID");
         }
 
+        let comment = new FeedComment();
+
         if (commentInput.parent !== undefined) { // explicitly check if value is not null, otherwise if cast falsy values even if present
             const parent = await this.feedCommentRepository.findOne({
                 where: {
                     id: commentInput.parent
                 }
-            })
+            });
 
             if (!parent) {
                 throw new Error("Invalid parent ID");
             }
-
-            const comment = this.feedCommentRepository.create({
-                body: commentInput.body,
-                post: Promise.resolve(post),
-                parent: Promise.resolve(parent),
-                author: Promise.resolve(user),
-            });
-            return this.feedCommentRepository.save(comment);
-
-        } else {
-            const comment = this.feedCommentRepository.create({
-                body: commentInput.body,
-                post: Promise.resolve(post),
-                author: Promise.resolve(user),
-            });
-            return this.feedCommentRepository.save(comment);
+            comment.parent = Promise.resolve(parent);
         }
+        comment.body =  commentInput.body;
+        comment.post = Promise.resolve(post);
+        comment.author = Promise.resolve(user);
+        return this.feedCommentRepository.save(comment);
+
     }
 }
