@@ -70,21 +70,21 @@ export class User { //TODO split into profile data and user data
     passwordResetToken: PasswordResetToken;
 
     @Field(type => Media, {nullable: true})
-    @OneToOne(type => Media, {nullable: true}) //  TODO eagerness?
-    avatar?: Media;
+    @OneToOne(type => Media, {nullable: true})
+    avatar?: Promise<Media>;
 
-    @Field(type => [Media])
-    @OneToMany(type => Media, media => media.uploader)
-    media: [Media];
+    @Field(type => [Media], {nullable: true})
+    @OneToMany(type => Media, media => media.uploader, {nullable: true})
+    media?: Promise<Media[]>;
 
-    @OneToMany(type => FeedPost, post => post.author)
-    posts: FeedPost[];
+    @OneToMany(type => FeedPost, post => post.author, {nullable: true})
+    posts?: Promise<FeedPost[]>;
 
-    @OneToMany(type => FeedPost, post => post.author)
-    comments: FeedComment[];
+    @OneToMany(type => FeedPost, post => post.author, {nullable: true})
+    comments?: Promise<FeedComment[]>;
 
-    @OneToMany(type => ChallengeCompletion, cc => cc.owner)
-    challengeCompletions: ChallengeCompletion[];
+    @OneToMany(type => ChallengeCompletion, cc => cc.owner, {nullable: true})
+    challengeCompletions?: Promise<ChallengeCompletion[]>;
 
     @BeforeInsert()
     public encrypt () {

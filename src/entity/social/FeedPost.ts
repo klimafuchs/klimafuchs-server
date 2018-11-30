@@ -23,10 +23,10 @@ export class FeedPost {
     dateCreated: Date;
 
     @Field(type => User)
-    @ManyToOne(type => User, user => user.posts, {eager: true})
-    author: User;
+    @ManyToOne(type => User, user => user.posts)
+    author: Promise<User>;
 
     @Field(type => FeedComment, {nullable: true})
-    @OneToMany(type => FeedComment, comment => comment.post, {eager: true})
-    comments?: FeedComment[];
+    @OneToMany(type => FeedComment, comment => comment.post)
+    comments?: Promise<FeedComment[]>;
 }

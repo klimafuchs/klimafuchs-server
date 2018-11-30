@@ -43,7 +43,7 @@ export class FeedPostResolver {
     addPost(@Arg("post") postInput: FeedPostInput, @Ctx() {user}: Context): Promise<FeedPost> {
         const post = this.feedPostRepository.create({
             ...postInput,
-            author: user,
+            author: Promise.resolve(user),
         });
         return this.feedPostRepository.save(post);
     }
@@ -51,7 +51,7 @@ export class FeedPostResolver {
     @Mutation(returns => Boolean)
     async removeOwnPost(@Arg("postId", type => Int) postId: number, @Ctx() {user}: Context): Promise<Boolean> {
         const post = await this.feedPostRepository.findOne(postId);
-        if(post.author.id === user.id) {
+        if((await post.author).id === user.id) {
             await this.feedPostRepository.remove(post);
             return true;
         } else {
@@ -70,7 +70,7 @@ export class FeedPostResolver {
     @Mutation(returns => Boolean)
     async removeOwnComment(@Arg("CommentId", type => Int) commentId: number, @Ctx() {user}: Context): Promise<Boolean> {
         const comment = await this.feedCommentRepository.findOne(commentId);
-        if(comment.author.id === user.id) {
+        if((await comment.author).id === user.id) {
             await this.feedCommentRepository.remove(comment);
             return true;
         } else {
@@ -112,17 +112,17 @@ export class FeedPostResolver {
 
             const comment = this.feedCommentRepository.create({
                 body: commentInput.body,
-                post: post,
-                parent: parent,
-                author: user,
+                post: Promise.resolve(post),
+                parent: Promise.resolve(parent),
+                author: Promise.resolve(user),
             });
             return this.feedCommentRepository.save(comment);
 
         } else {
             const comment = this.feedCommentRepository.create({
                 body: commentInput.body,
-                post: post,
-                author: user,
+                post: Promise.resolve(post),
+                author: Promise.resolve(user),
             });
             return this.feedCommentRepository.save(comment);
         }

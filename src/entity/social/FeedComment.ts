@@ -23,18 +23,18 @@ export class FeedComment {
     sentiment: number = 0;
 
     @Field(type => User)
-    @ManyToOne(type => User, user => user.posts, {eager: true})
-    author: User;
+    @ManyToOne(type => User, user => user.posts)
+    author: Promise<User>;
 
     @Field(type => FeedPost)
     @ManyToOne(type => FeedPost, post => post.comments)
-    post: FeedPost;
+    post: Promise<FeedPost>;
 
     @Field(type => FeedComment, {nullable: true})
     @ManyToOne(type => FeedComment, comment => comment.children)
-    parent?: FeedComment;
+    parent?: Promise<FeedComment>;
 
     @Field(type => FeedComment, {nullable: true})
     @OneToMany(type => FeedComment, comment => comment.parent)
-    children?: FeedComment[];
+    children?: Promise<FeedComment[]>;
 }

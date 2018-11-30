@@ -6,16 +6,13 @@ import {GraphQLUpload, Upload} from "apollo-upload-server";
 import {Media} from "../entity/Media";
 import {generate} from "shortid";
 import * as fs from "fs";
-import {User} from "../entity/user/User";
 
 @Resolver(Media)
 export class MediaResolver {
     private static uploadDir: string = './img';
 
     constructor(
-        @InjectRepository(Media) private readonly mediaRepository: Repository<Media>,
-        @InjectRepository(User) private readonly userRepository: Repository<User>
-
+        @InjectRepository(Media) private readonly mediaRepository: Repository<Media>
     ) {
     }
 
@@ -34,8 +31,7 @@ export class MediaResolver {
 
     @Query(returns => [Media])
     async myMedia(@Ctx() {user}): Promise<Media[]> {
-        const u = await this.userRepository.findOne(user.id, {relations: ["media"]});
-        return u.media;
+        return this.mediaRepository.find({where:{  uploader: user}})
     }
 
     @Mutation(returns => Media)
@@ -48,7 +44,7 @@ export class MediaResolver {
             mimetype: mimetype,
             encoding: encoding,
             path: path,
-            uploader: user
+            uploader: Promise.resolve(user)
         });
         return this.mediaRepository.save(media);
     }

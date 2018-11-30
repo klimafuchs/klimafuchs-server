@@ -32,6 +32,6 @@ export class Media {
     path: String;
 
     @Field(type => User)
-    @ManyToOne(type => User, user => user.media, {eager: true})
-    uploader: User;
+    @ManyToOne(type => User, user => user.media)
+    uploader: Promise<User>;
 }
