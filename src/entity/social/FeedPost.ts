@@ -27,6 +27,6 @@ export class FeedPost {
     author: Promise<User>;
 
     @Field(type => FeedComment, {nullable: true})
-    @OneToMany(type => FeedComment, comment => comment.post)
+    @OneToMany(type => FeedComment, comment => comment.post, {nullable: true})
     comments?: Promise<FeedComment[]>;
 }

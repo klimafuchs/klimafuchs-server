@@ -18,6 +18,7 @@ import {FeedPost} from "../social/FeedPost";
 import {FeedComment} from "../social/FeedComment";
 import {Media} from "../Media";
 import {ChallengeCompletion} from "../game-state/ChallengeCompletion";
+import {Challenge} from "../wiki-content/Challenge";
 
 
 export enum Role {
@@ -77,12 +78,15 @@ export class User { //TODO split into profile data and user data
     @OneToMany(type => Media, media => media.uploader, {nullable: true})
     media?: Promise<Media[]>;
 
+    @Field(type => [FeedPost], {nullable: true})
     @OneToMany(type => FeedPost, post => post.author, {nullable: true})
     posts?: Promise<FeedPost[]>;
 
+    @Field(type => [FeedComment], {nullable: true})
     @OneToMany(type => FeedPost, post => post.author, {nullable: true})
     comments?: Promise<FeedComment[]>;
 
+    @Field(type => [ChallengeCompletion], {nullable: true})
     @OneToMany(type => ChallengeCompletion, cc => cc.owner, {nullable: true})
     challengeCompletions?: Promise<ChallengeCompletion[]>;
 
