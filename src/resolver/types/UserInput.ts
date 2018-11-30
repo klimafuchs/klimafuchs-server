@@ -14,10 +14,10 @@ export class UserInput {
     screenName?: string;
 
     @Field(type => Boolean, {nullable: true})
-    emailConfirmed?: boolean = false; // TODO send bools as string for reasons
+    emailConfirmed?: boolean; // TODO send bools as string for reasons
 
     @Field(type => Boolean, {nullable: true})
-    isBanned?: boolean = false;
+    isBanned?: boolean;
 
     @Field(type => String, {nullable: true})
     avatar?: String;

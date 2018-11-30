@@ -5,6 +5,7 @@ import {Repository} from "typeorm";
 import {FeedPost} from "../entity/social/FeedPost";
 import {UserInput} from "./types/UserInput";
 import {Media} from "../entity/Media";
+import has = Reflect.has;
 
 @Resolver()
 export class UserResolver {
@@ -42,10 +43,11 @@ export class UserResolver {
         if (user.role === Role.Admin) {
             throw new Error("Contact DB Admin to modify admin accounts!");
         }
+        console.log(userInput);
         user.screenName= userInput.screenName ||user.screenName;
         user.userName = userInput.userName || user.userName;
-        user.isBanned = (userInput.isBanned === undefined) ? user.isBanned : userInput.isBanned;
-        user.emailConfirmed = (userInput.emailConfirmed === undefined) ? user.emailConfirmed : userInput.emailConfirmed;
+        user.isBanned = (typeof userInput.isBanned === "boolean") ? userInput.isBanned : user.isBanned;
+        user.emailConfirmed = (typeof userInput.emailConfirmed === "boolean") ? userInput.emailConfirmed : user.emailConfirmed;
         // TODO reset Avatars
         return this.userRepository.save(user)
     }
