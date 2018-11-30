@@ -73,11 +73,11 @@ export class User { //TODO split into profile data and user data
 
     @Field(type => Media, {nullable: true})
     @OneToOne(type => Media, {nullable: true})
-    avatar?: Maybe<Media>;
+    avatar?: Media;
 
     @Field(type => [Media], {nullable: true})
     @OneToMany(type => Media, media => media.uploader, {nullable: true})
-    media?: Maybe<Media[]>;
+    media?: Media[];
 
     @Field(type => [FeedPost], {nullable: true})
     @OneToMany(type => FeedPost, post => post.author, {nullable: true})

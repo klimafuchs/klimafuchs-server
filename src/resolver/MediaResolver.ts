@@ -44,7 +44,7 @@ export class MediaResolver {
             mimetype: mimetype,
             encoding: encoding,
             path: path,
-            uploader: Promise.resolve(user)
+            uploader: user
         });
         return this.mediaRepository.save(media);
     }

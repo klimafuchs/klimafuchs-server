@@ -33,5 +33,5 @@ export class Media {
 
     @Field(type => User)
     @ManyToOne(type => User, user => user.media)
-    uploader: Promise<User>;
+    uploader: User;
 }
