@@ -1,11 +1,16 @@
 import {Arg, Authorized, Ctx, Int, Mutation, Query, Resolver} from "type-graphql"
-import {Repository} from "typeorm";
+import {getCustomRepository, getRepository, Repository} from "typeorm";
 import {FeedPost} from "../entity/social/FeedPost";
 import {InjectRepository} from "typeorm-typedi-extensions";
 import {FeedComment} from "../entity/social/FeedComment";
 import {FeedPostInput} from "./types/FeedPostInput";
 import {Context} from "./types/Context";
 import {FeedCommentInput} from "./types/FeedCommentInput";
+import {connectionTypes} from "./types/ConnectionTypes";
+import {PaginatingRepository} from "./PaginatingRepository";
+import {ConnectionArgs} from "./types/ConnectionPaging";
+import {connectionArgs} from "graphql-relay";
+import {getCurves} from "crypto";
 
 @Resolver()
 export class FeedPostResolver {
@@ -25,6 +30,13 @@ export class FeedPostResolver {
     async posts(): Promise<FeedPost[]> {
         const posts= await this.feedPostRepository.find();
         return posts;
+    }
+
+    @Query(returns => connectionTypes("PaginatedFeed", FeedPost))
+    async paginatedPosts(@Arg("connectionArgs", type => ConnectionArgs) connectionArgs: ConnectionArgs) {
+        const paginatingRepo = getRepository( "PaginatingRepository<FeedPost>");
+        return paginatingRepo.findAndPaginate({}, connectionArgs);
+
     }
 
     @Query(returns => [FeedComment], {nullable: true})
