@@ -30,4 +30,8 @@ export class FeedPost {
     @Field(type => [FeedComment], {nullable: true})
     @OneToMany(type => FeedComment, comment => comment.post, {nullable: true, eager:true})
     comments?: FeedComment[];
+
+    @Field(type => Boolean)
+    @Column({default: false})
+    isPinned!: boolean;
 }

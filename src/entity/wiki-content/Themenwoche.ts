@@ -51,7 +51,7 @@ export class Themenwoche{
     kategorie: Promise<Kategorie>;
 
     @Field(type => [Challenge])
-    @ManyToMany(type => Challenge, c => c.themenWoche)
+    @OneToMany(type => Challenge, c => c.themenWoche)
     @JoinTable()
     challenges: Promise<Challenge[]>;
 

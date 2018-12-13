@@ -6,6 +6,7 @@ import {Container} from "typedi";
 import {SeasonInput} from "./types/SeasonInput";
 import {ChallengeCompletion} from "../entity/game-state/ChallengeCompletion";
 import {ChallengeRejection} from "../entity/game-state/ChallengeRejection";
+import {SeasonPlanChallenge, UserChallenge} from "../entity/game-state/SeasonPlanChallenge";
 
 @Resolver()
 export class GameStateResolver {
@@ -18,8 +19,13 @@ export class GameStateResolver {
     }
 
     @Query(returns => SeasonPlan, {nullable: true})
-    async currentChallenges(@Ctx() {user}): Promise<SeasonPlan> {
+    async globalCurrentChallenges(@Ctx() {user}): Promise<SeasonPlan> {
         return this.mgmr.currentSeasonPlan;
+    }
+
+    @Query(returns => [UserChallenge], {nullable: true})
+    async currentChallenges(@Ctx() {user}): Promise<UserChallenge[]> {
+        return this.mgmr.getCurrentChallengesForUser(user);
     }
 
     @Mutation(returns => ChallengeCompletion, {nullable: true})
@@ -28,7 +34,7 @@ export class GameStateResolver {
     }
 
     @Mutation(returns => ChallengeRejection, {nullable: true})
-    async rejectChallenge(@Ctx() {user}, @Arg("challengeId", type => Int) challengeId: number): Promise<ChallengeRejection> {
+        async rejectChallenge(@Ctx() {user}, @Arg("challengeId", type => Int) challengeId: number): Promise<ChallengeRejection> {
         return this.mgmr.rejectChallenge(user, challengeId)
     }
 }

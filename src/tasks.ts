@@ -82,10 +82,16 @@ export class Tasks {
             defaultUser.role = Role.User;
 
             const userRepo = getRepository(User);
-            userRepo.save(defaultUser)
-                .catch(e => console.error(e));
-            userRepo.save(defaultAdmin)
-                .catch(e => console.error(e));
+            userRepo.findOneOrFail({where: {userName: "root"}}).then(() => {
+                console.error("Found default test users! This should not happen in PRODUCTION")
+            }).catch(
+                _ => {
+                    userRepo.save(defaultUser)
+                        .catch(e => console.error(e));
+                    userRepo.save(defaultAdmin)
+                        .catch(e => console.error(e));
+                }
+            )
 
         }
     }

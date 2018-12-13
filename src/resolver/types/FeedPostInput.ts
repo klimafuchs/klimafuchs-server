@@ -10,4 +10,6 @@ export class FeedPostInput {
     @Field(type => String)
     body: string;
 
+    @Field(type => Boolean)
+    isPinned: boolean;
 }

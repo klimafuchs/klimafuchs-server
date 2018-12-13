@@ -20,6 +20,8 @@ import {Media} from "../Media";
 import {ChallengeCompletion} from "../game-state/ChallengeCompletion";
 import {Challenge} from "../wiki-content/Challenge";
 import Maybe from "graphql/tsutils/Maybe";
+import {ChallengeRejection} from "../game-state/ChallengeRejection";
+import {ChallengeReplacement} from "../game-state/ChallengeReplacement";
 
 
 export enum Role {
@@ -77,19 +79,27 @@ export class User { //TODO split into profile data and user data
 
     @Field(type => [Media], {nullable: true})
     @OneToMany(type => Media, media => media.uploader, {nullable: true})
-    media?: Media[];
+    media?: Promise<Media[]>;
 
     @Field(type => [FeedPost], {nullable: true})
     @OneToMany(type => FeedPost, post => post.author, {nullable: true})
-    posts?: Maybe<FeedPost[]>;
+    posts?: Promise<FeedPost[]>;
 
     @Field(type => [FeedComment], {nullable: true})
     @OneToMany(type => FeedPost, post => post.author, {nullable: true})
-    comments?: Maybe<FeedComment[]>;
+    comments?: Promise<FeedComment[]>;
 
     @Field(type => [ChallengeCompletion], {nullable: true})
     @OneToMany(type => ChallengeCompletion, cc => cc.owner, {nullable: true})
-    challengeCompletions?: Maybe<ChallengeCompletion[]>;
+    challengeCompletions?: Promise<ChallengeCompletion[]>;
+
+    @Field(type => [ChallengeRejection], {nullable: true})
+    @OneToMany(type => ChallengeRejection, cr => cr.owner, {nullable: true})
+    challengeRejections?: Promise<ChallengeRejection[]>;
+
+    @Field(type => [ChallengeReplacement], {nullable: true})
+    @OneToMany(type => ChallengeReplacement, cr => cr.owner, {nullable: true})
+    challengeReplacements?: Promise<ChallengeReplacement[]>;
 
     @BeforeInsert()
     public encrypt () {

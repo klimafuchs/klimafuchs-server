@@ -21,11 +21,11 @@ export class ChallengeRejection {
     updatedAt: Date;
 
     @Field(type => User)
-    @ManyToOne(type => User, u => u.challengeCompletions)
+    @ManyToOne(type => User, u => u.challengeRejections)
     owner: Promise<User>;
 
     @Field(type => SeasonPlanChallenge)
-    @ManyToMany(type => SeasonPlanChallenge, s => s.completions)
+    @ManyToOne(type => SeasonPlanChallenge, s => s.rejections)
     seasonPlanChallenge: Promise<SeasonPlanChallenge>;
 
 }

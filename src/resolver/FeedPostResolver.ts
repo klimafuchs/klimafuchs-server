@@ -6,6 +6,7 @@ import {FeedComment} from "../entity/social/FeedComment";
 import {FeedPostInput} from "./types/FeedPostInput";
 import {Context} from "./types/Context";
 import {FeedCommentInput} from "./types/FeedCommentInput";
+import {Role} from "../entity/user/User";
 
 @Resolver()
 export class FeedPostResolver {
@@ -43,7 +44,10 @@ export class FeedPostResolver {
     async addPost(@Arg("post") postInput: FeedPostInput, @Ctx() {user}: Context): Promise<FeedPost> {
         let post = new FeedPost();
         post.author = Promise.resolve(user);
-        Object.assign(post, postInput)
+        Object.assign(post, postInput);
+        if(user.role !== Role.Admin) {
+            post.isPinned = false;
+        }
         return this.feedPostRepository.save(post);
     }
 
@@ -70,8 +74,9 @@ export class FeedPostResolver {
     async removeOwnComment(@Arg("CommentId", type => Int) commentId: number, @Ctx() {user}: Context): Promise<Boolean> {
         const comment = await this.feedCommentRepository.findOne(commentId);
         if((await comment.author).id === user.id) {
-            await this.feedCommentRepository.remove(comment);
-            return true;
+            this.feedCommentRepository.remove(comment)
+                .then(() => true)
+                .catch((err) => Promise.reject(err));
         } else {
             return false;
         }
