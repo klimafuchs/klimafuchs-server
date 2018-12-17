@@ -1,16 +1,13 @@
 import {Arg, Authorized, Ctx, Int, Mutation, Query, Resolver} from "type-graphql"
-import {getCustomRepository, getRepository, Repository} from "typeorm";
+import {getCustomRepository, Repository} from "typeorm";
 import {FeedPost} from "../entity/social/FeedPost";
 import {InjectRepository} from "typeorm-typedi-extensions";
 import {FeedComment} from "../entity/social/FeedComment";
 import {FeedPostInput} from "./types/FeedPostInput";
 import {Context} from "./types/Context";
 import {FeedCommentInput} from "./types/FeedCommentInput";
-import {connectionTypes} from "./types/ConnectionTypes";
-import {PaginatingRepository} from "./PaginatingRepository";
+import {FeedPostPage, PaginatingFeedPostRepository} from "./PaginatingRepository";
 import {ConnectionArgs} from "./types/ConnectionPaging";
-import {connectionArgs} from "graphql-relay";
-import {getCurves} from "crypto";
 
 @Resolver()
 export class FeedPostResolver {
@@ -32,11 +29,10 @@ export class FeedPostResolver {
         return posts;
     }
 
-    @Query(returns => connectionTypes("PaginatedFeed", FeedPost))
+    @Query(returns => FeedPostPage)
     async paginatedPosts(@Arg("connectionArgs", type => ConnectionArgs) connectionArgs: ConnectionArgs) {
-        const paginatingRepo = getRepository( "PaginatingRepository<FeedPost>");
-        return paginatingRepo.findAndPaginate({}, connectionArgs);
-
+        const paginatingRepo = getCustomRepository(PaginatingFeedPostRepository);
+        return paginatingRepo.findAndPaginate({}, {dateCreated: "DESC"}, connectionArgs);
     }
 
     @Query(returns => [FeedComment], {nullable: true})

@@ -1,9 +1,11 @@
 // @see https://github.com/19majkel94/type-graphql/issues/142
-import {TypeValue} from "type-graphql/decorators/types";
+// TODO use this instead of hard coded Types
+import {ReturnTypeFuncValue, TypeValue} from "type-graphql/decorators/types";
 import * as Relay from 'graphql-relay'
 import {Field, ObjectType} from "type-graphql";
+import {PageData} from "../PaginatingRepository";
 
-export function connectionTypes<T extends TypeValue>(name: String, nodeType:T){
+export function connectionTypes<T extends TypeValue>(name: String, nodeType: T): ReturnTypeFuncValue {
     @ObjectType(`${name}Edge`)
     class Edge implements Relay.Edge<T> {
 
@@ -13,7 +15,7 @@ export function connectionTypes<T extends TypeValue>(name: String, nodeType:T){
         @Field(type => nodeType)
         node!: T;
 
-        @Field(type => JSON)
+        @Field(type => String)
         cursorDecoded() {
             return Relay.fromGlobalId(this.cursor)
         }
@@ -21,16 +23,21 @@ export function connectionTypes<T extends TypeValue>(name: String, nodeType:T){
 
     @ObjectType(`${name}Connection`)
     class Connection implements Relay.Connection<T> {
-        @Field()
-        edges!: Edge[];
+        @Field(type => Edge)
+        edges!: Relay.Edge<T>[];
 
         @Field(type => [Edge])
         pageInfo!: Relay.PageInfo;
-
     }
 
-    return {
-        Connection,
-        Edge
+    @ObjectType(`${name}Page`)
+    class Page {
+        @Field(type => Connection)
+        page!: Connection;
+
+        @Field(type => PageData)
+        pageData!: PageData;
     }
+
+    return Page;
 }

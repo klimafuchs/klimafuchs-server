@@ -1,8 +1,8 @@
 // @see https://github.com/19majkel94/type-graphql/issues/142
-import {ArgsType, Field} from "type-graphql";
+import {Field, InputType} from "type-graphql";
 import {ConnectionArguments, ConnectionCursor, fromGlobalId} from "graphql-relay";
 
-@ArgsType()
+@InputType()
 export class ConnectionArgs implements ConnectionArguments {
     @Field({ nullable: true, description: 'Paginate before opaque cursor' })
     before?: ConnectionCursor
