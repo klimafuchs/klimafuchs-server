@@ -26,6 +26,7 @@
     "uglify": "^0.1.5"
   },
   "dependencies": {
+    "@types/graphql-relay": "^0.4.9",
     "apollo-upload-server": "^7.0.0",
     "axios": "^0.18.0",
     "bcrypt-nodejs": "0.0.3",
@@ -45,6 +46,8 @@
     "fs": "0.0.1-security",
     "get-title-at-url": "^1.1.6",
     "graphql": "^0.13.2",
+    "graphql-relay": "latest",
+    "graphql-relay-connection": "0.0.4",
     "http": "0.0.0",
     "https": "^1.0.0",
     "jsonwebtoken": "^8.2.1",
