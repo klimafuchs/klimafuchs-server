@@ -4,13 +4,13 @@ import {ConnectionArguments, ConnectionCursor, fromGlobalId} from "graphql-relay
 
 @InputType()
 export class ConnectionArgs implements ConnectionArguments {
-    @Field({ nullable: true, description: 'Paginate before opaque cursor' })
+    @Field({nullable: true, description: 'Paginate before opaque cursor'})
     before?: ConnectionCursor
-    @Field({ nullable: true, description: 'Paginate after opaque cursor' })
+    @Field({nullable: true, description: 'Paginate after opaque cursor'})
     after?: ConnectionCursor
-    @Field({ nullable: true, description: 'Paginate first' })
+    @Field({nullable: true, description: 'Paginate first'})
     first?: number
-    @Field({ nullable: true, description: 'Paginate last' })
+    @Field({nullable: true, description: 'Paginate last'})
     last?: number
 
     pagingParams() {
@@ -24,7 +24,7 @@ type PagingMeta =
     | { pagingType: 'none' }
 
 function checkPagingSanity(args: ConnectionArgs): PagingMeta {
-    const { first = 0, last = 0, after, before } = args
+    const {first = 0, last = 0, after, before} = args
     const isForwardPaging = !!first || !!after
     const isBackwardPaging = !!last || !!before
 
@@ -43,10 +43,10 @@ function checkPagingSanity(args: ConnectionArgs): PagingMeta {
         throw new Error("when paging backwards, a 'before' argument is required")
     }
     return isForwardPaging
-        ? { pagingType: 'forward', after, first }
+        ? {pagingType: 'forward', after, first}
         : isBackwardPaging
-            ? { pagingType: 'backward', before, last }
-            : { pagingType: 'none' }
+            ? {pagingType: 'backward', before, last}
+            : {pagingType: 'none'}
 }
 
 const getId = (cursor: ConnectionCursor) => parseInt(fromGlobalId(cursor).id, 10);
@@ -69,7 +69,7 @@ function getPagingParameters(args: ConnectionArgs) {
             }
         }
         case 'backward': {
-            const { last, before } = meta
+            const {last, before} = meta
             let limit = last
             let offset = getId(before!) - last
 
@@ -80,7 +80,7 @@ function getPagingParameters(args: ConnectionArgs) {
                 offset = 0
             }
 
-            return { offset, limit }
+            return {offset, limit}
         }
         default:
             return {}
