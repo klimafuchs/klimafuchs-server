@@ -1,8 +1,7 @@
 import {Column, CreateDateColumn, Entity, ManyToOne, OneToMany, PrimaryGeneratedColumn} from "typeorm";
-import {ObjectType, Field, Int} from "type-graphql";
+import {Field, Int, ObjectType} from "type-graphql";
 import {User} from "../user/User";
 import {FeedComment} from "./FeedComment";
-import Maybe from "graphql/tsutils/Maybe";
 
 @Entity()
 @ObjectType()
@@ -28,8 +27,8 @@ export class FeedPost {
     author: Promise<User>;
 
     @Field(type => [FeedComment], {nullable: true})
-    @OneToMany(type => FeedComment, comment => comment.post, {nullable: true, eager:true})
-    comments?: FeedComment[];
+    @OneToMany(type => FeedComment, comment => comment.post, {nullable: true})
+    comments?: Promise<FeedComment[]>;
 
     @Field(type => Boolean)
     @Column({default: false})
