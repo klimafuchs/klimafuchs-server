@@ -22,7 +22,7 @@ export class SeasonPlan {
     id: number;
 
     @Field(type => Season)
-    @ManyToOne(type => Season, s => s.seasonPlan)
+    @ManyToOne(type => Season, s => s.seasonPlan, {eager: true})
     season: Season;
 
     @Field(type => Date)
