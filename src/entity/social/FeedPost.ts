@@ -28,7 +28,7 @@ export class FeedPost {
 
     @Field(type => [FeedComment], {nullable: true})
     @OneToMany(type => FeedComment, comment => comment.post, {nullable: true})
-    comments?: Promise<FeedComment[]>;
+    comments?: FeedComment[];
 
     @Field(type => Boolean)
     @Column({default: false})
