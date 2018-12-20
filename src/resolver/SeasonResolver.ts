@@ -98,7 +98,9 @@ export class SeasonResolver {
 
     @Query(returns => [SeasonPlan], {nullable: true})
     async seasonPlans(@Ctx() {user}): Promise<SeasonPlan[]> {
-        return this.seasonPlanRepsitory.find();
+        const plans = await this.seasonPlanRepsitory.find().catch((err) => Promise.reject(err));
+        console.log(plans);
+        return plans;
     }
 
     @Query(returns => SeasonPlan, {nullable: true})
