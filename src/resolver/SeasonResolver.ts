@@ -127,7 +127,7 @@ export class SeasonResolver {
         seasonPlan.themenwoche = Promise.resolve(themenwoche);
 
         seasonPlan.duration = seasonPlanInput.duration ? seasonPlanInput.duration : seasonPlan.duration;
-        seasonPlan.position = seasonPlanInput.position ? seasonPlanInput.position : seasonPlan.duration;
+        seasonPlan.position = seasonPlanInput.position ? seasonPlanInput.position : seasonPlan.position;
         seasonPlan = await  this.seasonPlanRepsitory.save(seasonPlan);
 
         let seasonPlanChallenges: SeasonPlanChallenge[] = await Promise.all((await themenwoche.challenges).map( async (challenge): Promise<SeasonPlanChallenge> => {

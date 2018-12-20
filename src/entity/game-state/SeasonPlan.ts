@@ -2,8 +2,9 @@ import {
     BeforeInsert,
     Column,
     CreateDateColumn,
-    Entity, JoinTable, ManyToMany,
-    ManyToOne, OneToMany,
+    Entity,
+    ManyToOne,
+    OneToMany,
     PrimaryGeneratedColumn,
     UpdateDateColumn
 } from "typeorm";
@@ -42,6 +43,7 @@ export class SeasonPlan {
 
     @BeforeInsert()
     public setDefaultDuration() {
+        console.log(this);
         if (!this.duration || this.duration < 1) {
             let config = require("../../../config.json"); //todo replace with container var
             this.duration = config.defaultWeekDuration || 7 * 24 * 60 * 60 // s per week
