@@ -23,7 +23,7 @@ export class SeasonPlan {
 
     @Field(type => Season)
     @ManyToOne(type => Season, s => s.seasonPlan)
-    season: Promise<Season>;
+    season: Season;
 
     @Field(type => Date)
     @CreateDateColumn()
