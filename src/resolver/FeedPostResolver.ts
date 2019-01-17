@@ -9,6 +9,7 @@ import {FeedCommentInput} from "./types/FeedCommentInput";
 import {Role} from "../entity/user/User";
 import {FeedPostPage, PaginatingFeedPostRepository} from "./PaginatingRepository";
 import {ConnectionArgs} from "./types/ConnectionPaging";
+import {Media} from "../entity/Media";
 
 @Resolver()
 export class FeedPostResolver {
@@ -16,6 +17,7 @@ export class FeedPostResolver {
     constructor(
         @InjectRepository(FeedPost) private readonly feedPostRepository: Repository<FeedPost>,
         @InjectRepository(FeedComment) private readonly feedCommentRepository: Repository<FeedComment>,
+        @InjectRepository(Media) private readonly mediaRepository: Repository<Media>
     ) {
     }
 
@@ -52,7 +54,16 @@ export class FeedPostResolver {
     async addPost(@Arg("post") postInput: FeedPostInput, @Ctx() {user}: Context): Promise<FeedPost> {
         let post = new FeedPost();
         post.author = Promise.resolve(user);
-        Object.assign(post, postInput);
+        post.title = postInput.title;
+        post.body = postInput.body;
+        post.isPinned = postInput.isPinned;
+        if (postInput.ytId) post.ytId = postInput.ytId;
+        if (postInput.mediaId) {
+            const media = await this.mediaRepository.findOne(postInput.mediaId);
+            if (media) {
+                post.image = Promise.resolve(media);
+            }
+        }
         if(user.role !== Role.Admin) {
             post.isPinned = false;
         }

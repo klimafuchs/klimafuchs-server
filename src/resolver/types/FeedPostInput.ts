@@ -1,5 +1,4 @@
-import {Field, InputType} from "type-graphql";
-import {Column} from "typeorm";
+import {Field, InputType, Int} from "type-graphql";
 
 @InputType()
 export class FeedPostInput {
@@ -12,4 +11,11 @@ export class FeedPostInput {
 
     @Field(type => Boolean, {nullable: true})
     isPinned?: boolean = false;
+
+    @Field(type => Int, {nullable: true})
+    mediaId?: number;
+
+    @Field(type => String, {nullable: true})
+    ytId?: string;
+
 }

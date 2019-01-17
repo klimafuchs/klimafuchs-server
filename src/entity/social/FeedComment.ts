@@ -28,7 +28,7 @@ export class FeedComment {
 
     @Field(type => FeedPost)
     @ManyToOne(type => FeedPost, post => post.comments)
-    post: FeedPost;
+    post: Promise<FeedPost>;
 
     @Field(type => [FeedComment], {nullable: true})
     @ManyToOne(type => FeedComment, comment => comment.children)
