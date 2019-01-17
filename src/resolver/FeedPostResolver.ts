@@ -51,6 +51,24 @@ export class FeedPostResolver {
     }
 
     @Mutation(returns => FeedPost)
+    async likePost(@Arg("postId", type => Int) postId: number, @Ctx() {user}: Context): Promise<FeedPost> {
+
+        let post = await this.feedPostRepository.findOne(postId);
+        if (!post) return undefined;
+
+        let postLikedBy = await post.likedBy;
+        // return post as is if the context user already liked the post
+        if (postLikedBy.filter((u) => u.id === user.id).length > 0) {
+            return post;
+        }
+
+        postLikedBy.push(user);
+        post.likedBy = Promise.resolve(postLikedBy);
+        post.sentiment = postLikedBy.length;
+        return this.feedPostRepository.save(post);
+    }
+
+    @Mutation(returns => FeedPost)
     async addPost(@Arg("post") postInput: FeedPostInput, @Ctx() {user}: Context): Promise<FeedPost> {
         let post = new FeedPost();
         post.author = Promise.resolve(user);

@@ -1,4 +1,13 @@
-import {Column, CreateDateColumn, Entity, ManyToOne, OneToMany, PrimaryGeneratedColumn} from "typeorm";
+import {
+    Column,
+    CreateDateColumn,
+    Entity,
+    JoinTable,
+    ManyToMany,
+    ManyToOne,
+    OneToMany,
+    PrimaryGeneratedColumn
+} from "typeorm";
 import {Field, Int, ObjectType} from "type-graphql";
 import {User} from "../user/User";
 import {FeedComment} from "./FeedComment";
@@ -34,6 +43,17 @@ export class FeedPost {
     @Field(type => Boolean)
     @Column({default: false})
     isPinned!: boolean;
+
+    @Field(type => Int)
+    @Column({default: 0})
+    sentiment: number;
+
+    @Field(type => Boolean)
+    currentUserLikedPost: boolean = false;
+
+    @ManyToMany(type => User, {nullable: true})
+    @JoinTable()
+    likedBy?: Promise<User[]>;
 
     // Only one of image or ytId should be set
     // TODO move to their own Entity to preserve NF
