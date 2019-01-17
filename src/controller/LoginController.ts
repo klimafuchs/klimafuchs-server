@@ -1,12 +1,8 @@
 import {getRepository} from "typeorm";
-import {NextFunction, Router, Request, Response} from "express";
+import {NextFunction, Request, Response, Router} from "express";
 
 import {User} from "../entity/user/User";
 import * as passport from "passport";
-import {Group} from "../entity/social/Group";
-import {PasswordResetToken} from "../entity/user/PasswordResetToken";
-import {Tasks} from "../tasks";
-import {Member} from "../entity/social/Member";
 
 
 let router = Router();
@@ -61,16 +57,7 @@ async function postRegister(request: Request, response: Response, done: NextFunc
             newUser.userName = username;
             newUser.screenName = screename;
             newUser.password = password;
-            if (inviteLink != null) {
-                getRepository(Group).findOne({inviteId: inviteLink}).then(async (group) => {
-                    let m = new Member();
-                    m.group = group;
-                    m.user = request.user;
-                    await getRepository(Member).save(m);
-                    let updated = await getRepository(Group).findOne({id: group.id});
-                    response.json(updated.transfer(true));
-                })
-            }
+
             let user = await getRepository(User).insert(newUser);
             if(user){
                 response.sendStatus(201);

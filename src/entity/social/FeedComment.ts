@@ -1,4 +1,14 @@
-import {Column, CreateDateColumn, Entity, ManyToOne, OneToMany, PrimaryGeneratedColumn} from "typeorm";
+import {
+    AfterInsert,
+    AfterRemove,
+    Column,
+    CreateDateColumn,
+    Entity,
+    getRepository,
+    ManyToOne,
+    OneToMany,
+    PrimaryGeneratedColumn
+} from "typeorm";
 import {Field, Int, ObjectType} from "type-graphql";
 import {User} from "../user/User";
 import {FeedPost} from "./FeedPost";
@@ -37,4 +47,18 @@ export class FeedComment {
     @Field(type => [FeedComment], {nullable: true})
     @OneToMany(type => FeedComment, comment => comment.parent)
     children?: Promise<FeedComment[]>;
+
+    @AfterInsert()
+    async incrementPostCommentCount() {
+        let post = await this.post;
+        post.commentCount = post.commentCount + 1;
+        await getRepository(FeedPost).save(post);
+    }
+
+    @AfterRemove()
+    async decrementPostCommentCount() {
+        let post = await this.post;
+        post.commentCount = post.commentCount - 1;
+        await getRepository(FeedPost).save(post);
+    }
 }

@@ -46,4 +46,8 @@ export class FeedPost {
     @Column({nullable: true})
     ytId?: string;
 
+    @Field(type => Int)
+    @Column({default: 0})
+    commentCount: number;
+
 }
