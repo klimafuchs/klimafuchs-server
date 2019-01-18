@@ -164,11 +164,13 @@ export class FeedPostResolver {
             }
         });
 
+
         if (!post) {
             throw new Error("Invalid post ID");
         }
 
         let comment = new FeedComment();
+
 
         if (commentInput.parent !== undefined) { // explicitly check if value is not null, otherwise if cast falsy values even if present
             const parent = await this.feedCommentRepository.findOne({
@@ -185,7 +187,8 @@ export class FeedPostResolver {
         comment.body =  commentInput.body;
         comment.post = Promise.resolve(post);
         comment.author = Promise.resolve(user);
-        return this.feedCommentRepository.save(comment);
-
+        comment = await this.feedCommentRepository.save(comment);
+        post.updateCommentCount().catch((err) => console.error(err));
+        return comment;
     }
 }

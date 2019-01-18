@@ -2,6 +2,7 @@ import {
     Column,
     CreateDateColumn,
     Entity,
+    getRepository,
     JoinTable,
     ManyToMany,
     ManyToOne,
@@ -38,7 +39,7 @@ export class FeedPost {
 
     @Field(type => [FeedComment], {nullable: true})
     @OneToMany(type => FeedComment, comment => comment.post, {nullable: true})
-    comments?: FeedComment[];
+    comments?: Promise<FeedComment[]>;
 
     @Field(type => Boolean)
     @Column({default: false})
@@ -73,5 +74,12 @@ export class FeedPost {
     public async currentUserLikesPost(user: User) {
         let likes = await this.likedBy;
         this.currentUserLikedPost = (likes && likes.filter(u => u.id === user.id).length > 0);
+    }
+
+    public async updateCommentCount() {
+        const comments = await this.comments;
+        console.log(comments);
+        this.commentCount = comments.length;
+        return getRepository(FeedPost).save(this);
     }
 }
