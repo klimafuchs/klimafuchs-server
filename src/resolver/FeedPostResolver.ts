@@ -65,16 +65,19 @@ export class FeedPostResolver {
         let post = await this.feedPostRepository.findOne(postId);
         if (!post) return undefined;
 
-        let postLikedBy = await post.likedBy;
         // return post as is if the context user already liked the post
-        if (postLikedBy.filter((u) => u.id === user.id).length > 0) {
+        await post.currentUserLikesPost(user);
+        if (post.currentUserLikedPost) {
             return post;
         }
+        let postLikedBy = await post.likedBy;
 
         postLikedBy.push(user);
         post.likedBy = Promise.resolve(postLikedBy);
         post.sentiment = postLikedBy.length;
-        return this.feedPostRepository.save(post);
+        post = await this.feedPostRepository.save(post);
+        post.currentUserLikedPost = true;
+        return post;
     }
 
     @Mutation(returns => FeedPost)
@@ -83,16 +86,18 @@ export class FeedPostResolver {
         let post = await this.feedPostRepository.findOne(postId);
         if (!post) return undefined;
 
-        let postLikedBy = await post.likedBy;
-        // return post as is if the context user already liked the post
-        if (!(postLikedBy.filter((u) => u.id === user.id).length > 0)) {
+        await post.currentUserLikesPost(user);
+        if (!post.currentUserLikedPost) {
             return post;
         }
 
+        let postLikedBy = await post.likedBy;
         postLikedBy = postLikedBy.filter(u => u.id !== user.id);
         post.likedBy = Promise.resolve(postLikedBy);
         post.sentiment = postLikedBy.length;
-        return this.feedPostRepository.save(post);
+        post = await this.feedPostRepository.save(post);
+        post.currentUserLikedPost = false;
+        return post;
     }
 
     @Mutation(returns => FeedPost)
