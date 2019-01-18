@@ -11,6 +11,12 @@ import {FeedPostPage, PaginatingFeedPostRepository} from "./PaginatingRepository
 import {ConnectionArgs} from "./types/ConnectionPaging";
 import {Media} from "../entity/Media";
 
+async function asyncForEach(array, callback) {
+    for (let index = 0; index < array.length; index++) {
+        await callback(array[index], index, array);
+    }
+}
+
 @Resolver()
 export class FeedPostResolver {
 
@@ -22,13 +28,16 @@ export class FeedPostResolver {
     }
 
     @Query(returns => FeedPost, {nullable: true})
-    post(@Arg("postId", type => Int) postId: number): Promise<FeedPost> {
-        return this.feedPostRepository.findOne(postId);
+    async post(@Arg("postId", type => Int) postId: number, @Ctx() {user}: Context): Promise<FeedPost> {
+        let post = await this.feedPostRepository.findOne(postId);
+        await post.currentUserLikesPost(user);
+        return post;
     }
 
     @Query(returns => [FeedPost])
-    async posts(): Promise<FeedPost[]> {
-        const posts= await this.feedPostRepository.find();
+    async posts(@Ctx() {user}: Context): Promise<FeedPost[]> {
+        const posts = await this.feedPostRepository.find();
+        await asyncForEach(posts, (post) => post.currentUserLikesPost(user))
         return posts;
     }
 

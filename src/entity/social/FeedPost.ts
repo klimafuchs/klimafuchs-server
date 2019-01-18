@@ -70,4 +70,8 @@ export class FeedPost {
     @Column({default: 0})
     commentCount: number;
 
+    public async currentUserLikesPost(user: User) {
+        let likes = await this.likedBy;
+        this.currentUserLikedPost = (likes && likes.filter(u => u.id === user.id).length > 0);
+    }
 }
