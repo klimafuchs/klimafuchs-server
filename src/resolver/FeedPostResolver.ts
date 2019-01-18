@@ -11,12 +11,6 @@ import {FeedPostPage, PaginatingFeedPostRepository} from "./PaginatingRepository
 import {ConnectionArgs} from "./types/ConnectionPaging";
 import {Media} from "../entity/Media";
 
-async function asyncForEach(array, callback) {
-    for (let index = 0; index < array.length; index++) {
-        await callback(array[index], index, array);
-    }
-}
-
 @Resolver()
 export class FeedPostResolver {
 
@@ -37,14 +31,16 @@ export class FeedPostResolver {
     @Query(returns => [FeedPost])
     async posts(@Ctx() {user}: Context): Promise<FeedPost[]> {
         const posts = await this.feedPostRepository.find();
-        await asyncForEach(posts, (post) => post.currentUserLikesPost(user))
+        await Promise.all(posts.map((post) => post.currentUserLikesPost(user)));
         return posts;
     }
 
     @Query(returns => FeedPostPage)
-    async paginatedPosts(@Arg("connectionArgs", type => ConnectionArgs) connectionArgs: ConnectionArgs) {
+    async paginatedPosts(@Arg("connectionArgs", type => ConnectionArgs) connectionArgs: ConnectionArgs, @Ctx() {user}: Context) {
         const paginatingRepo = getCustomRepository(PaginatingFeedPostRepository);
-        return paginatingRepo.findAndPaginate({}, {dateCreated: "DESC"}, connectionArgs);
+        let page = await paginatingRepo.findAndPaginate({}, {dateCreated: "DESC"}, connectionArgs);
+        await Promise.all(page.page.edges.map((edge) => edge.node.currentUserLikesPost(user)));
+        return page;
     }
 
     @Query(returns => [FeedComment], {nullable: true})
