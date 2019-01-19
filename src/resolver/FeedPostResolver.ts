@@ -186,9 +186,9 @@ export class FeedPostResolver {
     }
 
     @Mutation(returns => FeedComment)
-    async likeComment(@Arg("commentId", type => Int) postId: number, @Ctx() {user}: Context): Promise<FeedComment> {
+    async likeComment(@Arg("commentId", type => Int) commentId: number, @Ctx() {user}: Context): Promise<FeedComment> {
 
-        let comment = await this.feedCommentRepository.findOne(postId);
+        let comment = await this.feedCommentRepository.findOne(commentId);
         if (!comment) return undefined;
 
         // return comment as is if the context user already liked the comment
@@ -201,14 +201,14 @@ export class FeedPostResolver {
         commentLikedBy.push(user);
         comment.likedBy = Promise.resolve(commentLikedBy);
         comment.sentiment = commentLikedBy.length;
-        comment = await this.feedPostRepository.save(comment);
+        comment = await this.feedCommentRepository.save(comment);
         return comment;
     }
 
     @Mutation(returns => FeedComment)
-    async unlikeComment(@Arg("commentId", type => Int) postId: number, @Ctx() {user}: Context): Promise<FeedComment> {
+    async unlikeComment(@Arg("commentId", type => Int) commentId: number, @Ctx() {user}: Context): Promise<FeedComment> {
 
-        let comment = await this.feedCommentRepository.findOne(postId);
+        let comment = await this.feedCommentRepository.findOne(commentId);
         if (!comment) return undefined;
 
         let commentLikedBy = await comment.likedBy;
@@ -219,7 +219,7 @@ export class FeedPostResolver {
         commentLikedBy = commentLikedBy.filter(u => u.id !== user.id);
         comment.likedBy = Promise.resolve(commentLikedBy);
         comment.sentiment = commentLikedBy.length;
-        comment = await this.feedPostRepository.save(comment);
+        comment = await this.feedCommentRepository.save(comment);
         return comment;
     }
 }
