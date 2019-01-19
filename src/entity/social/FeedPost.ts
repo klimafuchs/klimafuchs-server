@@ -9,10 +9,11 @@ import {
     OneToMany,
     PrimaryGeneratedColumn
 } from "typeorm";
-import {Field, Int, ObjectType} from "type-graphql";
+import {Ctx, Field, Int, ObjectType} from "type-graphql";
 import {User} from "../user/User";
 import {FeedComment} from "./FeedComment";
 import {Media} from "../Media";
+import {Context} from "../../resolver/types/Context";
 
 @Entity()
 @ObjectType()
@@ -49,9 +50,6 @@ export class FeedPost {
     @Column({default: 0})
     sentiment: number;
 
-    @Field(type => Boolean)
-    currentUserLikedPost: boolean = false;
-
     @ManyToMany(type => User, {nullable: true})
     @JoinTable()
     likedBy?: Promise<User[]>;
@@ -71,9 +69,9 @@ export class FeedPost {
     @Column({default: 0})
     commentCount: number;
 
-    public async currentUserLikesPost(user: User) {
-        let likes = await this.likedBy;
-        this.currentUserLikedPost = (likes && likes.filter(u => u.id === user.id).length > 0);
+    @Field(type => Boolean)
+    async currentUserLikesPost(@Ctx() {user}: Context): Promise<boolean> {
+        return this.likedBy.then((users) => users.some((u) => u.id === user.id));
     }
 
     public async updateCommentCount() {

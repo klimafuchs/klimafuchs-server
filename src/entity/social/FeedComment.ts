@@ -1,7 +1,17 @@
-import {Column, CreateDateColumn, Entity, ManyToOne, OneToMany, PrimaryGeneratedColumn} from "typeorm";
-import {Field, Int, ObjectType} from "type-graphql";
+import {
+    Column,
+    CreateDateColumn,
+    Entity,
+    JoinTable,
+    ManyToMany,
+    ManyToOne,
+    OneToMany,
+    PrimaryGeneratedColumn
+} from "typeorm";
+import {Ctx, Field, Int, ObjectType} from "type-graphql";
 import {User} from "../user/User";
 import {FeedPost} from "./FeedPost";
+import {Context} from "../../resolver/types/Context";
 
 @Entity()
 @ObjectType()
@@ -38,4 +48,12 @@ export class FeedComment {
     @OneToMany(type => FeedComment, comment => comment.parent)
     children?: Promise<FeedComment[]>;
 
+    @ManyToMany(type => User, {nullable: true})
+    @JoinTable()
+    likedBy?: Promise<User[]>;
+
+    @Field(type => Boolean)
+    async currentUserLikesComment(@Ctx() {user}: Context): Promise<boolean> {
+        return this.likedBy.then((users) => users.some((u) => u.id === user.id));
+    }
 }

@@ -24,14 +24,12 @@ export class FeedPostResolver {
     @Query(returns => FeedPost, {nullable: true})
     async post(@Arg("postId", type => Int) postId: number, @Ctx() {user}: Context): Promise<FeedPost> {
         let post = await this.feedPostRepository.findOne(postId);
-        await post.currentUserLikesPost(user);
         return post;
     }
 
     @Query(returns => [FeedPost])
     async posts(@Ctx() {user}: Context): Promise<FeedPost[]> {
         const posts = await this.feedPostRepository.find();
-        await Promise.all(posts.map((post) => post.currentUserLikesPost(user)));
         return posts;
     }
 
@@ -39,7 +37,6 @@ export class FeedPostResolver {
     async paginatedPosts(@Arg("connectionArgs", type => ConnectionArgs) connectionArgs: ConnectionArgs, @Ctx() {user}: Context) {
         const paginatingRepo = getCustomRepository(PaginatingFeedPostRepository);
         let page = await paginatingRepo.findAndPaginate({}, {dateCreated: "DESC"}, connectionArgs);
-        await Promise.all(page.page.edges.map((edge) => edge.node.currentUserLikesPost(user)));
         return page;
     }
 
@@ -62,17 +59,15 @@ export class FeedPostResolver {
         if (!post) return undefined;
 
         // return post as is if the context user already liked the post
-        await post.currentUserLikesPost(user);
-        if (post.currentUserLikedPost) {
+        let postLikedBy = await post.likedBy;
+        if (postLikedBy.some(u => u.id === user.id)) {
             return post;
         }
-        let postLikedBy = await post.likedBy;
 
         postLikedBy.push(user);
         post.likedBy = Promise.resolve(postLikedBy);
         post.sentiment = postLikedBy.length;
         post = await this.feedPostRepository.save(post);
-        post.currentUserLikedPost = true;
         return post;
     }
 
@@ -82,17 +77,15 @@ export class FeedPostResolver {
         let post = await this.feedPostRepository.findOne(postId);
         if (!post) return undefined;
 
-        await post.currentUserLikesPost(user);
-        if (!post.currentUserLikedPost) {
+        let postLikedBy = await post.likedBy;
+        if (!postLikedBy.some(u => u.id === user.id)) {
             return post;
         }
 
-        let postLikedBy = await post.likedBy;
         postLikedBy = postLikedBy.filter(u => u.id !== user.id);
         post.likedBy = Promise.resolve(postLikedBy);
         post.sentiment = postLikedBy.length;
         post = await this.feedPostRepository.save(post);
-        post.currentUserLikedPost = false;
         return post;
     }
 
@@ -189,6 +182,44 @@ export class FeedPostResolver {
         comment.author = Promise.resolve(user);
         comment = await this.feedCommentRepository.save(comment);
         post.updateCommentCount().catch((err) => console.error(err));
+        return comment;
+    }
+
+    @Mutation(returns => FeedComment)
+    async likeComment(@Arg("commentId", type => Int) postId: number, @Ctx() {user}: Context): Promise<FeedComment> {
+
+        let comment = await this.feedCommentRepository.findOne(postId);
+        if (!comment) return undefined;
+
+        // return comment as is if the context user already liked the comment
+        let commentLikedBy = await comment.likedBy;
+
+        if (commentLikedBy.some(u => u.id === user.id)) {
+            return comment;
+        }
+
+        commentLikedBy.push(user);
+        comment.likedBy = Promise.resolve(commentLikedBy);
+        comment.sentiment = commentLikedBy.length;
+        comment = await this.feedPostRepository.save(comment);
+        return comment;
+    }
+
+    @Mutation(returns => FeedComment)
+    async unlikeComment(@Arg("commentId", type => Int) postId: number, @Ctx() {user}: Context): Promise<FeedComment> {
+
+        let comment = await this.feedCommentRepository.findOne(postId);
+        if (!comment) return undefined;
+
+        let commentLikedBy = await comment.likedBy;
+
+        if (!commentLikedBy.some(u => u.id === user.id)) {
+            return comment;
+        }
+        commentLikedBy = commentLikedBy.filter(u => u.id !== user.id);
+        comment.likedBy = Promise.resolve(commentLikedBy);
+        comment.sentiment = commentLikedBy.length;
+        comment = await this.feedPostRepository.save(comment);
         return comment;
     }
 }
