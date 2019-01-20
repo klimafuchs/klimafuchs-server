@@ -108,6 +108,7 @@ export class FeedPostResolver {
         if(user.role !== Role.Admin) {
             post.isPinned = false;
         }
+        console.log(postInput)
         console.log(post);
         return this.feedPostRepository.save(post);
     }
