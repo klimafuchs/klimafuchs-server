@@ -7,6 +7,11 @@ import {Media} from "../entity/Media";
 import {generate} from "shortid";
 import * as fs from "fs";
 
+interface FileInsert {
+    newName: string,
+    path: string
+}
+
 @Resolver(Media)
 export class MediaResolver {
     private static uploadDir: string = './img';
@@ -16,7 +21,7 @@ export class MediaResolver {
     ) {
     }
 
-    private static storeFile(stream, filename) {
+    private static storeFile(stream, filename): Promise<FileInsert> {
         const id = generate();
         const newName = `${id}-${filename}`;
         const path = `${MediaResolver.uploadDir}/${newName}`;
@@ -26,7 +31,7 @@ export class MediaResolver {
                     reject(err);
                 }).pipe(fs.createWriteStream(path))
                     .on('error', err => reject(err))
-                    .on('finish', () => resolve({path: path, filename: newName}))
+                    .on('finish', () => resolve({path: path, newName: newName}))
         ))
     }
 
@@ -39,9 +44,9 @@ export class MediaResolver {
     async upload(@Arg('file', type => GraphQLUpload) file: Upload, @Ctx() {user}: Context): Promise<Media> {
         const {stream, filename, mimetype, encoding} = await file;
         console.log(`Receiving file: \n ${{filename: filename, mimetype: mimetype, encoding: encoding}}`)
-        const path = await MediaResolver.storeFile(stream, filename);
+        const {path, newName} = await MediaResolver.storeFile(stream, filename);
         const media = this.mediaRepository.create({
-            filename: filename,
+            filename: newName,
             mimetype: mimetype,
             encoding: encoding,
             path: path,
