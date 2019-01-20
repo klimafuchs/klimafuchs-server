@@ -101,11 +101,14 @@ export class FeedPostResolver {
             const media = await this.mediaRepository.findOne(postInput.mediaId);
             if (media) {
                 post.image = Promise.resolve(media);
+            } else {
+                console.error("invalid media assignment")
             }
         }
         if(user.role !== Role.Admin) {
             post.isPinned = false;
         }
+        console.log(post);
         return this.feedPostRepository.save(post);
     }
 
