@@ -18,20 +18,21 @@ export class MediaResolver {
 
     private static storeFile(stream, filename) {
         const id = generate();
-        const path = `${MediaResolver.uploadDir}/${id}-${filename}`;
+        const newName = `${id}-${filename}`;
+        const path = `${MediaResolver.uploadDir}/${newName}`;
         return new Promise(((resolve, reject) =>
                 stream.on('error', err => {
                     if (stream.truncated) fs.unlinkSync(path);
                     reject(err);
                 }).pipe(fs.createWriteStream(path))
                     .on('error', err => reject(err))
-                    .on('finish', () => resolve(path))
+                    .on('finish', () => resolve({path: path, filename: newName}))
         ))
     }
 
     @Query(returns => [Media])
     async myMedia(@Ctx() {user}): Promise<Media[]> {
-        return this.mediaRepository.find({where:{  uploader: user}})
+        return this.mediaRepository.find({where: {uploader: user}})
     }
 
     @Mutation(returns => Media)
