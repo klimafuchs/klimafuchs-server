@@ -12,6 +12,8 @@ export class GameStateResolver {
 
     private mgmr: GameProgressionManager = Container.get(GameProgressionManager);
 
+    //TODO Add dedicated seasonProgress, history etc queries
+
     @Query(returns => Season, {nullable: true})
     async currentSeason(@Ctx() {user}): Promise<Season> {
         return this.mgmr.currentSeason;
