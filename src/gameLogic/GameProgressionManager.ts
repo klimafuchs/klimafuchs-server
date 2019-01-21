@@ -3,16 +3,7 @@ import {Challenge} from "../entity/wiki-content/Challenge";
 import {ChallengeCompletion} from "../entity/game-state/ChallengeCompletion";
 import {SeasonPlanChallenge, UserChallenge} from "../entity/game-state/SeasonPlanChallenge";
 import {InjectRepository} from "typeorm-typedi-extensions";
-import {
-    Any,
-    EntitySubscriberInterface,
-    EventSubscriber,
-    In,
-    InsertEvent,
-    LessThan,
-    MoreThan,
-    Repository
-} from "typeorm";
+import {EntitySubscriberInterface, EventSubscriber, In, InsertEvent, LessThan, MoreThan, Repository} from "typeorm";
 import {User} from "../entity/user/User";
 import * as Schedule from 'node-schedule';
 import {Season} from "../entity/game-state/Season";
@@ -31,14 +22,14 @@ export class GameProgressionManager implements EntitySubscriberInterface{
     afterUpdate(event: InsertEvent<any>) {
         if(event.entity instanceof Season || event.entity instanceof SeasonPlan) {
             console.log(`BEFORE ENTITY INSERTED: `, event.entity);
-            this.init();
+            this.setUpCurrentSeason();
         }
     }
 
     afterInsert(event: InsertEvent<any>) {
         if(event.entity instanceof Season || event.entity instanceof SeasonPlan) {
             console.log(`BEFORE ENTITY INSERTED: `, event.entity);
-            this.init();
+            this.setUpCurrentSeason();
         }
     }
 
@@ -66,10 +57,10 @@ export class GameProgressionManager implements EntitySubscriberInterface{
         @InjectRepository(ChallengeReplacement) private readonly challengeReplacementRepository: Repository<ChallengeReplacement>,
     ) {
         console.log("Starting GameProgressionManager...");
-        this.init();
+        this.setUpCurrentSeason();
     }
 
-    private init() {
+    public setUpCurrentSeason() {
         if (this.advanceToNextSeasonJob) this.advanceToNextSeasonJob.cancel();
         if (this.advanceToNextPlanJob) this.advanceToNextPlanJob.cancel();
 
@@ -89,7 +80,7 @@ export class GameProgressionManager implements EntitySubscriberInterface{
                             if (!this.advanceToNextPlanJob) // the seasonoffsetDate
                                 throw new Error("Season has no seasonPlans!");
                         }
-                        this.advanceToNextSeasonJob = Schedule.scheduleJob(new Date(this._currentSeason.endDate.getTime() + 2000), this.init.bind(this));
+                        this.advanceToNextSeasonJob = Schedule.scheduleJob(new Date(this._currentSeason.endDate.getTime() + 2000), this.setUpCurrentSeason.bind(this));
 
                         console.log(`Advancing to next SeasonPlan at ${this.advanceToNextPlanJob.nextInvocation()}. 
                                     \n Advancing to next Season at ${this.advanceToNextSeasonJob.nextInvocation()}`);

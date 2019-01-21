@@ -1,11 +1,11 @@
 import * as webPush from 'web-push';
-import {Router, Request, Response} from "express";
+import {Request, Response, Router} from "express";
 import * as bodyParser from "body-parser"
 import {getRepository} from "typeorm";
 import {Subscription} from "../entity/user/Subscription";
 
 let config = require("../../config.json");
-
+//TODO Implemnent https://github.com/expo/expo-server-sdk-node
 
 if (!process.env.VAPID_PUBLIC_KEY || !process.env.VAPID_PRIVATE_KEY) {
     console.log("You must set the VAPID_PUBLIC_KEY and VAPID_PRIVATE_KEY "+

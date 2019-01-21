@@ -2,13 +2,11 @@ import "reflect-metadata";
 import {createConnection, useContainer} from "typeorm";
 import * as TypeGraphQL from "type-graphql";
 import {Container} from "typedi";
-import {DateUtils} from "typeorm/util/DateUtils"
 import * as express from "express";
 import {Request, Response} from "express";
 import * as bodyParser from "body-parser";
 import * as passport from "passport";
 import * as flash from "flash";
-import {FrontEndController} from "./routes";
 import * as session from "express-session";
 import * as expressValidator from "express-validator";
 import * as cookieParser from "cookie-parser";
@@ -17,12 +15,9 @@ import {ApiContoller} from "./controller/ApiController";
 import {passportConf} from "./PassportConfig";
 import {ApiLandingContoller} from "./controller/ApiLandingController";
 import * as cors from 'cors';
-import * as schedule from 'node-schedule';
-import {Challenge} from "./entity/wiki-content/Challenge";
 import {Tasks} from "./tasks";
 import {PushController} from "./controller/PushController";
 import {FeedController} from "./controller/GqlController";
-import * as serveIndex from "serve-index";
 import {WikiSyncController} from "./controller/WikiSyncController";
 import {GameProgressionManager} from "./gameLogic/GameProgressionManager";
 
@@ -38,7 +33,7 @@ let express_handlebars = require("express-handlebars")({defaultLayout: 'layout'}
 useContainer(Container);
 TypeGraphQL.useContainer(Container);
 createConnection().then(async connection => {
-    // init cron-like tasks
+    // setUpCurrentSeason cron-like tasks
     const tasks = Container.get(Tasks);
     const gameProgressionManager = Container.get(GameProgressionManager);
     // create express app
