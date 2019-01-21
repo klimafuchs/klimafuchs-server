@@ -5,8 +5,8 @@ import {
     JoinTable,
     ManyToMany,
     ManyToOne,
-    OneToMany, PrimaryColumn,
-    PrimaryGeneratedColumn,
+    OneToMany,
+    PrimaryColumn,
     UpdateDateColumn
 } from "typeorm";
 import {Quelle} from "./Quelle";
@@ -16,7 +16,7 @@ import {Props} from "./Props";
 import {WikiImage} from "./WikiImage";
 import {Kategorie} from "./Kategorie";
 import {SeasonPlan} from "../game-state/SeasonPlan";
-import {Field, Int, ObjectType} from "type-graphql";
+import {Field, ObjectType} from "type-graphql";
 
 @Entity()
 @ObjectType()
@@ -30,7 +30,7 @@ export class Themenwoche{
     @Column({type: "text"})
     content: string;
 
-    @Field(type => WikiImage)
+    @Field(type => WikiImage, {nullable: true})
     @ManyToOne(type => WikiImage, {eager: true})
     headerImage: WikiImage;
 
@@ -42,15 +42,15 @@ export class Themenwoche{
     @UpdateDateColumn()
     updatedAt: Date;
 
-    @Field(type => Oberthema)
+    @Field(type => Oberthema, {nullable: true})
     @ManyToOne(type => Oberthema, o => o.themenWochen)
     oberthema: Promise<Oberthema>;
 
-    @Field(type => Kategorie)
+    @Field(type => Kategorie, {nullable: true})
     @ManyToOne(type => Kategorie, k => k.themenWochen)
     kategorie: Promise<Kategorie>;
 
-    @Field(type => [Challenge])
+    @Field(type => [Challenge], {nullable: true})
     @OneToMany(type => Challenge, c => c.themenWoche)
     @JoinTable()
     challenges: Promise<Challenge[]>;
@@ -59,12 +59,12 @@ export class Themenwoche{
     @ManyToOne(type => Props)
     props: Promise<Props>;
 
-    @Field(type => Quelle)
+    @Field(type => Quelle, {nullable: true})
     @ManyToMany(type => Quelle)
     @JoinTable()
     quellen: Promise<Quelle[]>;
 
-    @Field(type => [SeasonPlan])
+    @Field(type => [SeasonPlan], {nullable: true})
     @OneToMany(type => SeasonPlan, s => s.themenwoche)
     usages: Promise<SeasonPlan[]>;
 
