@@ -171,6 +171,7 @@ export class GameProgressionManager implements EntitySubscriberInterface{
                 challenge: seasonPlanChallenge
             }
         });
+        console.log(existingChallengeCompletion);
         if (existingChallengeCompletion.length > 0) return existingChallengeCompletion[0];
         // complete challenge
         let challengeCompletion: ChallengeCompletion = new ChallengeCompletion();
