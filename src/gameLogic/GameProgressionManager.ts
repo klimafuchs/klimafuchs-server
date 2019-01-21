@@ -165,14 +165,14 @@ export class GameProgressionManager implements EntitySubscriberInterface{
         );
         if (challengeRejection) return Promise.reject("SeasonPlanChallenge has previously rejected!");
         // check if the challenge was alreacy completed
-        let existingChallengeCompletion: ChallengeCompletion[] = await this.challengeCompletionRepository.find({
+        let existingChallengeCompletion: ChallengeCompletion = await this.challengeCompletionRepository.findOne({
             where: {
-                owner: user,
-                challenge: seasonPlanChallenge
+                owner: {id: user.id},
+                seasonPlanChallenge: seasonPlanChallenge
             }
         });
         console.log(existingChallengeCompletion);
-        if (existingChallengeCompletion.length > 0) return existingChallengeCompletion[0];
+        if (existingChallengeCompletion) return existingChallengeCompletion;
         // complete challenge
         let challengeCompletion: ChallengeCompletion = new ChallengeCompletion();
         challengeCompletion.owner = Promise.resolve(user);
