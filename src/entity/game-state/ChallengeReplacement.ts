@@ -39,7 +39,7 @@ export class ChallengeReplacement extends IUserChallenge {
     @OneToOne(type => ChallengeCompletion, c => c.replacementChallenge, {nullable: true})
     completion: Promise<ChallengeCompletion>;
 
-    @Field(type => ChallengeCompletion)
+    @Field(type => ChallengeCompletion, {nullable: true})
     async(@Ctx() {user}: Context): Promise<ChallengeCompletion> {
         return this.completion
     }

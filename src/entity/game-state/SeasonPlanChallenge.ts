@@ -31,6 +31,7 @@ export class SeasonPlanChallenge extends IUserChallenge {
     @ManyToOne(type => Challenge,{ onDelete: 'SET NULL' })
     challenge: Promise<Challenge>;
 
+    @Field(type => ChallengeCompletion, {nullable: true})
     async challengeCompletion(@Ctx() {user}: Context): Promise<ChallengeCompletion> {
         let completions = await this.completions;
         let c = await Promise.all(completions.map(async (c) => {

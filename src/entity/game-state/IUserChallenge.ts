@@ -16,7 +16,7 @@ export abstract class IUserChallenge {
     @Field(type => SeasonPlan)
     plan: Promise<SeasonPlan>;
 
-    @Field(type => ChallengeCompletion)
+    @Field(type => ChallengeCompletion, {nullable: true})
     async challengeCompletion({user}: Context): Promise<ChallengeCompletion> {
         console.error("dont call this");
         return undefined
