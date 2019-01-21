@@ -3,10 +3,9 @@ import {Season} from "../entity/game-state/Season";
 import {SeasonPlan} from "../entity/game-state/SeasonPlan";
 import {GameProgressionManager} from "../gameLogic/GameProgressionManager";
 import {Container} from "typedi";
-import {SeasonInput} from "./types/SeasonInput";
 import {ChallengeCompletion} from "../entity/game-state/ChallengeCompletion";
 import {ChallengeRejection} from "../entity/game-state/ChallengeRejection";
-import {SeasonPlanChallenge, UserChallenge} from "../entity/game-state/SeasonPlanChallenge";
+import {IUserChallenge} from "../entity/game-state/IUserChallenge";
 
 @Resolver()
 export class GameStateResolver {
@@ -23,8 +22,8 @@ export class GameStateResolver {
         return this.mgmr.currentSeasonPlan;
     }
 
-    @Query(returns => [UserChallenge], {nullable: true})
-    async currentChallenges(@Ctx() {user}): Promise<UserChallenge[]> {
+    @Query(returns => [IUserChallenge], {nullable: true})
+    async currentChallenges(@Ctx() {user}): Promise<IUserChallenge[]> {
         return this.mgmr.getCurrentChallengesForUser(user);
     }
 

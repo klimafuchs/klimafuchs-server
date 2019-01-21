@@ -1,13 +1,15 @@
-import {CreateDateColumn, Entity, ManyToOne, PrimaryGeneratedColumn, UpdateDateColumn} from "typeorm";
-import {Field, Int, ObjectType} from "type-graphql";
+import {CreateDateColumn, Entity, ManyToOne, OneToOne, PrimaryGeneratedColumn, UpdateDateColumn} from "typeorm";
+import {Ctx, Field, Int, ObjectType} from "type-graphql";
 import {User} from "../user/User";
-import {UserChallenge} from "./SeasonPlanChallenge";
+import {IUserChallenge} from "./IUserChallenge";
 import {SeasonPlan} from "./SeasonPlan";
 import {Challenge} from "../wiki-content/Challenge";
+import {ChallengeCompletion} from "./ChallengeCompletion";
+import {Context} from "../../resolver/types/Context";
 
 @Entity()
-@ObjectType({implements: UserChallenge})
-export class ChallengeReplacement implements UserChallenge {
+@ObjectType({implements: IUserChallenge})
+export class ChallengeReplacement extends IUserChallenge {
 
     @Field(type => Int)
     @PrimaryGeneratedColumn()
@@ -33,5 +35,13 @@ export class ChallengeReplacement implements UserChallenge {
     @ManyToOne(type => SeasonPlan)
     plan: Promise<SeasonPlan>;
 
+    @Field(type => ChallengeCompletion, {nullable: true})
+    @OneToOne(type => ChallengeCompletion, c => c.replacementChallenge, {nullable: true})
+    completion: Promise<ChallengeCompletion>;
+
+    @Field(type => ChallengeCompletion)
+    async(@Ctx() {user}: Context): Promise<ChallengeCompletion> {
+        return this.completion
+    }
 
 }

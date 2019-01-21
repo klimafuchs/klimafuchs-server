@@ -1,7 +1,7 @@
 import {Service} from "typedi";
 import {Challenge} from "../entity/wiki-content/Challenge";
 import {ChallengeCompletion} from "../entity/game-state/ChallengeCompletion";
-import {SeasonPlanChallenge, UserChallenge} from "../entity/game-state/SeasonPlanChallenge";
+import {SeasonPlanChallenge} from "../entity/game-state/SeasonPlanChallenge";
 import {InjectRepository} from "typeorm-typedi-extensions";
 import {EntitySubscriberInterface, EventSubscriber, In, InsertEvent, LessThan, MoreThan, Repository} from "typeorm";
 import {User} from "../entity/user/User";
@@ -11,6 +11,7 @@ import {SeasonPlan} from "../entity/game-state/SeasonPlan";
 import {ChallengeRejection} from "../entity/game-state/ChallengeRejection";
 import {DateUtils} from "typeorm/util/DateUtils";
 import {ChallengeReplacement} from "../entity/game-state/ChallengeReplacement";
+import {IUserChallenge} from "../entity/game-state/IUserChallenge";
 
 @Service()
 @EventSubscriber()
@@ -190,9 +191,9 @@ export class GameProgressionManager implements EntitySubscriberInterface{
         return this.challengeRejectionRepository.save(challengeRejection)
     }
 
-    public async getCurrentChallengesForUser(user: User): Promise<UserChallenge[]> {
-        let challenges: UserChallenge[] = await this.currentSeasonPlan.challenges;
-        const replacements = await this.challengeReplacementRepository.find({
+    public async getCurrentChallengesForUser(user: User): Promise<IUserChallenge[]> {
+        let challenges: IUserChallenge[] = await this.currentSeasonPlan.challenges;
+        const replacements: IUserChallenge[] = await this.challengeReplacementRepository.find({
             where: {
                 owner: user,
                 seasonPlan: this.currentSeasonPlan

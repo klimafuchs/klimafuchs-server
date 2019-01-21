@@ -1,27 +1,15 @@
-import {Entity, JoinTable, ManyToMany, ManyToOne, OneToMany, PrimaryGeneratedColumn} from "typeorm";
-import {Field, Int, InterfaceType, ObjectType} from "type-graphql";
+import {Entity, ManyToOne, OneToMany, PrimaryGeneratedColumn} from "typeorm";
+import {Ctx, Field, Int, ObjectType} from "type-graphql";
 import {ChallengeCompletion} from "./ChallengeCompletion";
 import {SeasonPlan} from "./SeasonPlan";
 import {Challenge} from "../wiki-content/Challenge";
 import {ChallengeRejection} from "./ChallengeRejection";
-import {ChallengeReplacement} from "./ChallengeReplacement";
-
-@InterfaceType()
-export abstract class UserChallenge {
-
-    @Field(type => Challenge)
-    challenge: Promise<Challenge>;
-
-    @Field(type => Int)
-    id: number;
-
-    @Field(type => SeasonPlan)
-    plan: Promise<SeasonPlan>;
-}
+import {IUserChallenge} from "./IUserChallenge";
+import {Context} from "../../resolver/types/Context";
 
 @Entity()
-@ObjectType({implements: UserChallenge})
-export class SeasonPlanChallenge implements UserChallenge {
+@ObjectType({implements: IUserChallenge})
+export class SeasonPlanChallenge extends IUserChallenge {
 
     @Field(type => Int)
     @PrimaryGeneratedColumn()
@@ -43,4 +31,14 @@ export class SeasonPlanChallenge implements UserChallenge {
     @ManyToOne(type => Challenge,{ onDelete: 'SET NULL' })
     challenge: Promise<Challenge>;
 
+    async challengeCompletion(@Ctx() {user}: Context): Promise<ChallengeCompletion> {
+        let completions = await this.completions;
+        let c = await Promise.all(completions.map(async (c) => {
+            let u = await c.owner;
+            return {c: c, u: u};
+        }));
+        completions = c.filter(c => c.u.id === user.id).map(c => c.c);
+        if (completions.length > 0) return completions[0];
+        return undefined;
+    }
 }
