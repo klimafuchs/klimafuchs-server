@@ -1,7 +1,7 @@
 declare module "apollo-upload-server" {
-    import { GraphQLScalarType } from "graphql";
-    import { RequestHandler } from "express";
-    import { Readable } from "stream";
+    import {GraphQLScalarType} from "graphql";
+    import {RequestHandler} from "express";
+    import {Readable} from "stream";
 
     export interface UploadMiddlewareOptions {
         maxFieldSize?: number;
@@ -14,6 +14,8 @@ declare module "apollo-upload-server" {
         filename: string;
         mimetype: string;
         encoding: string;
+        width?: number;
+        height?: number;
     }
 
     export const GraphQLUpload: GraphQLScalarType;
