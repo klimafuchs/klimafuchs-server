@@ -1,4 +1,4 @@
-import {Arg, Ctx, Mutation, Query, Resolver} from "type-graphql"
+import {Arg, Ctx, Int, Mutation, Query, Resolver} from "type-graphql"
 import {Repository} from "typeorm";
 import {InjectRepository} from "typeorm-typedi-extensions";
 import {Context} from "./types/Context";
@@ -42,13 +42,15 @@ export class MediaResolver {
 
     @Mutation(returns => Media)
     async upload(@Arg('file', type => GraphQLUpload) file: Upload,
-                 @Arg('width', type => GraphQLUpload) width: number,
-                 @Arg('height', type => GraphQLUpload) height: number,
-                 @Ctx() {user}: Context)
-        : Promise<Media> {
+                 @Arg('width', type => Int!) width: number,
+                 @Arg('height', type => Int!) height: number,
+                 @Ctx() {user}: Context): Promise<Media> {
         const {stream, filename, mimetype, encoding} = await file;
-        console.log(`Receiving file filename: ${filename}, mimetype: ${mimetype}, encoding: ${encoding}, height: ${height}, width: ${width}`)
-        ;
+        console.log(`Receiving file filename: ${filename},
+         mimetype: ${mimetype},
+          encoding: ${encoding},
+           height: ${height},
+            width: ${width}`);
         const {path, newName} = await MediaResolver.storeFile(stream, filename);
         const media = this.mediaRepository.create({
             filename: newName,
