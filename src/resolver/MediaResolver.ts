@@ -43,7 +43,8 @@ export class MediaResolver {
     @Mutation(returns => Media)
     async upload(@Arg('file', type => GraphQLUpload) file: Upload, @Ctx() {user}: Context): Promise<Media> {
         const {stream, filename, mimetype, encoding, width, height} = await file;
-        console.log(`Receiving file: \n ${{filename: filename, mimetype: mimetype, encoding: encoding, height, width}}`)
+        console.log(`Receiving file filename: ${filename}, mimetype: ${mimetype}, encoding: ${encoding}, height: ${height}, width: ${width}`∆)
+        ;
         const {path, newName} = await MediaResolver.storeFile(stream, filename);
         const media = this.mediaRepository.create({
             filename: newName,
