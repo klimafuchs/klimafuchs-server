@@ -20,6 +20,7 @@ export class GameProgressionManager implements EntitySubscriberInterface{
     // Subscribing to updates to Season and SeasonPlan provides a way to reinitialize the game state if new seasons are added.
     // This is useful in testing to be able to insert a new _current_ season and making it the currentSeason without restarting the server.
     // In production, this could be used to fix errors in the current season and immediately reflect these changes in the app.
+    // TODO fix this it doesn't work
     afterUpdate(event: InsertEvent<any>) {
         if(event.entity instanceof Season || event.entity instanceof SeasonPlan) {
             console.log(`BEFORE ENTITY INSERTED: `, event.entity);
@@ -133,6 +134,7 @@ export class GameProgressionManager implements EntitySubscriberInterface{
             return undefined
         }
         let seasonPlans = await season.seasonPlan;
+        console.log(timeInSeason, seasonPlans);
         return seasonPlans.slice(0).reduce((acc, cur) => { // don't do that to reduce, it has done nothing wrong! :(
             timeInSeason = timeInSeason - cur.duration;
             if (timeInSeason <= 0) {
