@@ -1,13 +1,4 @@
-import {
-    AfterLoad,
-    BeforeInsert,
-    Column,
-    Entity,
-    OneToMany,
-    OneToOne,
-    PrimaryGeneratedColumn,
-    RelationOptions
-} from "typeorm";
+import {AfterLoad, BeforeInsert, Column, Entity, OneToMany, PrimaryGeneratedColumn} from "typeorm";
 import {SeasonPlan} from "./SeasonPlan";
 import {Field, Int, ObjectType} from "type-graphql";
 
@@ -55,5 +46,8 @@ export class Season {
         this.seasonPlan = Promise.resolve(sp.sort((a,b) => a.position - b.position));
     }
 
+    timeLeft(): number {
+        return this.endDate.getTime() - Date.now()
+    }
 
 }

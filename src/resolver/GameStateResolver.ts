@@ -16,12 +16,12 @@ export class GameStateResolver {
 
     @Query(returns => Season, {nullable: true})
     async currentSeason(@Ctx() {user}): Promise<Season> {
-        return this.mgmr.currentSeason;
+        return this.mgmr.getCurrentSeason();
     }
 
     @Query(returns => SeasonPlan, {nullable: true})
     async globalCurrentChallenges(@Ctx() {user}): Promise<SeasonPlan> {
-        return this.mgmr.currentSeasonPlan;
+        return this.mgmr.getCurrentSeasonPlan();
     }
 
     @Query(returns => [IUserChallenge], {nullable: true})

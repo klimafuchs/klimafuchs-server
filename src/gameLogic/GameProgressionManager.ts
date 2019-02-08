@@ -1,21 +1,27 @@
-import {Service} from "typedi";
+import {Container, Service} from "typedi";
 import {Challenge} from "../entity/wiki-content/Challenge";
 import {ChallengeCompletion} from "../entity/game-state/ChallengeCompletion";
 import {SeasonPlanChallenge} from "../entity/game-state/SeasonPlanChallenge";
 import {InjectRepository} from "typeorm-typedi-extensions";
 import {EntitySubscriberInterface, EventSubscriber, In, InsertEvent, LessThan, MoreThan, Repository} from "typeorm";
 import {User} from "../entity/user/User";
-import * as Schedule from 'node-schedule';
 import {Season} from "../entity/game-state/Season";
 import {SeasonPlan} from "../entity/game-state/SeasonPlan";
 import {ChallengeRejection} from "../entity/game-state/ChallengeRejection";
 import {DateUtils} from "typeorm/util/DateUtils";
 import {ChallengeReplacement} from "../entity/game-state/ChallengeReplacement";
 import {IUserChallenge} from "../entity/game-state/IUserChallenge";
+import {RedisClient} from "redis";
 
+const {promisify} = require('util');
 @Service()
 @EventSubscriber()
 export class GameProgressionManager implements EntitySubscriberInterface{
+
+    private redisClient: RedisClient = Container.get("redis");
+    private getRedisAsync: Function;
+    private seasonUseRedisTTL = true;
+    private seasonPlanUseRedisTTL = true;
 
     // Subscribing to updates to Season and SeasonPlan provides a way to reinitialize the game state if new seasons are added.
     // This is useful in testing to be able to insert a new _current_ season and making it the currentSeason without restarting the server.
@@ -34,15 +40,56 @@ export class GameProgressionManager implements EntitySubscriberInterface{
         }
     }
 
-    private _currentSeason: Season;
-    private _currentSeasonPlan: SeasonPlan;
 
-    get currentSeason(): Season {
-        return this._currentSeason;
+    async getCurrentSeason(): Promise<Season> {
+
+        let currentSesonId = await this.getRedisAsync("currentSeason");
+        if (!currentSesonId) {
+            const s = await this.findCurrentSeason();
+            this.setCurrentSeason(s);
+        }
+        return this.seasonRepository.findOne(await this.getRedisAsync("currentSeason"));
+
+        //return this.redisClient.get("currentSeason");
     }
 
-    get currentSeasonPlan(): SeasonPlan {
-        return this._currentSeasonPlan;
+    setCurrentSeason(season: Season) {
+        this.redisClient.set("currentSeason", season.id.toString(), (err, result) => {
+            if (err) console.error(err);
+            console.log(JSON.stringify(result));
+            if (this.seasonUseRedisTTL) {
+                const timeLeft = Math.floor(season.timeLeft() / 1000);
+                if (timeLeft > 0)
+                    this.redisClient.expire("currentSeason", timeLeft);
+                else console.warn(`Setting currentSeason but season.timeLeft = ${timeLeft} is < 0!`);
+            }
+        });
+    }
+
+    async getCurrentSeasonPlan(): Promise<SeasonPlan> {
+        let currentSesonId = await this.getRedisAsync("currentSeasonPlan");
+        if (!currentSesonId) {
+            const sp = await this.findCurrentSeasonPlan(await this.getCurrentSeason());
+            this.setCurrentSeasonPlan(sp);
+        }
+        return this.seasonPlanRepository.findOne(this.getRedisAsync("currentSeasonPlan"));
+    }
+
+    setCurrentSeasonPlan(seasonPlan: SeasonPlan) {
+        this.redisClient.set("currentSeasonPlan", seasonPlan.id.toString(), async (err, result) => {
+            if (err) console.error(err);
+            console.log(JSON.stringify(result));
+            if (this.seasonPlanUseRedisTTL) {
+                const seasonPlanEndDateTime = await GameProgressionManager.getAbsoluteEndTimeOfSeasonPlan(await this.getCurrentSeason(), seasonPlan).catch(err => {
+                    throw new Error(err)
+                });
+                console.log(seasonPlanEndDateTime);
+                const timeLeft = Math.floor(seasonPlanEndDateTime - Date.now() / 1000);
+                if (timeLeft > 0)
+                    this.redisClient.expire("currentSeasonPlan", timeLeft);
+                else console.warn(`Setting currentSeasonPlan but timeLeft = ${timeLeft} is < 0!`);
+            }
+        });
     }
 
     private advanceToNextPlanJob;
@@ -58,53 +105,29 @@ export class GameProgressionManager implements EntitySubscriberInterface{
         @InjectRepository(ChallengeReplacement) private readonly challengeReplacementRepository: Repository<ChallengeReplacement>,
     ) {
         console.log("Starting GameProgressionManager...");
+        this.getRedisAsync = promisify(this.redisClient.get).bind(this.redisClient);
         this.setUpCurrentSeason();
     }
 
-    public setUpCurrentSeason() {
-        if (this.advanceToNextSeasonJob) this.advanceToNextSeasonJob.cancel();
-        if (this.advanceToNextPlanJob) this.advanceToNextPlanJob.cancel();
-
-        this.findCurrentSeason()
-            .then(async season => {
-                this._currentSeason = season;
-                this.findCurrentSeasonPlan(season)
-                    .then(async seasonPlan => {
-                        this._currentSeasonPlan = seasonPlan;
-                        if (seasonPlan) {
-                            const nextSeasonPlanAt = await GameProgressionManager.getAbsoluteEndTimeOfSeasonPlan(this._currentSeason, this._currentSeasonPlan);
-                            this.advanceToNextPlanJob = Schedule.scheduleJob(nextSeasonPlanAt, this.advanceToNextPlan.bind(this));
-                        } else {
-                            // we are in preseason or the season has no seasonPlans yet
-                            const nextSeasonPlanAt = season.startOffsetDate.getTime();
-                            this.advanceToNextPlanJob = Schedule.scheduleJob(new Date(nextSeasonPlanAt), this.advanceToFirstPlan.bind(this));
-                            if (!this.advanceToNextPlanJob) // the seasonoffsetDate
-                                throw new Error("Season has no seasonPlans!");
-                        }
-                        this.advanceToNextSeasonJob = Schedule.scheduleJob(new Date(this._currentSeason.endDate.getTime() + 2000), this.setUpCurrentSeason.bind(this));
-
-                        console.log(`Advancing to next SeasonPlan at ${this.advanceToNextPlanJob.nextInvocation()}. 
-                                    \n Advancing to next Season at ${this.advanceToNextSeasonJob.nextInvocation()}`);
-                    })
-            })
-            .catch(err => {
-                console.error(err.message)
-            });
+    public async setUpCurrentSeason() {
+        const s = await this.findCurrentSeason();
+        this.setCurrentSeason(s);
+        const sp = await this.findCurrentSeasonPlan(s);
+        this.setCurrentSeasonPlan(sp);
     }
 
-    static async getAbsoluteEndTimeOfSeasonPlan(season: Season, seasonPlan: SeasonPlan): Promise<Date> {
+    static async getAbsoluteEndTimeOfSeasonPlan(season: Season, seasonPlan: SeasonPlan): Promise<number> {
         let seasonPlans = await season.seasonPlan;
-
-        const idx = seasonPlans.indexOf(seasonPlan);
+        const idx = seasonPlans.findIndex(value => value.id === seasonPlan.id);
         if (idx < 0) throw new Error("Illegal argument: seasonPlan is not part of season!");
 
         const seasonPlansBefore = seasonPlans.slice(0, idx + 1);
         const secsInSeasonPlansBefore = seasonPlansBefore.reduce((acc, cur) => {
             return acc + cur.duration;
-        }, 0)
+        }, 0);
 
-        let millis = season.startOffsetDate.getTime();
-        return new Date(millis + secsInSeasonPlansBefore * 1000);
+        let startOffset = season.startOffsetDate.getTime() / 1000;
+        return (startOffset + secsInSeasonPlansBefore);
     }
 
     private async findCurrentSeason(): Promise<Season> {
@@ -141,20 +164,6 @@ export class GameProgressionManager implements EntitySubscriberInterface{
         }, undefined)
     }
 
-    private advanceToFirstPlan() {
-        this._currentSeasonPlan = this._currentSeason.seasonPlan[0]
-    }
-
-    private async advanceToNextPlan() {
-        let seasonPlans = await this._currentSeason.seasonPlan;
-
-        const nextSeasonPlan = seasonPlans[seasonPlans.indexOf(this._currentSeasonPlan) + 1]
-        if (!nextSeasonPlan) {
-            console.log("Reached end of SeasonPlans in current Season")
-        }
-        this._currentSeasonPlan = nextSeasonPlan;
-    }
-
     public async completeChallenge(user: User, seasonPlanChallengeId: number): Promise<ChallengeCompletion> {
         let seasonPlanChallenge: SeasonPlanChallenge = await this.getSeasonPlanChallengeFromCurrentSeasonPlanById(seasonPlanChallengeId);
         // check the spc exists
@@ -164,7 +173,7 @@ export class GameProgressionManager implements EntitySubscriberInterface{
             {where: {owner: user, seasonPlanChallenge: seasonPlanChallenge}}
         );
         if (challengeRejection) return Promise.reject("SeasonPlanChallenge has previously rejected!");
-        // check if the challenge was alreacy completed
+        // check if the challenge was already completed
         let existingChallengeCompletion: ChallengeCompletion = await this.challengeCompletionRepository.findOne({
             where: {
                 owner: {id: user.id},
@@ -182,6 +191,7 @@ export class GameProgressionManager implements EntitySubscriberInterface{
 
     public async rejectChallenge(user: User, seasonPlanChallengeId: number): Promise<ChallengeRejection> {
         let seasonPlanChallenge: SeasonPlanChallenge = await this.getSeasonPlanChallengeFromCurrentSeasonPlanById(seasonPlanChallengeId);
+        const currentSeasonPlan = await this.getCurrentSeasonPlan();
         if (!seasonPlanChallenge) return Promise.reject("SeasonPlanChallenge not found in current SeasonPlan!");
         const userRejections = await this.challengeRejectionRepository.find({where: {owner: user, seasonPlanChallenge: seasonPlanChallenge}});
         if(userRejections && userRejections.length > 0) {
@@ -192,7 +202,7 @@ export class GameProgressionManager implements EntitySubscriberInterface{
         challengeRejection.owner = Promise.resolve(user);
         challengeRejection.seasonPlanChallenge = Promise.resolve(seasonPlanChallenge);
 
-        await this.addReplacementChallenge(user, this.currentSeasonPlan, challengeRejection)
+        await this.addReplacementChallenge(user, currentSeasonPlan, challengeRejection)
             .catch(err => {
                 return Promise.reject(err)
             });
@@ -201,11 +211,12 @@ export class GameProgressionManager implements EntitySubscriberInterface{
     }
 
     public async getCurrentChallengesForUser(user: User): Promise<IUserChallenge[]> {
-        let challenges: IUserChallenge[] = await this.currentSeasonPlan.challenges;
+        const currentSeasonPlan = await this.getCurrentSeasonPlan();
+        let challenges: IUserChallenge[] = await currentSeasonPlan.challenges;
         const replacements: IUserChallenge[] = await this.challengeReplacementRepository.find({
             where: {
                 owner: user,
-                seasonPlan: this.currentSeasonPlan
+                seasonPlan: currentSeasonPlan
             }
         });
         challenges = challenges.concat(replacements);
@@ -251,12 +262,12 @@ export class GameProgressionManager implements EntitySubscriberInterface{
         let replacementChallenge: Challenge;
         const themenwoche = await currentSeasonPlan.themenwoche;
         const oberthemaChallenges = await themenwoche.oberthema.then(async value => await value.challenges);
-        const availableOberthemaChallenges = oberthemaChallenges.filter(challenge => this.filterRejections(challenge, rejections, this.currentSeasonPlan));
+        const availableOberthemaChallenges = oberthemaChallenges.filter(challenge => this.filterRejections(challenge, rejections, currentSeasonPlan));
         if(availableOberthemaChallenges && availableOberthemaChallenges.length > 0) {
             replacementChallenge = availableOberthemaChallenges[0];
         } else {
             const kategorieChallenges = await themenwoche.kategorie.then(async value => await value.challenges);
-            const availableKategorieChallenges = kategorieChallenges.filter(challenge => this.filterRejections(challenge,rejections, this.currentSeasonPlan));
+            const availableKategorieChallenges = kategorieChallenges.filter(challenge => this.filterRejections(challenge, rejections, currentSeasonPlan));
             if(availableKategorieChallenges && availableKategorieChallenges.length > 0) {
                 replacementChallenge = availableKategorieChallenges[0];
             } else {
@@ -282,8 +293,8 @@ export class GameProgressionManager implements EntitySubscriberInterface{
         return !(r.length + s.length);
     }
 
-    private getSeasonPlanChallengeFromCurrentSeasonPlanById(seasonPlanChallengeId: number): Promise<SeasonPlanChallenge> {
-        return this._currentSeasonPlan.challenges.then(seasonPlanChallenges =>
+    private async getSeasonPlanChallengeFromCurrentSeasonPlanById(seasonPlanChallengeId: number): Promise<SeasonPlanChallenge> {
+        return (await this.getCurrentSeasonPlan()).challenges.then(seasonPlanChallenges =>
             seasonPlanChallenges.find(
                 sp => sp.id == seasonPlanChallengeId));
     }

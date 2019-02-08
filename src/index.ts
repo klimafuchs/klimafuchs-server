@@ -20,18 +20,16 @@ import {PushController} from "./controller/PushController";
 import {FeedController} from "./controller/GqlController";
 import {WikiSyncController} from "./controller/WikiSyncController";
 import {GameProgressionManager} from "./gameLogic/GameProgressionManager";
+import * as redis from "redis";
+import {RedisClient} from "redis";
 
 let config = require("../config.json");
-let RedisStore = require("connect-redis")(session);
-let express_handlebars = require("express-handlebars")({defaultLayout: 'layout'});
-// let httpsOptions = { //TODO remove for production
-//     key: fs.readFileSync(config.key),
-//     cert: fs.readFileSync(config.cert)
-// }
 
+let client: RedisClient = redis.createClient({db: config.redisDb});
 
 useContainer(Container);
 TypeGraphQL.useContainer(Container);
+Container.set("redis", client);
 createConnection().then(async connection => {
     // setUpCurrentSeason cron-like tasks
     const tasks = Container.get(Tasks);

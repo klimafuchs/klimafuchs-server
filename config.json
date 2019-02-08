@@ -10,5 +10,6 @@
   "cert": "../../server.crt",
   "domain": "https://localhost",
   "wikiUrl": "https://enviroommate.org/wiki",
-  "wikiKey": "secret"
+  "wikiKey": "secret",
+  "redisDb": "0"
 }
