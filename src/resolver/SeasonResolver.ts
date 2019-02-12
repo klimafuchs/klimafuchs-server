@@ -121,10 +121,12 @@ export class SeasonResolver {
         let seasonPlan: SeasonPlan;
         if (seasonPlanInput.id) {
             seasonPlan = await this.seasonPlanRepsitory.findOne({id: seasonPlanInput.id});
-            seasonPlan.position = 0;
         }
         if (!seasonPlan) seasonPlan = new SeasonPlan();
         seasonPlan.season = seasonPlanInput.seasonId ? await this.seasonRepsitory.findOne({id: seasonPlanInput.seasonId}) : seasonPlan.season;
+        if(!seasonPlan.season) {
+            return Promise.reject("SeasonPlans must belong to a Season! If you're creating a new SeasonPlan, please specify a seasonID. Otherwise contact your DevOps team.")
+        }
         let themenwoche = seasonPlanInput.themenwocheId ? await this.themenwocheRepository.findOne({title: seasonPlanInput.themenwocheId}) : await seasonPlan.themenwoche;
         let usages = await themenwoche.usages;
         if (usages)
