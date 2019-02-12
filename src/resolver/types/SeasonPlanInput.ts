@@ -5,13 +5,13 @@ export class SeasonPlanInput {
     @Field(type => Int, {nullable: true})
     id: number;
 
-    @Field(type => Int)
+    @Field(type => Int, {nullable: true})
     seasonId: number;
 
-    @Field(type => String)
+    @Field(type => String,{nullable: true})
     themenwocheId: string;
 
-    @Field(type => Int)
+    @Field(type => Int, {nullable: true})
     position: number;
 
     @Field(type => Int, {nullable: true})
