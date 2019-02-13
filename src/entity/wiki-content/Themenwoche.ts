@@ -23,7 +23,7 @@ import {Field, ObjectType} from "type-graphql";
 export class Themenwoche{
 
     @Field(type => String)
-    @PrimaryColumn()
+    @PrimaryColumn({type: "varchar", length: 191})
     title: string;
 
     @Field(type => String)

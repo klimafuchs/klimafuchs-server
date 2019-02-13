@@ -35,7 +35,7 @@ export class WikiImage {
     details: string;
 
     @Field(type => String)
-    @PrimaryColumn()
+    @PrimaryColumn({type: "varchar", length: 191})
     canonicalName: string;
 
     @Field(type => Props)

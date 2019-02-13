@@ -18,7 +18,7 @@ import {Field, ObjectType} from "type-graphql";
 export class Kategorie {
 
     @Field(type => String)
-    @PrimaryColumn()
+    @PrimaryColumn({type: "varchar", length: 191})
     name: string;
 
     @Field(type => [Oberthema])

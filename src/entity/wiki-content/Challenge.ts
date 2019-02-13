@@ -50,7 +50,7 @@ export class Challenge {
     updatedAt: Date;
 
     @Field(type => Themenwoche)
-    @ManyToOne(type => Themenwoche, t => t.challenges)
+    @ManyToOne(type => Themenwoche, t => t.challenges, {nullable: true})
     themenWoche: Promise<Themenwoche>;
 
     @Field(type => Kategorie)
