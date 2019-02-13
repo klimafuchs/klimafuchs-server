@@ -24,7 +24,7 @@ export class Member {
     id: number;
 
     @Field(type => User)
-    @ManyToOne(type => User, user => user.membership)
+    @ManyToOne(type => User, user => user.memberships)
     user: Promise<User>;
 
     @Field(type => Team)

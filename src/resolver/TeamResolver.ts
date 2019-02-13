@@ -1,7 +1,7 @@
 import {Arg, Authorized, Ctx, Int, Mutation, Query, Resolver} from "type-graphql";
 import {InjectRepository} from "typeorm-typedi-extensions";
 import {Role, User} from "../entity/user/User";
-import {Repository} from "typeorm";
+import {Like, Repository} from "typeorm";
 import {FeedPost} from "../entity/social/FeedPost";
 import {UserInput} from "./types/UserInput";
 import {Media} from "../entity/Media";
@@ -147,5 +147,25 @@ export class TeamResolver {
             return Promise.reject('no team authority');
         }
     }
+
+    //todo use a real search provider for this
+    @Query(returns => [Team])
+    async searchTeamsByName(@Arg("teamName", type => String) teamName: String) : Promise<Team[]> {
+        return this.teamRepository.find({where:{name: Like(`%${teamName}%`)}})
+    }
+
+    @Mutation(returns => Member)
+    async inviteUserToTeam(@Arg("screeName", type => String) screenName: String, @Arg("teamId", type => Int) teamId: number): Promise<Member> {
+        const user = await this.userRepository.findOne({where: {screenName}});
+        const team = await this.teamRepository.findOne(teamId);
+        if(!user) {
+            return Promise.reject('user not found');
+        }
+        if(!team) {
+            return Promise.reject('team not found');
+        }
+        return this._joinTeam(user, team)
+    }
+
 
 }
