@@ -2,7 +2,7 @@ import {Request, Response, Router} from "express";
 import * as passport from "passport";
 import {User} from "../entity/user/User";
 import * as jwt from "jsonwebtoken";
-import {Group} from "../entity/social/Group";
+import {Team} from "../entity/social/Team";
 import {getRepository} from "typeorm";
 import {Member} from "../entity/social/Member";
 import {PasswordResetToken} from "../entity/user/PasswordResetToken";

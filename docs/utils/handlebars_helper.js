@@ -6,7 +6,7 @@ define([
 
     /**
      * Return a text as markdown.
-     * Currently only a little helper to replace apidoc-inline Links (#Group:Name).
+     * Currently only a little helper to replace apidoc-inline Links (#Team:Name).
      * Should be replaced with a full markdown lib.
      * @param string text
      */

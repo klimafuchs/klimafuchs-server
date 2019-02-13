@@ -1,6 +1,6 @@
 import {Router, Request, Response} from "express";
 import {getRepository, LessThan, Like, MoreThan} from "typeorm";
-import {Group} from "../entity/social/Group";
+import {Team} from "../entity/social/Team";
 import {User} from "../entity/user/User";
 import * as bodyParser from "body-parser"
 import * as Url from "url";

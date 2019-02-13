@@ -10,7 +10,7 @@ import {
 } from "typeorm";
 import {ObjectType, Field, Int} from "type-graphql";
 import * as bcrypt from 'bcrypt-nodejs';
-import {Group} from "../social/Group";
+import {Team} from "../social/Team";
 import {dateFormat} from "dateformat";
 import {Member} from "../social/Member";
 import {PasswordResetToken} from "./PasswordResetToken";
@@ -67,8 +67,8 @@ export class User { //TODO split into profile data and user data
     @Column()
     role: Role = 0;
 
-    @OneToOne(type => Member, m => m.user, {eager: true})
-    membership: Member;
+    @OneToMany(type => Member, m => m.user, {eager: true})
+    memberships: Promise<Member[]>;
 
     @OneToOne(type => PasswordResetToken, p => p.user)
     passwordResetToken: PasswordResetToken;
@@ -120,7 +120,7 @@ export class User { //TODO split into profile data and user data
                 dateCreated: this.dateCreated,
                 emailConfirmed : this.emailConfirmed,
                 isBanned : this.isBanned,
-                hasGroup: !!this.membership
+                hasGroup: !!this.memberships
             }
         } else {
             o =   {

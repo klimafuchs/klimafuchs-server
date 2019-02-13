@@ -297,7 +297,7 @@ define({ "api": [
             "type": "Object",
             "optional": false,
             "field": "group",
-            "description": "<p>The current users new Group</p>"
+            "description": "<p>The current users new Team</p>"
           }
         ]
       }

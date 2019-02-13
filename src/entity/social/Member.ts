@@ -9,30 +9,41 @@ import {
     CreateDateColumn, ManyToMany, JoinTable, getRepository
 } from "typeorm";
 import * as bcrypt from 'bcrypt-nodejs';
-import {Group} from "./Group";
+import {Team} from "./Team";
 import {User} from "../user/User";
 import {dateFormat} from "dateformat";
 import {Challenge} from "../wiki-content/Challenge";
+import {Field, Int, ObjectType} from "type-graphql";
 
+@ObjectType()
 @Entity()
 export class Member {
 
+    @Field(type => Int)
     @PrimaryGeneratedColumn()
     id: number;
 
-    @OneToOne(type => User, user => user.membership, {cascade: true})
-    @JoinColumn()
-    user: User;
+    @Field(type => User)
+    @ManyToOne(type => User, user => user.membership)
+    user: Promise<User>;
 
-    @ManyToOne(type => Group, {cascade: true})
-    @JoinColumn()
-    group: Group;
+    @Field(type => Team)
+    @ManyToOne(type => Team, t => t.members)
+    team: Promise<Team>;
 
+    @Field(type => Date)
     @CreateDateColumn()
-    joinedAt: Date;
+    dateCreated: Date;
 
+    @Field(type => Boolean)
     @Column()
-    active: Boolean = true;
+    isActive: Boolean = false;
 
+    @Field(type => Date, {nullable: true})
+    @Column({nullable: true})
+    activationDate?: Date;
 
+    @Field(type => Boolean)
+    @Column()
+    isAdmin: Boolean = false;
 }

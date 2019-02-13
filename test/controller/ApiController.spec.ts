@@ -6,13 +6,13 @@ import * as expect from "expect.js";
 import "mocha";
 import * as sinon from"sinon";
 import {User} from "../../src/entity/user/User";
-import {Group} from "../../src/entity/social/Group";
+import {Team} from "../../src/entity/social/Team";
 
 
 //TODO how to test things with typescript?
 
 let user = new User();
-let group = new Group();
+let group = new Team();
 
 user.id          = 10000;
 user.userName    = "test@testmail.com";
@@ -44,7 +44,7 @@ const mockGroupRepo = createGroupRepositoryMock();
 
 const s = sinon.stub(typeOrm, 'getRepository');
 s.withArgs(User).returns(mockUserRepo);
-s.withArgs(Group).returns(mockGroupRepo);
+s.withArgs(Team).returns(mockGroupRepo);
 
 
 

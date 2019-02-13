@@ -138,7 +138,7 @@ require([
     api = newList;
 
     //
-    // Group- and Versionlists
+    // Team- and Versionlists
     //
     var apiGroups = {};
     var apiGroupTitles = {};
