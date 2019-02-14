@@ -40,7 +40,7 @@ export class Team {
 
     @Field(type => Int)
     @Column()
-    score: number;
+    score: number = 0;
 
     @BeforeInsert()
     setInviteIdIfNoneExists() {
