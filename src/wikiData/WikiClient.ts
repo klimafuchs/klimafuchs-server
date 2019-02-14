@@ -161,12 +161,12 @@ export class WikiClient {
                 let kategorieOberthemen = await kategorie.oberthemen;
                 kategorieOberthemen.push(oberthema);
                 kategorie.oberthemen = Promise.resolve(kategorieOberthemen);
-                kategorie = await this.kategorieRepository.save(kategorie);
+                //kategorie = await this.kategorieRepository.save(kategorie);
 
                 oberthema.props = Promise.resolve(props);
                 oberthema.kategorie = Promise.resolve(kategorie);
                 oberthema.themenWochen = Promise.resolve([... await oberthema.themenWochen, themenwoche]);
-                oberthema = await this.oberthemaRepository.save(oberthema);
+               // oberthema = await this.oberthemaRepository.save(oberthema);
 
                 themenwoche.props = Promise.resolve(props);
                 themenwoche.oberthema = Promise.resolve(oberthema);
@@ -206,7 +206,7 @@ export class WikiClient {
                         challenge.themenWoche = Promise.resolve(themenwoche);
                         challenge.kategorie = Promise.resolve(kategorie);
                         challenge.oberthema = Promise.resolve(oberthema);
-                        this.challengeRepository.save(challenge).catch(e => console.error(e));
+                        //this.challengeRepository.save(challenge).catch(e => console.error(e));
                         return challenge;
                     }));
 
@@ -214,7 +214,7 @@ export class WikiClient {
                     oberthema.challenges = Promise.resolve(challenges);
                     kategorie.challenges = Promise.resolve(challenges);
                 }
-                oberthema = await this.oberthemaRepository.save(oberthema);
+                //oberthema = await this.oberthemaRepository.save(oberthema);
                 themenwoche = await this.themenwocheRepository.save(themenwoche);
 
             }

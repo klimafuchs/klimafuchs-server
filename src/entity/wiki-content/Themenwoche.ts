@@ -43,15 +43,15 @@ export class Themenwoche{
     updatedAt: Date;
 
     @Field(type => Oberthema, {nullable: true})
-    @ManyToOne(type => Oberthema, o => o.themenWochen)
+    @ManyToOne(type => Oberthema, o => o.themenWochen, {cascade: true})
     oberthema: Promise<Oberthema>;
 
     @Field(type => Kategorie, {nullable: true})
-    @ManyToOne(type => Kategorie, k => k.themenWochen)
+    @ManyToOne(type => Kategorie, k => k.themenWochen,{cascade: true})
     kategorie: Promise<Kategorie>;
 
     @Field(type => [Challenge], {nullable: true})
-    @OneToMany(type => Challenge, c => c.themenWoche)
+    @OneToMany(type => Challenge, c => c.themenWoche,{cascade: true})
     @JoinTable()
     challenges: Promise<Challenge[]>;
 
