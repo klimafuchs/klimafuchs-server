@@ -1,5 +1,5 @@
 import "reflect-metadata";
-import {createConnection, useContainer} from "typeorm";
+import * as TypeORM from "typeorm";
 import * as TypeGraphQL from "type-graphql";
 import {Container} from "typedi";
 import * as express from "express";
@@ -26,11 +26,12 @@ import {RedisClient} from "redis";
 let config = require("../config.json");
 
 let client: RedisClient = redis.createClient({db: config.redisDb});
-
-useContainer(Container);
-TypeGraphQL.useContainer(Container);
 Container.set("redis", client);
-createConnection().then(async connection => {
+
+TypeORM.useContainer(Container)
+TypeGraphQL.useContainer(Container);
+
+TypeORM.createConnection().then(async connection => {
     // setUpCurrentSeason cron-like tasks
     const tasks = Container.get(Tasks);
     const gameProgressionManager = Container.get(GameProgressionManager);

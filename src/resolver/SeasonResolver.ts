@@ -17,6 +17,7 @@ import {WikiClient} from "../wikiData/WikiClient";
 import {Container} from "typedi";
 import {SeasonPlanChallenge} from "../entity/game-state/SeasonPlanChallenge";
 import {GameProgressionManager} from "../gameLogic/GameProgressionManager";
+import {EventService} from "../util/EventUtil";
 
 
 @Resolver()
@@ -66,7 +67,7 @@ export class SeasonResolver {
         season.title = seasonInput.title || season.title;
 
         season = await this.seasonRepsitory.save(season);
-        this.gameStateManager.setUpCurrentSeason();
+        Container.get(EventService).publish(season);
         return season;
     }
 
@@ -76,7 +77,7 @@ export class SeasonResolver {
         let season = await this.seasonRepsitory.findOne(seasonId);
         if (season) {
             season = await this.seasonRepsitory.remove(season);
-            this.gameStateManager.setUpCurrentSeason();
+            Container.get(EventService).publish(season);
             return season;
         } else
             return Promise.reject("Season not found!")
@@ -151,7 +152,7 @@ export class SeasonResolver {
         seasonPlan.challenges = Promise.resolve(seasonPlanChallenges);
         seasonPlan = await this.seasonPlanRepsitory.save(seasonPlan);
         console.log(seasonPlan);
-        this.gameStateManager.setUpCurrentSeason();
+        Container.get(EventService).publish(seasonPlan);
 
         return seasonPlan;
     }

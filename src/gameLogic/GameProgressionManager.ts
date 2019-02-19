@@ -12,6 +12,7 @@ import {DateUtils} from "typeorm/util/DateUtils";
 import {ChallengeReplacement} from "../entity/game-state/ChallengeReplacement";
 import {IUserChallenge} from "../entity/game-state/IUserChallenge";
 import {RedisClient} from "redis";
+import {subscribe} from "../util/EventUtil";
 
 const {promisify} = require('util');
 @Service()
@@ -91,10 +92,7 @@ export class GameProgressionManager implements EntitySubscriberInterface{
                 else console.warn(`Setting currentSeasonPlan but timeLeft = ${timeLeft} is < 0!`);
             }
         });
-    }
-
-    private advanceToNextPlanJob;
-    private advanceToNextSeasonJob;
+    };
 
     constructor(
         @InjectRepository(Season) private readonly seasonRepository: Repository<Season>,
@@ -108,6 +106,11 @@ export class GameProgressionManager implements EntitySubscriberInterface{
         console.log("Starting GameProgressionManager...");
         this.getRedisAsync = promisify(this.redisClient.get).bind(this.redisClient);
         this.setUpCurrentSeason();
+    }
+
+    @subscribe([Season, SeasonPlan])
+    public static async listen(season: Season) {
+        Container.get(GameProgressionManager).setUpCurrentSeason();
     }
 
     public async setUpCurrentSeason() {

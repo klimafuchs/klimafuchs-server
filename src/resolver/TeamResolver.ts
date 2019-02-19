@@ -11,9 +11,14 @@ import {Team} from "../entity/social/Team";
 import {GraphQLUpload, Upload} from "apollo-upload-server";
 import {Context} from "./types/Context";
 import {NewTeamInput} from "./types/NewTeamInput";
+import {Container, Inject} from "typedi";
+import {EventService} from "../util/EventUtil";
 
 @Resolver()
 export class TeamResolver {
+    @Inject()
+    private publisher: EventService;
+
     constructor(
         @InjectRepository(Media) private readonly mediaRepository: Repository<Media>,
         @InjectRepository(User) private readonly userRepository: Repository<User>,
@@ -88,6 +93,7 @@ export class TeamResolver {
         let membership = await this._joinTeam(user, team);
         membership = await this._confirm(membership);
         membership = await this._modUser(membership);
+
         return this.teamRepository.findOne(team.id);
 
     }
