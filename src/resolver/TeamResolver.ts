@@ -12,12 +12,9 @@ import {GraphQLUpload, Upload} from "apollo-upload-server";
 import {Context} from "./types/Context";
 import {NewTeamInput} from "./types/NewTeamInput";
 import {Container, Inject} from "typedi";
-import {EventService} from "../util/EventUtil";
 
 @Resolver()
 export class TeamResolver {
-    @Inject()
-    private publisher: EventService;
 
     constructor(
         @InjectRepository(Media) private readonly mediaRepository: Repository<Media>,

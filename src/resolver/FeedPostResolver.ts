@@ -7,7 +7,7 @@ import {FeedPostInput} from "./types/FeedPostInput";
 import {Context} from "./types/Context";
 import {FeedCommentInput} from "./types/FeedCommentInput";
 import {Role} from "../entity/user/User";
-import {FeedPostPage, PaginatingFeedPostRepository} from "./PaginatingRepository";
+import {FeedPostPage, PaginatingFeedPostRepository} from "../util/PaginatingRepository";
 import {ConnectionArgs} from "./types/ConnectionPaging";
 import {Media} from "../entity/Media";
 import {Container} from "typedi";

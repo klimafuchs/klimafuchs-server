@@ -1,5 +1,5 @@
 import {EntityRepository, FindConditions, Repository} from "typeorm";
-import {ConnectionArgs} from "./types/ConnectionPaging";
+import {ConnectionArgs} from "../resolver/types/ConnectionPaging";
 import * as Relay from "graphql-relay";
 import {connectionFromArraySlice, Edge} from "graphql-relay";
 import {FeedPost} from "../entity/social/FeedPost";
