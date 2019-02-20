@@ -12,7 +12,7 @@ import {DateUtils} from "typeorm/util/DateUtils";
 import {ChallengeReplacement} from "../entity/game-state/ChallengeReplacement";
 import {IUserChallenge} from "../entity/game-state/IUserChallenge";
 import {RedisClient} from "redis";
-import {subscribe} from "../util/EventUtil";
+import {publish, subscribe} from "../util/EventUtil";
 
 const {promisify} = require('util');
 @Service()
@@ -192,6 +192,7 @@ export class GameProgressionManager implements EntitySubscriberInterface{
         let challengeCompletion: ChallengeCompletion = new ChallengeCompletion();
         challengeCompletion.owner = Promise.resolve(user);
         challengeCompletion.seasonPlanChallenge = Promise.resolve(seasonPlanChallenge);
+        publish(challengeCompletion, "add", true);
         return this.challengeCompletionRepository.save(challengeCompletion);
     }
 

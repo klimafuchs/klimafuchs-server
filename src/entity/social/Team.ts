@@ -4,7 +4,7 @@ import {
     Entity,
     OneToMany,
     PrimaryGeneratedColumn,
-    ManyToOne,
+    ManyToOne, getRepository,
 } from "typeorm";
 import {Member} from "./Member";
 import {Field, Int, ObjectType} from "type-graphql";
@@ -14,6 +14,11 @@ import {generate} from "shortid";
 @Entity()
 @ObjectType()
 export class Team {
+
+    addScore(points: number): void{
+        this.score += points;
+        getRepository(Team).save(this).catch(err => console.error(err));
+    }
 
     @Field(type => Int)
     @PrimaryGeneratedColumn()
@@ -39,8 +44,8 @@ export class Team {
     members?: Promise<Member[]>;
 
     @Field(type => Int)
-    @Column()
-    score: number = 0;
+    @Column({default: 0})
+    score: number;
 
     @BeforeInsert()
     setInviteIdIfNoneExists() {
