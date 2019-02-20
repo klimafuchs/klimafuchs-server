@@ -7,12 +7,14 @@ import {FeedPostInput} from "./types/FeedPostInput";
 import {Context} from "./types/Context";
 import {FeedCommentInput} from "./types/FeedCommentInput";
 import {Role} from "../entity/user/User";
-import {FeedPostPage, PaginatingFeedPostRepository} from "../util/PaginatingRepository";
+import {PaginatingFeedPostRepository} from "../util/PaginatingRepository";
 import {ConnectionArgs} from "./types/ConnectionPaging";
 import {Media} from "../entity/Media";
 import {Container} from "typedi";
 import {publish} from "../util/EventUtil";
+import {connectionTypes} from "../util/ConnectionTypes";
 
+const feedPage = connectionTypes<FeedPost>('FeedPost', FeedPost)
 @Resolver()
 export class FeedPostResolver {
 
@@ -35,7 +37,7 @@ export class FeedPostResolver {
         return posts;
     }
 
-    @Query(returns => FeedPostPage)
+    @Query(returns => feedPage)
     async paginatedPosts(@Arg("connectionArgs", type => ConnectionArgs) connectionArgs: ConnectionArgs, @Ctx() {user}: Context) {
         const paginatingRepo = getCustomRepository(PaginatingFeedPostRepository);
         let page = await paginatingRepo.findAndPaginate({}, {dateCreated: "DESC"}, connectionArgs);
