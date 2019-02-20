@@ -14,6 +14,8 @@ import {User} from "../user/User";
 import {FeedComment} from "./FeedComment";
 import {Media} from "../Media";
 import {Context} from "../../resolver/types/Context";
+import {subscribe} from "../../util/EventUtil";
+import {getArrayFromOverloadedRest} from "type-graphql/helpers/decorators";
 
 @Entity()
 @ObjectType()
@@ -72,6 +74,13 @@ export class FeedPost {
     @Field(type => Boolean)
     async currentUserLikesPost(@Ctx() {user}: Context): Promise<boolean> {
         return this.likedBy.then((users) => users.some((u) => u.id === user.id));
+    }
+
+    @subscribe(FeedPost)
+    public static async updateCommentCountForPost(post: FeedPost) {
+        (await getRepository(FeedPost).preload(post))
+            .updateCommentCount()
+            .catch(err =>console.error(err));
     }
 
     public async updateCommentCount() {

@@ -10,6 +10,8 @@ import {Role} from "../entity/user/User";
 import {FeedPostPage, PaginatingFeedPostRepository} from "./PaginatingRepository";
 import {ConnectionArgs} from "./types/ConnectionPaging";
 import {Media} from "../entity/Media";
+import {Container} from "typedi";
+import {publish} from "../util/EventUtil";
 
 @Resolver()
 export class FeedPostResolver {
@@ -185,7 +187,8 @@ export class FeedPostResolver {
         comment.post = Promise.resolve(post);
         comment.author = Promise.resolve(user);
         comment = await this.feedCommentRepository.save(comment);
-        post.updateCommentCount().catch((err) => console.error(err));
+        publish(post, 'add');
+
         return comment;
     }
 

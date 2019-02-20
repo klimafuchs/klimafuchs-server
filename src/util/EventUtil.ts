@@ -1,62 +1,65 @@
-import {Container, Service} from "typedi";
 import * as redis from "redis";
-import {RedisClient} from "redis";
 
-let config = require("../../config.json");
+// thanks @subzey
+// https://gist.github.com/jed/982883#gistcomment-45104
+const uuid = () => {return(""+1e7+-1e3+-4e3+-8e3+-1e11).replace(/1|0/g,function(){return(0|Math.random()*16).toString(16)})}
+const newRedis = () => redis.createClient({db: process.env.REDIS_PUBSUB_DB || 0});
 
+const hset = process.env.REDIS_PUBSUB_SETNAME || 'pending';
 
-export class Event<T> {
+class Event<T> {
+    guid: string;
     channel: string;
     payload: T;
+    action: string;
+    once: boolean;
 
-    constructor(payload: T) {
+    constructor(payload: T, action?: string, once: boolean = false) {
+        this.guid = uuid();
         this.channel = payload.constructor.name;
-        this.payload = payload;
+        Object.assign(this, {payload, action, once});
     }
 }
 
-class Subscriber {
-    channel: string;
-    listener: Function;
-}
+const publisher = newRedis();
 
-@Service()
-export class EventService {
-
-    readonly redis: RedisClient;
-
-    constructor() {
-        this.redis = redis.createClient({db: config.redisDb});
-    }
-
-    public subscribe(type: Function, target: Function, property: string): void {
-
-        let channel = type.name;
-        let client = redis.createClient({db: config.redisDb});
-        client.subscribe(channel);
-        client.on("message", (ch, message) => {
-            if(ch === channel) {
-                target[property](JSON.parse(message).payload)
+const _subscribe = (type: Function, target: Function, property: string): void => {
+    let channel = type.name;
+    let subscriber = newRedis();
+    subscriber.subscribe(channel);
+    subscriber.on("message", async (ch, message) => {
+        if (ch === channel) {
+            let event = JSON.parse(message);
+            if(event.once) {
+                let client = newRedis();
+                client.hgetall(hset, (err, obj) => {
+                    if (err) console.error(err);
+                    if (obj[event.guid]) {
+                        client.hdel(hset, event.guid);
+                        target[property](event.payload, event.action);
+                    }
+                });
+            } else {
+                target[property](event.payload, event.action)
             }
-        });
-    }
+        }
+    });
+};
 
-    public publish(payload: any): void {
-        let event = new Event(payload);
-        console.log(event)
-        this.redis.publish(event.channel, JSON.stringify(event));
-    }
+export function publish (payload: any, action?: string, once?: boolean): void {
+    let event = new Event(payload, action, once);
+    publisher.publish(event.channel, JSON.stringify(event));
+    if(event.once) newRedis().hset(hset, event.guid, 'pending');
 }
 
 export function subscribe(clazz: Function): Function;
 export function subscribe(classes: Function[]): Function;
 export function subscribe(classes: Function | Function[]): Function {
     return function (target: Function, propertyKey: string, descriptor: PropertyDescriptor) {
-        let es = Container.get(EventService);
-        if(typeof classes == 'object') {
-            classes.map(clazz => es.subscribe(clazz, target, propertyKey))
+        if (typeof classes == 'object') {
+            classes.map(clazz => _subscribe(clazz, target, propertyKey))
         } else {
-            es.subscribe(classes, target, propertyKey)
+            _subscribe(classes, target, propertyKey)
         }
     };
 }

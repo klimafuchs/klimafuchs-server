@@ -114,6 +114,7 @@ export class GameProgressionManager implements EntitySubscriberInterface{
     }
 
     public async setUpCurrentSeason() {
+        console.log("setting up season ... ")
         const s = await this.findCurrentSeason();
         this.setCurrentSeason(s);
         const sp = await this.findCurrentSeasonPlan(s);
