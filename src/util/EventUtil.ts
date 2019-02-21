@@ -56,7 +56,7 @@ export function subscribe(clazz: Function): Function;
 export function subscribe(classes: Function[]): Function;
 export function subscribe(classes: Function | Function[]): Function {
     return function (target: Function, propertyKey: string, descriptor: PropertyDescriptor) {
-        if (typeof classes == 'object') {
+        if (Array.isArray(classes)) {
             classes.map(clazz => _subscribe(clazz, target, propertyKey))
         } else {
             _subscribe(classes, target, propertyKey)
