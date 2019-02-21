@@ -1,5 +1,4 @@
 // @see https://github.com/19majkel94/type-graphql/issues/142
-// TODO use this instead of hard coded Types
 import {ClassType, ReturnTypeFunc, ReturnTypeFuncValue, TypeValue} from "type-graphql/decorators/types";
 import * as Relay from 'graphql-relay'
 import {Field, ObjectType} from "type-graphql";
