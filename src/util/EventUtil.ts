@@ -25,7 +25,7 @@ const publisher = newRedis();
 
 const _subscribe = (type: Function, target: Function, property: string): void => {
     let channel = type.name;
-    console.log(`${target}[${property}] is listening for ${channel}`);
+    console.log(`${target.name}[${property}] is listening for ${channel}`);
     let subscriber = newRedis();
     subscriber.subscribe(channel);
     subscriber.on("message", async (ch, message) => {
