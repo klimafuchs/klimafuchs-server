@@ -30,6 +30,7 @@ const _subscribe = (type: Function, target: Function, property: string): void =>
     subscriber.on("message", async (ch, message) => {
         if (ch === channel) {
             let event = JSON.parse(message);
+            console.log(ch, event);
             if(event.once) {
                 let client = newRedis();
                 client.hgetall(hset, (err, obj) => {
