@@ -12,7 +12,7 @@ export class LeaderBoardManager {
         const owner = await challengeCompletion.owner;
         const memberships = await owner.memberships;
         const points = (await (await challengeCompletion.seasonPlanChallenge).challenge).score
-        console.log(`Adding score for ${owner.screenName}`);
+        console.log(`ChallengeCompletion mod for ${owner.screenName}, action ${action}, score value ${points}`);
 
         memberships.map(async membership => {
             if(membership.isActive) {
