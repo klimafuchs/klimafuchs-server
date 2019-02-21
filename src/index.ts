@@ -22,6 +22,7 @@ import {WikiSyncController} from "./controller/WikiSyncController";
 import {GameProgressionManager} from "./gameLogic/GameProgressionManager";
 import * as redis from "redis";
 import {RedisClient} from "redis";
+import {LeaderBoardManager} from "./gameLogic/LeaderBoardManager";
 
 let config = require("../config.json");
 
@@ -35,6 +36,7 @@ TypeORM.createConnection().then(async connection => {
     // setUpCurrentSeason cron-like tasks
     const tasks = Container.get(Tasks);
     const gameProgressionManager = Container.get(GameProgressionManager);
+    const leadboardManager = Container.get(LeaderBoardManager);
     // create express app
     const app = express();
 
