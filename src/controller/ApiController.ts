@@ -8,7 +8,7 @@ import * as QueryString from "querystring";
 import {query} from "express-validator/check";
 import {Challenge} from "../entity/wiki-content/Challenge";
 import {arraysAreEqual} from "tslint/lib/utils";
-import {Member} from "../entity/social/Member";
+import {Membership} from "../entity/social/Membership";
 import {loadConfigurationFromPath} from "tslint/lib/configuration";
 import {Alert} from "../entity/Alert";
 import {DateUtils} from "typeorm/util/DateUtils";
@@ -21,8 +21,8 @@ async function loadRelations(user: User): Promise<User> {
     return u;
 }
 
-async function loadMembership(user: User): Promise<Member> {
-    return await getRepository(Member).findOne({where: {user: user.id}, relations: ["user","group"]});
+async function loadMembership(user: User): Promise<Membership> {
+    return await getRepository(Membership).findOne({where: {user: user.id}, relations: ["user","group"]});
 
 }
 

@@ -8,7 +8,7 @@ import {PageData} from "./PaginatingRepository";
 let typemap = {};
 export function connectionTypes<T extends TypeValue>(name: String, nodeType: ClassType<T>): ReturnTypeFuncValue {
 
-    if(typemap['name']) return typemap['name'];
+    if(typemap[`${name}`]) return typemap[`${name}`];
 
     @ObjectType(`${name}Edge`)
     class Edge implements Relay.Edge<T> {
@@ -49,8 +49,8 @@ export function connectionTypes<T extends TypeValue>(name: String, nodeType: Cla
         pageData!: PageData;
     }
 
-    typemap['name'] = Page;
+    typemap[`${name}`] = Page;
 
-    return  Page
+    return  typemap[`${name}`]
 
 }

@@ -17,7 +17,7 @@ import {Field, Int, ObjectType} from "type-graphql";
 
 @ObjectType()
 @Entity()
-export class Member {
+export class Membership {
 
     @Field(type => Int)
     @PrimaryGeneratedColumn()

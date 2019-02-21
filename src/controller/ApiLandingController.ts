@@ -4,7 +4,7 @@ import {User} from "../entity/user/User";
 import * as jwt from "jsonwebtoken";
 import {Team} from "../entity/social/Team";
 import {getRepository} from "typeorm";
-import {Member} from "../entity/social/Member";
+import {Membership} from "../entity/social/Membership";
 import {PasswordResetToken} from "../entity/user/PasswordResetToken";
 import {Tasks} from "../tasks";
 

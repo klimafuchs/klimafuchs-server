@@ -12,7 +12,7 @@ import {ObjectType, Field, Int} from "type-graphql";
 import * as bcrypt from 'bcrypt-nodejs';
 import {Team} from "../social/Team";
 import {dateFormat} from "dateformat";
-import {Member} from "../social/Member";
+import {Membership} from "../social/Membership";
 import {PasswordResetToken} from "./PasswordResetToken";
 import {FeedPost} from "../social/FeedPost";
 import {FeedComment} from "../social/FeedComment";
@@ -67,8 +67,8 @@ export class User { //TODO split into profile data and user data
     @Column()
     role: Role = 0;
 
-    @OneToMany(type => Member, m => m.user, {eager: true})
-    memberships: Promise<Member[]>;
+    @OneToMany(type => Membership, m => m.user, {eager: true})
+    memberships: Promise<Membership[]>;
 
     @OneToOne(type => PasswordResetToken, p => p.user)
     passwordResetToken: PasswordResetToken;

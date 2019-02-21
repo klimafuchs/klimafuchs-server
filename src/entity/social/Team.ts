@@ -6,19 +6,34 @@ import {
     PrimaryGeneratedColumn,
     ManyToOne, getRepository,
 } from "typeorm";
-import {Member} from "./Member";
-import {Field, Int, ObjectType} from "type-graphql";
+import {Membership} from "./Membership";
+import {Field, Int, ObjectType, registerEnumType} from "type-graphql";
 import {Media} from "../Media";
 import {generate} from "shortid";
+
+
+export enum TeamSize {
+    SOLO, DUO, SMALL, LARGE, HUGE
+}
+
+export const teamSizeForSize = (size) => {
+    switch (size) {
+        case (size <= 1): return TeamSize.SOLO;
+        case (size <= 2): return TeamSize.DUO;
+        case (size <= 5): return TeamSize.SMALL;
+        case (size <= 10): return TeamSize.LARGE;
+        default: return TeamSize.HUGE;
+    }
+};
+
+registerEnumType(TeamSize, {
+    name: 'TeamSize',
+    description: 'team size brackets'
+});
 
 @Entity()
 @ObjectType()
 export class Team {
-
-    addScore(points: number): void{
-        this.score += points;
-        getRepository(Team).save(this).catch(err => console.error(err));
-    }
 
     @Field(type => Int)
     @PrimaryGeneratedColumn()
@@ -39,9 +54,13 @@ export class Team {
     @ManyToOne(type => Media, {nullable: true})
     avatar?: Promise<Media>;
 
-    @Field(type => [Member], {nullable: true})
-    @OneToMany(type => Member, member => member.team, {nullable: true})
-    members?: Promise<Member[]>;
+    @Field(type => TeamSize)
+    @Column()
+    teamSize: TeamSize;
+
+    @Field(type => [Membership], {nullable: true})
+    @OneToMany(type => Membership, member => member.team, {nullable: true})
+    members?: Promise<Membership[]>;
 
     @Field(type => Int)
     @Column({default: 0})
@@ -51,4 +70,17 @@ export class Team {
     setInviteIdIfNoneExists() {
         this.inviteId = this.inviteId || generate();
     }
+
+    public addScore(points: number): void{
+        this.score += points;
+        getRepository(Team).save(this).catch(err => console.error(err));
+    }
+
+    public async updateTeamSize(action){
+        let members = await this.members;
+        members = members.filter(m => m.isActive);
+        this.teamSize = teamSizeForSize(members.length);
+        getRepository(Team).save(this).catch(err => console.error(err));
+    }
+
 }

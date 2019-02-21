@@ -35,7 +35,7 @@ export class PaginatingFeedPostRepository extends PaginatingRepository<FeedPost>
 export class PaginatingUserRepository extends PaginatingRepository<FeedPost> {}
 
 @EntityRepository(Team)
-export class TeamPaginatingRepository extends PaginatingRepository<Team>{}
+export class PaginatingTeamRepository extends PaginatingRepository<Team>{}
 
 @ObjectType(`PageData`)
 export class PageData {
