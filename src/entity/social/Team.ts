@@ -55,7 +55,7 @@ export class Team {
     avatar?: Promise<Media>;
 
     @Field(type => TeamSize)
-    @Column()
+    @Column({default: TeamSize.SOLO})
     teamSize: TeamSize;
 
     @Field(type => [Membership], {nullable: true})
