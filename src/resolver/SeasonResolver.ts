@@ -150,8 +150,12 @@ export class SeasonResolver {
         }));
 
         seasonPlan.challenges = Promise.resolve(seasonPlanChallenges);
-        publish(seasonPlan);
-        return this.seasonPlanRepsitory.save(seasonPlan);
+
+        seasonPlan = await this.seasonPlanRepsitory.save(seasonPlan);
+        publish(seasonPlan, "update", true);
+
+
+        return seasonPlan;
     }
 
     @Query(returns => [Props], {nullable: true})

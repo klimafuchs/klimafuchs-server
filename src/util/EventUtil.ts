@@ -1,4 +1,5 @@
 import * as redis from "redis";
+import {parse, stringify} from "flatted";
 
 // thanks @subzey
 // https://gist.github.com/jed/982883#gistcomment-45104
@@ -30,7 +31,7 @@ const _subscribe = (type: Function, target: Function, property: string): void =>
     subscriber.subscribe(channel);
     subscriber.on("message", async (ch, message) => {
         if (ch === channel) {
-            let event = JSON.parse(message);
+            let event = parse(message);
             console.log(ch, event);
             if(event.once) {
                 let client = newRedis();
@@ -50,7 +51,7 @@ const _subscribe = (type: Function, target: Function, property: string): void =>
 
 export function publish (payload: any, action?: string, once?: boolean): void {
     let event = new Event(payload, action, once);
-    publisher.publish(event.channel, JSON.stringify(event));
+    publisher.publish(event.channel, stringify(event));
     if(event.once) newRedis().hset(hset, event.guid, 'pending');
 }
 
