@@ -192,8 +192,9 @@ export class GameProgressionManager implements EntitySubscriberInterface{
         let challengeCompletion: ChallengeCompletion = new ChallengeCompletion();
         challengeCompletion.owner = Promise.resolve(user);
         challengeCompletion.seasonPlanChallenge = Promise.resolve(seasonPlanChallenge);
+        challengeCompletion = await this.challengeCompletionRepository.save(challengeCompletion);
         publish(challengeCompletion, "add", true);
-        return this.challengeCompletionRepository.save(challengeCompletion);
+        return challengeCompletion;
     }
 
     public async rejectChallenge(user: User, seasonPlanChallengeId: number): Promise<ChallengeRejection> {
