@@ -13,7 +13,7 @@ import {generate} from "shortid";
 
 
 export enum TeamSize {
-    SOLO, DUO, SMALL, LARGE, HUGE
+    SOLO = 0, DUO = 1, SMALL = 2 , LARGE = 3, HUGE = 4
 }
 
 export const teamSizeForSize = (size) => {
