@@ -1,3 +1,4 @@
+import "reflect-metadata";
 import * as redis from "redis";
 import {parse, stringify} from "flatted";
 
@@ -27,12 +28,12 @@ const publisher = newRedis();
 const _subscribe = (type: Function, target: Function, property: string): void => {
     let channel = type.name;
     console.log(`${target.name}.${property} is listening for ${channel}`);
+    Reflect.defineMetadata("EventUtil:annotations:subscribe", channel, target, property);
     let subscriber = newRedis();
     subscriber.subscribe(channel);
     subscriber.on("message", async (ch, message) => {
         if (ch === channel) {
             let event = parse(message);
-            console.log(ch, event);
             if(event.once) {
                 let client = newRedis();
                 client.hgetall(hset, (err, obj) => {
