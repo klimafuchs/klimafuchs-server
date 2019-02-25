@@ -1,4 +1,4 @@
-import {Arg, Authorized, Int, Mutation, Query, Resolver} from "type-graphql";
+import {Arg, Authorized, Ctx, Int, Mutation, Query, Resolver} from "type-graphql";
 import {InjectRepository} from "typeorm-typedi-extensions";
 import {Role, User} from "../entity/user/User";
 import {Repository} from "typeorm";
@@ -6,6 +6,7 @@ import {FeedPost} from "../entity/social/FeedPost";
 import {UserInput} from "./types/UserInput";
 import {Media} from "../entity/Media";
 import has = Reflect.has;
+import {Context} from "./types/Context";
 
 @Resolver()
 export class UserResolver {
@@ -50,6 +51,11 @@ export class UserResolver {
         user.emailConfirmed = (typeof userInput.emailConfirmed === "boolean") ? userInput.emailConfirmed : user.emailConfirmed;
         // TODO reset Avatars
         return this.userRepository.save(user)
+    }
+
+    @Query(returns => User)
+    async getCurrentUser(@Ctx() {user}: Context): Promise<User> {
+        return this.userRepository.findOne(user.id);
     }
 
 }
