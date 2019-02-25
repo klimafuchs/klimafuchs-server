@@ -1,4 +1,16 @@
-import {Arg, Ctx, Field, InputType, Int, ObjectType, Query, registerEnumType, Resolver} from "type-graphql";
+import {
+    Arg,
+    Authorized,
+    Ctx,
+    Field,
+    InputType,
+    Int,
+    Mutation,
+    ObjectType,
+    Query,
+    registerEnumType,
+    Resolver
+} from "type-graphql";
 import {InjectRepository} from "typeorm-typedi-extensions";
 import {User} from "../entity/user/User";
 import {getCustomRepository, Repository} from "typeorm";
@@ -7,8 +19,10 @@ import {Membership} from "../entity/social/Membership";
 import {Team, TeamSize} from "../entity/social/Team";
 import {ConnectionArgs} from "./types/ConnectionPaging";
 import {Context} from "./types/Context";
-import {PaginatingTeamRepository} from "../util/PaginatingRepository";
+import {LeaderBoardRepository} from "../util/PaginatingRepository";
 import {connectionTypes} from "../util/ConnectionTypes";
+import {Container} from "typedi";
+import {LeaderBoardManager} from "../gameLogic/LeaderBoardManager";
 
 
 
@@ -37,8 +51,16 @@ export class LeaderBoardResolver {
         @Arg('connectionArgs', type => ConnectionArgs) connectionArgs: ConnectionArgs,
         @Arg('teamSize', type => TeamSize) searchConditions: TeamSize,
     ) {
-        const paginatingRepo = getCustomRepository(PaginatingTeamRepository);
-        return paginatingRepo.findAndPaginate({teamSize: searchConditions}, {score: "DESC"}, connectionArgs);
+        const paginatingRepo = getCustomRepository(LeaderBoardRepository);
+        return paginatingRepo.findAndPaginate({teamSize: searchConditions}, {place: "DESC", score: "DESC"}, connectionArgs);
+    }
+
+    @Authorized("ADMIN")
+    @Mutation(returns => [Team])
+    async resetLeaderBoard() {
+        return Container.get(LeaderBoardManager).recalculateLeaderBoardPositions()
     }
 
 }
+
+
