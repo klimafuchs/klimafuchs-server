@@ -13,7 +13,7 @@ import {
 } from "type-graphql";
 import {InjectRepository} from "typeorm-typedi-extensions";
 import {User} from "../entity/user/User";
-import {getCustomRepository, Repository} from "typeorm";
+import {getCustomRepository, Not, Repository} from "typeorm";
 import {Media} from "../entity/Media";
 import {Membership} from "../entity/social/Membership";
 import {Team, TeamSize} from "../entity/social/Team";
@@ -52,7 +52,7 @@ export class LeaderBoardResolver {
         @Arg('teamSize', type => TeamSize) searchConditions: TeamSize,
     ) {
         const paginatingRepo = getCustomRepository(LeaderBoardRepository);
-        return paginatingRepo.findAndPaginate({teamSize: searchConditions}, {place: "DESC", score: "DESC"}, connectionArgs);
+        return paginatingRepo.findAndPaginate({teamSize: searchConditions, place: Not(-1)}, {place: "ASC", score: "DESC"}, connectionArgs);
     }
 
     @Authorized("ADMIN")
