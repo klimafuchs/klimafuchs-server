@@ -8,7 +8,7 @@ import axios from "axios";
 import {Challenge} from "../entity/wiki-content/Challenge";
 import {Service} from "typedi";
 import {InjectRepository} from "typeorm-typedi-extensions";
-import {IsNull, Repository} from "typeorm";
+import {Repository} from "typeorm";
 import * as Nearley from "nearley";
 import * as grammar from "./topicweekGrammar";
 import {Props, WikiProps} from "../entity/wiki-content/Props";
@@ -18,7 +18,6 @@ import {Oberthema} from "../entity/wiki-content/Oberthema";
 import {WikiImage} from "../entity/wiki-content/WikiImage";
 import {WikiWarning, WikiWarnings} from "../entity/wiki-content/WikiWarning";
 import {Quelle} from "../entity/wiki-content/Quelle";
-import Maybe from "graphql/tsutils/Maybe";
 
 let config = require("../../config.json");
 
@@ -172,20 +171,11 @@ export class WikiClient {
                 themenwoche.oberthema = Promise.resolve(oberthema);
                 themenwoche.kategorie = Promise.resolve(kategorie);
 
-                if(topicTemplate.templateValues.HeaderImage){
-                    try {
-                        let imageInfo = await this.connection.get(this.paramObjectToUrl(WikiClient.requestImagesForFile(topicTemplate.templateValues.HeaderImage)));
-                        let headerImage = WikiImage.fromRequest(imageInfo);
-                        headerImage.props = Promise.resolve(props);
-                        themenwoche.headerImage = await this.wikiImageRepository.save(headerImage);
-                    } catch (e) {
-                        console.log(e.message);
+                themenwoche.headerImage = await this.fetchHeaderImage(topicTemplate.templateValues.HeaderImage, themenwoche)
+                    .catch(err => {
                         warnings.push(WikiWarnings.NoHeaderImage);
-                    }
-                } else {
-                    warnings.push(WikiWarnings.NoHeaderImage);
-                }
-
+                        return null;
+                });
 
                 if (!challengeTemplates || challengeTemplates.length === 0) {
                     warnings.push(WikiWarnings.NoChallenges);
@@ -206,6 +196,12 @@ export class WikiClient {
                         challenge.themenWoche = Promise.resolve(themenwoche);
                         challenge.kategorie = Promise.resolve(kategorie);
                         challenge.oberthema = Promise.resolve(oberthema);
+                        challenge.headerImage = await this.fetchHeaderImage(challenge.headerImageUrl, challenge)
+                            .catch(err => {
+                                warnings.push(WikiWarnings.NoHeaderImage);
+                                return null;
+                            });
+
                         //this.challengeRepository.save(challenge).catch(e => console.error(e));
                         return challenge;
                     }));
@@ -228,6 +224,24 @@ export class WikiClient {
             this.wikiWaringRepsitory.save(wikiWarning)
                 .then(() => console.log(`Logged warnings on page ${props.pageid}!`))
                 .catch(err => console.error("WikiClient Error: " + err.toString()));
+        }
+
+    }
+
+    private async fetchHeaderImage(wikiImageUrl: string, assignee: (Challenge | Themenwoche)): Promise<WikiImage>  {
+        if(wikiImageUrl){
+            try {
+                let imageInfo = await this.connection.get(this.paramObjectToUrl(WikiClient.requestImagesForFile(wikiImageUrl)));
+                let headerImage = WikiImage.fromRequest(imageInfo);
+                headerImage.props = Promise.resolve(assignee.props);
+                console.log(headerImage.canonicalName, assignee.constructor.name);
+                return this.wikiImageRepository.save(headerImage);
+            } catch (e) {
+                console.log(e.message);
+                return Promise.reject("couldn't fetch")
+            }
+        } else {
+            return Promise.reject("no image")
         }
 
     }

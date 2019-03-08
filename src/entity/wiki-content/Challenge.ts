@@ -12,6 +12,8 @@ import {Props} from "./Props";
 import {Kategorie} from "./Kategorie";
 import {Oberthema} from "./Oberthema";
 import {Field, Int, ObjectType} from "type-graphql";
+import {Media} from "../Media";
+import {WikiImage} from "./WikiImage";
 
 @Entity()
 @ObjectType()
@@ -65,12 +67,19 @@ export class Challenge {
     @ManyToOne(type => Props)
     props: Promise<Props>;
 
+    @Field(type => WikiImage, {nullable: true})
+    @ManyToOne(type => WikiImage, {eager: true})
+    headerImage: WikiImage;
+
+    headerImageUrl?: string;
+
     static fromTemplate(challengeTemplate): Challenge {
         let challenge = new Challenge();
         challenge.title = challengeTemplate.Name;
         challenge.content = challengeTemplate.Text;
         challenge.score = challengeTemplate.Ersparnis || 2;
         challenge.isSpare = !!challengeTemplate.Ersatzchallenge || false;
+        challenge.headerImageUrl = challengeTemplate.HeaderImage || null;
         return challenge;
     }
 }
