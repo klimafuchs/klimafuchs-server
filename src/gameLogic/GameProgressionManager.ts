@@ -13,6 +13,7 @@ import {ChallengeReplacement} from "../entity/game-state/ChallengeReplacement";
 import {IUserChallenge} from "../entity/game-state/IUserChallenge";
 import {RedisClient} from "redis";
 import {publish, subscribe} from "../util/EventUtil";
+import {error} from "util";
 
 const {promisify} = require('util');
 @Service()
@@ -115,11 +116,16 @@ export class GameProgressionManager implements EntitySubscriberInterface{
 
     public async setUpCurrentSeason() {
         console.log("setting up season ... ")
-        const s = await this.findCurrentSeason();
-        this.setCurrentSeason(s);
-        const sp = await this.findCurrentSeasonPlan(s);
-        this.setCurrentSeasonPlan(sp);
+        try {
+            const s = await this.findCurrentSeason();
+            this.setCurrentSeason(s);
+            const sp = await this.findCurrentSeasonPlan(s);
+            this.setCurrentSeasonPlan(sp);
+        } catch (err) {
+            console.error(err)
+        }
     }
+
 
     static async getAbsoluteEndTimeOfSeasonPlan(season: Season, seasonPlan: SeasonPlan): Promise<number> {
         let seasonPlans = await season.seasonPlan;
@@ -146,11 +152,12 @@ export class GameProgressionManager implements EntitySubscriberInterface{
         })
             .catch(err => {
                 console.error(err);
-                throw Error("No Current Season");
             });
         console.log(currentSeason);
-        if (currentSeason == undefined) throw Error("No Current Season");
-        return currentSeason;
+        if (!currentSeason)
+            throw error("No Current Season");
+        else
+            return currentSeason;
     }
 
     private async findCurrentSeasonPlan(season: Season): Promise<SeasonPlan> { //TODO wait for start offset date

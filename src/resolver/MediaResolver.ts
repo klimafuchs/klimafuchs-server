@@ -35,6 +35,27 @@ export class MediaResolver {
         ))
     }
 
+    private static deleteFile(filename) {
+        const path = `${MediaResolver.uploadDir}/${filename}`;
+        return new Promise(((resolve, reject) => {
+            fs.stat(path, (err, stats) => {
+                if (err) {
+                    console.log(err)
+                    reject(err)
+                } else {
+                    fs.unlink(path, (err) => {
+                        if (err) {
+                            console.log(err)
+                            reject(err)
+                        } else {
+                            resolve();
+                        }
+                    });
+                }
+            });
+        }))
+    }
+
     @Query(returns => [Media])
     async myMedia(@Ctx() {user}): Promise<Media[]> {
         return this.mediaRepository.find({where: {uploader: user}})
@@ -62,5 +83,16 @@ export class MediaResolver {
             height: height
         });
         return this.mediaRepository.save(media);
+    }
+
+    @Mutation(returns => Media)
+    async delete(@Arg('mediaId', type => Int!) mediaId: number,
+                 @Ctx() {user}: Context): Promise<Media> {
+        const medium = await this.mediaRepository.findOne(mediaId);
+        await MediaResolver.deleteFile(medium.filename).catch((err) => {
+            console.log(err);
+            return Promise.reject("Internal Server Error")
+        });
+        return this.mediaRepository.remove(medium);
     }
 }
