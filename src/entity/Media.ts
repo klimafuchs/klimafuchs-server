@@ -6,7 +6,7 @@ import {Field, Int, ObjectType} from "type-graphql";
 @ObjectType()
 export class Media {
 
-    @Field(type => Int)
+    @Field(type => Int, {nullable: true})
     @PrimaryGeneratedColumn()
     id: number;
 
