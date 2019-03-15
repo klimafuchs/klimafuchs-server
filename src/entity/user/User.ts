@@ -61,6 +61,7 @@ export class User { //TODO split into profile data and user data
 
     @Column()
     hash: string;
+
     password: string;
 
     @Field(type => Int)
@@ -103,7 +104,8 @@ export class User { //TODO split into profile data and user data
 
     @BeforeInsert()
     public encrypt () {
-        this.hash = bcrypt.hashSync(this.password, bcrypt.genSaltSync()); //TODO make more async
+        if(this.password)
+            this.hash = bcrypt.hashSync(this.password, bcrypt.genSaltSync()); //TODO make more async
     }
 
     public validatePassword(candidate: string): boolean {

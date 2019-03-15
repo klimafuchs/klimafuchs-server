@@ -2,10 +2,8 @@ import {Arg, Authorized, Ctx, Int, Mutation, Query, Resolver} from "type-graphql
 import {InjectRepository} from "typeorm-typedi-extensions";
 import {Role, User} from "../entity/user/User";
 import {Repository} from "typeorm";
-import {FeedPost} from "../entity/social/FeedPost";
 import {UserInput} from "./types/UserInput";
 import {Media} from "../entity/Media";
-import has = Reflect.has;
 import {Context} from "./types/Context";
 
 @Resolver()
@@ -45,7 +43,7 @@ export class UserResolver {
             throw new Error("Contact DB Admin to modify admin accounts!");
         }
         console.log(userInput);
-        user.screenName= userInput.screenName ||user.screenName;
+        user.screenName = userInput.screenName || user.screenName;
         user.userName = userInput.userName || user.userName;
         user.isBanned = (typeof userInput.isBanned === "boolean") ? userInput.isBanned : user.isBanned;
         user.emailConfirmed = (typeof userInput.emailConfirmed === "boolean") ? userInput.emailConfirmed : user.emailConfirmed;
@@ -58,4 +56,68 @@ export class UserResolver {
         return this.userRepository.findOne(user.id);
     }
 
+    @Mutation(returns => User)
+    async updateProfile(
+        @Arg("userName", type => String) userName: string,
+        @Arg("screenName", type => String) screenName: string,
+        @Arg("avatarId", type => Int) avatarId: number,
+        @Ctx() {user}: Context
+    ): Promise<User> {
+        let currentUser = await this.userRepository.findOne(user.id)
+            .catch((err) => {
+                console.log(err);
+                return Promise.reject("could not load user record")
+            });
+        currentUser.screenName = screenName || currentUser.screenName;
+        currentUser.userName = userName || currentUser.userName;
+        currentUser.avatar = (await this.mediaRepository.findOne(avatarId)
+            .catch((err) => {
+                console.log(err);
+                return Promise.reject("invalid avatar media id");
+            })) || currentUser.avatar;
+
+        return this.userRepository.save(currentUser);
+    }
+
+    @Mutation(returns => User)
+    async changePassword(
+        @Arg("oldPassword", type => String) oldPassword: string,
+        @Arg("newPassword", type => String) newPassword: string,
+        @Ctx() {user}: Context
+    ): Promise<User> {
+        let currentUser = await this.userRepository.findOne(user.id)
+            .catch((err) => {
+                console.log(err);
+                return Promise.reject("could not load user record")
+            });
+        if (currentUser.validatePassword(oldPassword)) {
+            currentUser.password = newPassword; // this gets eaten by @BeforeInsert hook encrypt(),
+                                                // password is not a column in user table and is
+                                                // only transiently there during password changes
+            return this.userRepository.save(currentUser);
+        } else {
+            return Promise.reject("Incorrect password");
+        }
+
+    }
 }
+
+/*
+const UPDATE_PROFILE = gql`
+mutation updateProfile($userName: String, $screenName: String, $avatarId: Int){
+    updateProfile(userName: $userName, screenName: $screenName, avatarId: $avatarId) {
+        userName,
+        screeName,
+        avatar {path},
+    }
+}
+`;
+
+const CHANGE_PASSWORD = gql`
+mutation changePassword($oldPassword: String!, $newPassword: String!){
+    changePassword(oldPassword: $oldPassword, newPassword: $newPassword) {
+        success
+    }
+}
+`;}
+ */
