@@ -58,10 +58,10 @@ export class UserResolver {
 
     @Mutation(returns => User)
     async updateProfile(
-        @Arg("userName", type => String) userName: string,
-        @Arg("screenName", type => String) screenName: string,
-        @Arg("avatarId", type => Int) avatarId: number,
-        @Ctx() {user}: Context
+        @Ctx() {user}: Context,
+        @Arg("userName", type => String, {nullable: true}) userName?: string,
+        @Arg("screenName", type => String, {nullable: true}) screenName?: string,
+        @Arg("avatarId", type => Int, {nullable: true}) avatarId?: number,
     ): Promise<User> {
         let currentUser = await this.userRepository.findOne(user.id)
             .catch((err) => {
