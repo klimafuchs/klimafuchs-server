@@ -70,7 +70,7 @@ export class UserResolver {
             });
         currentUser.screenName = screenName || currentUser.screenName;
         currentUser.userName = userName || currentUser.userName;
-        currentUser.avatar = (await this.mediaRepository.findOne(avatarId)
+        currentUser.avatar = (this.mediaRepository.findOne(avatarId)
             .catch((err) => {
                 console.log(err);
                 return Promise.reject("invalid avatar media id");

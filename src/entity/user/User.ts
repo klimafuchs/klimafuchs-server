@@ -76,7 +76,7 @@ export class User { //TODO split into profile data and user data
 
     @Field(type => Media, {nullable: true})
     @ManyToOne(type => Media, {nullable: true})
-    avatar?: Media;
+    avatar?: Promise<Media>;
 
     @Field(type => [Media], {nullable: true})
     @OneToMany(type => Media, media => media.uploader, {nullable: true})
