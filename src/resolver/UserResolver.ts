@@ -70,11 +70,14 @@ export class UserResolver {
             });
         currentUser.screenName = screenName || currentUser.screenName;
         currentUser.userName = userName || currentUser.userName;
-        currentUser.avatar = (this.mediaRepository.findOne(avatarId)
-            .catch((err) => {
-                console.log(err);
-                return Promise.reject("invalid avatar media id");
-            })) || currentUser.avatar;
+        if(avatarId){
+            const newAvatar = await this.mediaRepository.findOne(avatarId);
+            if(newAvatar) {
+                currentUser.avatar = Promise.resolve(newAvatar);
+            } else {
+                return Promise.reject("Image could not be loaded")
+            }
+        }
 
         return this.userRepository.save(currentUser);
     }
