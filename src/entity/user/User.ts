@@ -75,7 +75,7 @@ export class User { //TODO split into profile data and user data
     passwordResetToken: PasswordResetToken;
 
     @Field(type => Media, {nullable: true})
-    @OneToOne(type => Media, {nullable: true})
+    @ManyToOne(type => Media, {nullable: true})
     avatar?: Media;
 
     @Field(type => [Media], {nullable: true})
