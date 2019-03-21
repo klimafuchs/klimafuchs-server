@@ -27,11 +27,11 @@ export class TeamResolver {
 
     private async _joinTeam(user: User, team: Team): Promise<Membership> {
         const currentMembers = await team.members;
-        if(AsyncSome(currentMembers, async m => {
+      /*  if(AsyncSome(currentMembers, async m => {
             return (await m.user).id === user.id
         })) {
             return Promise.reject(`${user.screenName} is already a member of ${team.name}`)
-        }
+        } */
         let newMembership = new Membership();
         newMembership.user = Promise.resolve(user);
         newMembership.team = Promise.resolve(team);
