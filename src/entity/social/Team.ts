@@ -12,18 +12,26 @@ export enum TeamSize {
 }
 
 export const teamSizeForSize = (size) => {
+    console.log(size);
+    let teamSize;
     switch (size) {
-        case (size <= 1):
-            return TeamSize.SOLO;
-        case (size <= 2):
-            return TeamSize.DUO;
-        case (size <= 5):
-            return TeamSize.SMALL;
-        case (size <= 10):
-            return TeamSize.LARGE;
+        case (0 < size && size <= 1):
+            teamSize = TeamSize.SOLO;
+            break;
+        case (1 < size && size <= 2):
+            teamSize =  TeamSize.DUO;
+            break;
+        case (2 < size && size <= 5):
+            teamSize =  TeamSize.SMALL;
+            break;
+        case (5 < size && size <= 10):
+            teamSize = TeamSize.LARGE;
+            break;
         default:
-            return TeamSize.HUGE;
+            teamSize =  TeamSize.HUGE;
     }
+    console.log(size, teamSize);
+    return teamSize
 };
 
 registerEnumType(TeamSize, {
@@ -89,7 +97,7 @@ export class Team {
         let members = await this.members;
         members = members.filter(m => m.isActive);
         this.teamSize = teamSizeForSize(members.length);
-        getRepository(Team).save(this).catch(err => {
+        await getRepository(Team).save(this).catch(err => {
             throw err
         });
     }
