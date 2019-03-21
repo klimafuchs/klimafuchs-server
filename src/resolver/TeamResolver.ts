@@ -26,11 +26,16 @@ export class TeamResolver {
     ) {}
 
     private async _joinTeam(user: User, team: Team): Promise<Membership> {
-        const currentMembers = await team.members;
+        const currentMemberships = await team.members;
+        const currentMembers = await Promise.all(await currentMemberships.map(async m => {
+            return (await m.user).id
+        }));
+        if(currentMembers.some(id => id ===user.id)){
+            return Promise.reject(`${user.screenName} is already a member of ${team.name}`)
+        }
       /*  if(AsyncSome(currentMembers, async m => {
             return (await m.user).id === user.id
         })) {
-            return Promise.reject(`${user.screenName} is already a member of ${team.name}`)
         } */
         let newMembership = new Membership();
         newMembership.user = Promise.resolve(user);
