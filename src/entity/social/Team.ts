@@ -77,9 +77,11 @@ export class Team {
 
     public async addScore(points: number) {
         this.score += points;
-        getRepository(Team).save(this).catch(err => {
+        console.log(this);
+        let res = await getRepository(Team).save(this).catch(err => {
             throw err
         });
+        console.log(res);
 
     }
 

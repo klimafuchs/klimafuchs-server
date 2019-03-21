@@ -38,8 +38,6 @@ export class TeamResolver {
         return this.memberRepository.save(newMembership);
     }
 
-    private
-
     private async _confirm(memberShip: Membership): Promise<Membership> {
         memberShip.isActive = true;
         memberShip.activationDate = new Date(Date.now());
