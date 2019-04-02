@@ -1,29 +1,23 @@
-import {Arg, Authorized, Ctx, Int, Mutation, Query, registerEnumType, Resolver} from "type-graphql";
+import {Arg, Ctx, Int, Mutation, Query, registerEnumType, Resolver} from "type-graphql";
 import {InjectRepository} from "typeorm-typedi-extensions";
-import {Role, User} from "../entity/user/User";
+import {User} from "../entity/user/User";
 import {Like, Repository} from "typeorm";
-import {FeedPost} from "../entity/social/FeedPost";
-import {UserInput} from "./types/UserInput";
 import {Media} from "../entity/Media";
-import has = Reflect.has;
 import {Membership} from "../entity/social/Membership";
-import {Team, TeamSize} from "../entity/social/Team";
-import {GraphQLUpload, Upload} from "apollo-upload-server";
+import {Team} from "../entity/social/Team";
 import {Context} from "./types/Context";
 import {TeamInput} from "./types/TeamInput";
-import {Container, Inject} from "typedi";
 import {publish} from "../util/EventUtil";
-import {AsyncSome} from "../util/AsyncCollection";
 
 export enum TeamResolverErrors {
-    ERR_MEMBERSHIP_ALREADY_EXISTS,
-    ERR_MEDIA_UNASSIGNABLE_TO_AVATAR,
-    ERR_TEAMNAME_DUPLCATE,
-    ERR_TEAMNAME_INVALID,
-    ERR_TEAM_DOES_NOT_EXIST,
-    ERR_NOT_TEAM_MEMBER,
-    ERR_NO_TEAM_AUTHORITY,
-    ERR_USER_DOES_NOT_EXIST
+    ERR_MEMBERSHIP_ALREADY_EXISTS = "ERR_MEMBERSHIP_ALREADY_EXISTS",
+    ERR_MEDIA_UNASSIGNABLE_TO_AVATAR = "ERR_MEDIA_UNASSIGNABLE_TO_AVATAR",
+    ERR_TEAMNAME_DUPLCATE = "ERR_TEAMNAME_DUPLCATE",
+    ERR_TEAMNAME_INVALID = "ERR_TEAMNAME_INVALID",
+    ERR_TEAM_DOES_NOT_EXIST = "ERR_TEAM_DOES_NOT_EXIST",
+    ERR_NOT_TEAM_MEMBER = "ERR_NOT_TEAM_MEMBER",
+    ERR_NO_TEAM_AUTHORITY = "ERR_NO_TEAM_AUTHORITY",
+    ERR_USER_DOES_NOT_EXIST = "ERR_USER_DOES_NOT_EXIST",
 }
 
 registerEnumType(TeamResolverErrors, {
@@ -39,20 +33,21 @@ export class TeamResolver {
         @InjectRepository(User) private readonly userRepository: Repository<User>,
         @InjectRepository(Team) private readonly teamRepository: Repository<Team>,
         @InjectRepository(Membership) private readonly memberRepository: Repository<Membership>
-    ) {}
+    ) {
+    }
 
     private async _joinTeam(user: User, team: Team): Promise<Membership> {
         const currentMemberships = await team.members;
         const currentMembers = await Promise.all(await currentMemberships.map(async m => {
             return (await m.user).id
         }));
-        if(currentMembers.some(id => id ===user.id)){
+        if (currentMembers.some(id => id === user.id)) {
             return Promise.reject(TeamResolverErrors.ERR_MEMBERSHIP_ALREADY_EXISTS)
         }
-      /*  if(AsyncSome(currentMembers, async m => {
-            return (await m.user).id === user.id
-        })) {
-        } */
+        /*  if(AsyncSome(currentMembers, async m => {
+              return (await m.user).id === user.id
+          })) {
+          } */
         let newMembership = new Membership();
         newMembership.user = Promise.resolve(user);
         newMembership.team = Promise.resolve(team);
@@ -83,7 +78,7 @@ export class TeamResolver {
         const teams = await Promise.all(memberships.map(async (membership) => {
             return await membership.team;
         }));
-        return teams.find( (team) => team.id === teamId)
+        return teams.find((team) => team.id === teamId)
 
     }
 
@@ -92,15 +87,15 @@ export class TeamResolver {
         return contextUserTeamMembership ? (await this._getTeamMembership(user, contextUserTeamMembership.id)).isAdmin : false;
     }
 
-    private async _getTeamMembership(user: User, teamId: number) : Promise<Membership>{
+    private async _getTeamMembership(user: User, teamId: number): Promise<Membership> {
         const team = await this._membershipsContain(await user.memberships, teamId);
-        if(team){
+        if (team) {
             const teamMemberships = await team.members;
             const filteredMemberships = await Promise.all(teamMemberships.map(async (m) => {
                 const currentMembershipUser = await m.user;
                 return currentMembershipUser.id === user.id ? m : null;
             }));
-            return filteredMemberships.filter( (val) => val !== null)[0];
+            return filteredMemberships.filter((val) => val !== null)[0];
         }
         return null;
     }
@@ -110,11 +105,11 @@ export class TeamResolver {
                      @Ctx() {user}: Context): Promise<Team> {
 
         const conflict = await this.teamRepository.findOne({where: {name: teamInput.teamName}});
-        if(conflict) return  Promise.reject(TeamResolverErrors.ERR_TEAMNAME_DUPLCATE);
+        if (conflict) return Promise.reject(TeamResolverErrors.ERR_TEAMNAME_DUPLCATE);
         let newTeam = new Team();
 
         //TODO replace with name validator
-        if(!teamInput.teamName) {
+        if (!teamInput.teamName) {
             return Promise.reject(TeamResolverErrors.ERR_TEAMNAME_INVALID)
         }
 
@@ -136,12 +131,12 @@ export class TeamResolver {
                      @Ctx() {user}: Context): Promise<Team> {
 
         let team = await this.teamRepository.findOne({where: {name: teamInput.teamName}});
-        if(!team) return  Promise.reject(TeamResolverErrors.ERR_TEAM_DOES_NOT_EXIST);
+        if (!team) return Promise.reject(TeamResolverErrors.ERR_TEAM_DOES_NOT_EXIST);
 
-        team.name = teamInput.teamName||team.name;
-        team.description = teamInput.teamDescription||team.description;
+        team.name = teamInput.teamName || team.name;
+        team.description = teamInput.teamDescription || team.description;
 
-        team = await this.teamRepository.save(team).catch( (err) => {
+        team = await this.teamRepository.save(team).catch((err) => {
             console.error(err);
             return Promise.reject(TeamResolverErrors.ERR_TEAM_DOES_NOT_EXIST)
         });
@@ -154,18 +149,24 @@ export class TeamResolver {
 
 
     @Query(returns => Team)
-    async getMyTeam(@Arg("teamId", type => Int) teamId: number, @Ctx() {user}: Context) : Promise<Team>{
+    async getMyTeam(@Arg("teamId", type => Int) teamId: number, @Ctx() {user}: Context): Promise<Team> {
         const memberships = await user.memberships;
-        return this._membershipsContain(memberships, teamId);
+        const selectedTeams = await this._membershipsContain(memberships, teamId).catch((err) => {
+                console.error(err);
+                return Promise.reject(TeamResolverErrors.ERR_NOT_TEAM_MEMBER)
+            }
+        );
+        if (!selectedTeams) return Promise.reject(TeamResolverErrors.ERR_NOT_TEAM_MEMBER);
+        return selectedTeams
     }
 
     @Query(returns => [Membership])
-    async myMemberships(@Ctx() {user}: Context) : Promise<Membership[]>{
+    async myMemberships(@Ctx() {user}: Context): Promise<Membership[]> {
         return user.memberships;
     }
 
     @Mutation(returns => Membership)
-    async requestJoinTeam(@Arg("teamId", type => Int) teamId: number, @Ctx() {user}: Context) : Promise<Membership> {
+    async requestJoinTeam(@Arg("teamId", type => Int) teamId: number, @Ctx() {user}: Context): Promise<Membership> {
         const team = await this.teamRepository.findOne(teamId);
         return team ? this._joinTeam(user, team) : Promise.reject(TeamResolverErrors.ERR_TEAM_DOES_NOT_EXIST)
     }
@@ -173,8 +174,8 @@ export class TeamResolver {
     @Mutation(returns => Membership)
     async confirmMember(@Arg("membershipId", type => Int) membershipId: number, @Ctx() {user}: Context) {
         const membership = await this.memberRepository.findOne(membershipId);
-        if(!membership) return Promise.reject(TeamResolverErrors.ERR_NOT_TEAM_MEMBER);
-        if(await this._hasTeamAuthority(user, await membership.team)) {
+        if (!membership) return Promise.reject(TeamResolverErrors.ERR_NOT_TEAM_MEMBER);
+        if (await this._hasTeamAuthority(user, await membership.team)) {
             return this._confirm(membership)
         } else {
             return Promise.reject(TeamResolverErrors.ERR_NO_TEAM_AUTHORITY);
@@ -184,8 +185,8 @@ export class TeamResolver {
     @Mutation(returns => Membership)
     async modMember(@Arg("membershipId", type => Int) membershipId: number, @Ctx() {user}: Context) {
         const membership = await this.memberRepository.findOne(membershipId);
-        if(!membership) return Promise.reject(TeamResolverErrors.ERR_NOT_TEAM_MEMBER);
-        if(await this._hasTeamAuthority(user, await membership.team)) {
+        if (!membership) return Promise.reject(TeamResolverErrors.ERR_NOT_TEAM_MEMBER);
+        if (await this._hasTeamAuthority(user, await membership.team)) {
             return this._modUser(membership)
         } else {
             return Promise.reject(TeamResolverErrors.ERR_NO_TEAM_AUTHORITY);
@@ -195,8 +196,8 @@ export class TeamResolver {
     @Mutation(returns => Membership)
     async leaveTeam(@Arg("membershipId", type => Int) membershipId: number, @Ctx() {user}: Context) {
         const membership = await this.memberRepository.findOne(membershipId);
-        if(!membership) return Promise.reject(TeamResolverErrors.ERR_NOT_TEAM_MEMBER);
-        if((await membership.user).id === user.id) {
+        if (!membership) return Promise.reject(TeamResolverErrors.ERR_NOT_TEAM_MEMBER);
+        if ((await membership.user).id === user.id) {
             return await this.deleteMembership(membership);
         } else {
             return Promise.reject(TeamResolverErrors.ERR_NO_TEAM_AUTHORITY);
@@ -206,8 +207,8 @@ export class TeamResolver {
     @Mutation(returns => Membership)
     async delMember(@Arg("membershipId", type => Int) membershipId: number, @Ctx() {user}: Context) {
         const membership = await this.memberRepository.findOne(membershipId);
-        if(!membership) return Promise.reject(TeamResolverErrors.ERR_NOT_TEAM_MEMBER);
-        if(await this._hasTeamAuthority(user, await membership.team)) {
+        if (!membership) return Promise.reject(TeamResolverErrors.ERR_NOT_TEAM_MEMBER);
+        if (await this._hasTeamAuthority(user, await membership.team)) {
             return await this.deleteMembership(membership);
         } else {
             return Promise.reject(TeamResolverErrors.ERR_NO_TEAM_AUTHORITY);
@@ -227,18 +228,18 @@ export class TeamResolver {
 
 //todo use a real search provider for this
     @Query(returns => [Team])
-    async searchTeamsByName(@Arg("teamName", type => String) teamName: String) : Promise<Team[]> {
-        return this.teamRepository.find({where:{name: Like(`%${teamName}%`)}})
+    async searchTeamsByName(@Arg("teamName", type => String) teamName: String): Promise<Team[]> {
+        return this.teamRepository.find({where: {name: Like(`%${teamName}%`)}})
     }
 
     @Mutation(returns => Membership)
     async inviteUserToTeam(@Arg("screeName", type => String) screenName: String, @Arg("teamId", type => Int) teamId: number): Promise<Membership> {
         const user = await this.userRepository.findOne({where: {screenName}});
         const team = await this.teamRepository.findOne(teamId);
-        if(!user) {
+        if (!user) {
             return Promise.reject(TeamResolverErrors.ERR_USER_DOES_NOT_EXIST);
         }
-        if(!team) {
+        if (!team) {
             return Promise.reject(TeamResolverErrors.ERR_TEAM_DOES_NOT_EXIST);
         }
         return this._joinTeam(user, team)
