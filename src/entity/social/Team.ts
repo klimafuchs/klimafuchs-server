@@ -51,6 +51,10 @@ export class Team {
     @Column()
     name: string;
 
+    @Field(type => String, {nullable: true})
+    @Column({nullable: true})
+    description: string;
+
     // Used to invite people who dont have the app already
     // if an inviteId is set during account creation the new
     // user is added to the team

@@ -100,7 +100,17 @@ TypeORM.createConnection().then(async connection => {
 
     //https.createServer(httpsOptions, app).listen(config.port || 443);
 
-    console.log(`Express server has started on port ${listener.address().port}. Open http://localhost:${listener.address().port}/giql to see results`);
+
+
+    console.log("" +
+        " _   ___ _                  __            _         \n" +
+        "| | / / (_)                / _|          | |        \n" +
+        "| |/ /| |_ _ __ ___   __ _| |_ _   _  ___| |__  ___ \n" +
+        "|    \\| | | '_ ` _ \\ / _` |  _| | | |/ __| '_ \\/ __|\n" +
+        "| |\\  \\ | | | | | | | (_| | | | |_| | (__| | | \\__ \\\n" +
+        "\\_| \\_/_|_|_| |_| |_|\\__,_|_|  \\__,_|\\___|_| |_|___/")
+
+    console.log(`Klimafuchs server has started on port ${listener.address().port}.`);
 
 
 }).catch(error => console.log(error));
