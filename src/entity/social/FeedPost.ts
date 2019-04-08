@@ -29,7 +29,7 @@ export class FeedPost {
     title?: string;
 
     @Field(type => String, {nullable: true})
-    @Column("longtext")
+    @Column()
     body?: string;
 
     @Field(type => Date)

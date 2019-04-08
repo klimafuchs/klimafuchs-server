@@ -4,13 +4,13 @@ import {Field, InputType, Int} from "type-graphql";
 export class TeamInput {
 
     @Field(type => Int, {nullable: true})
-    id: number;
+    id?: number;
 
     @Field(type => String, {nullable: true})
-    teamName: string;
+    teamName?: string;
 
     @Field(type => String, {nullable: true})
-    teamDescription: string;
+    teamDescription?: string;
 
     @Field(type => Int, {nullable: true})
     mediaId?: number;

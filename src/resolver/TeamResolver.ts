@@ -66,6 +66,11 @@ export class TeamResolver {
         return this.memberRepository.save(memberShip);
     }
 
+    private async _unmodUser(memberShip: Membership): Promise<Membership> {
+        memberShip.isAdmin = false;
+        return this.memberRepository.save(memberShip);
+    }
+
     private async _setTeamAvatar(mediaId: number, team: Team): Promise<Team> {
         const media = await this.mediaRepository.findOne(mediaId);
         if (media) {
@@ -188,6 +193,17 @@ export class TeamResolver {
         if (!membership) return Promise.reject(TeamResolverErrors.ERR_NOT_TEAM_MEMBER);
         if (await this._hasTeamAuthority(user, await membership.team)) {
             return this._modUser(membership)
+        } else {
+            return Promise.reject(TeamResolverErrors.ERR_NO_TEAM_AUTHORITY);
+        }
+    }
+
+    @Mutation(returns => Membership)
+    async unmodMember(@Arg("membershipId", type => Int) membershipId: number, @Ctx() {user}: Context) {
+        const membership = await this.memberRepository.findOne(membershipId);
+        if (!membership) return Promise.reject(TeamResolverErrors.ERR_NOT_TEAM_MEMBER);
+        if (await this._hasTeamAuthority(user, await membership.team)) {
+            return this._unmodUser(membership)
         } else {
             return Promise.reject(TeamResolverErrors.ERR_NO_TEAM_AUTHORITY);
         }
