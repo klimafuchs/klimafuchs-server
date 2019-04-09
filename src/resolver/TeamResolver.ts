@@ -79,7 +79,7 @@ export class TeamResolver {
         } else return Promise.reject(TeamResolverErrors.ERR_MEDIA_UNASSIGNABLE_TO_AVATAR);
     }
 
-    private async _membershipsContain(memberships: Membership[], teamId) {
+    private async _membershipsContain(memberships: Membership[], teamId): Promise<Team> {
         const teams = await Promise.all(memberships.map(async (membership) => {
             return await membership.team;
         }));
@@ -88,8 +88,7 @@ export class TeamResolver {
     }
 
     private async _hasTeamAuthority(user: User, team: Team): Promise<Boolean> {
-        const contextUserTeamMembership = await this._membershipsContain(await user.memberships, team);
-        return contextUserTeamMembership ? (await this._getTeamMembership(user, contextUserTeamMembership.id)).isAdmin : false;
+        return (await this._getTeamMembership(user, team.id)).isAdmin;
     }
 
     private async _getTeamMembership(user: User, teamId: number): Promise<Membership> {

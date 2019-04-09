@@ -12,25 +12,23 @@ export enum TeamSize {
 }
 
 export const teamSizeForSize = (size) => {
-    console.log(size);
     let teamSize;
-    switch (size) {
-        case (0 < size && size <= 1):
+    switch (true) {
+        case (size <= 1):
             teamSize = TeamSize.SOLO;
             break;
-        case (1 < size && size <= 2):
+        case (size <= 2):
             teamSize =  TeamSize.DUO;
             break;
-        case (2 < size && size <= 5):
+        case (size <= 5):
             teamSize =  TeamSize.SMALL;
             break;
-        case (5 < size && size <= 10):
+        case (size <= 10):
             teamSize = TeamSize.LARGE;
             break;
         default:
             teamSize =  TeamSize.HUGE;
     }
-    console.log(size, teamSize);
     return teamSize
 };
 

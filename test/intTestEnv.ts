@@ -3,11 +3,18 @@ import {Container} from "typedi";
 import * as fs from "fs";
 import {Role, User} from "../src/entity/user/User";
 import {Connection, getRepository} from "typeorm";
+import {Tasks} from "../src/tasks";
+import {GameProgressionManager} from "../src/gameLogic/GameProgressionManager";
+import {LeaderBoardManager} from "../src/gameLogic/LeaderBoardManager";
+import * as redis from "redis";
+import {RedisClient} from "redis";
 
 //const dbFilePath = "./test/transient.sqlite";
 const dbFilePath = ":memory:";
 let connection;
-export async function initDB() {
+export async function initTestContainer() {
+    let client: RedisClient = redis.createClient({db: 0});
+    Container.set("redis", client);
     TypeORM.useContainer(Container);
     connection = await TypeORM.createConnection({
         type: "sqlite",
@@ -16,9 +23,13 @@ export async function initDB() {
             "src/entity/**/*.ts"
         ],
         synchronize: true,
-        logging: true,
+        logging: false,
         dropSchema: true
     });
+    const tasks = Container.get(Tasks);
+    const gameProgressionManager = Container.get(GameProgressionManager);
+    const leadboardManager = Container.get(LeaderBoardManager);
+
 }
 export async function tearDownDB() {
     await connection.close()
