@@ -57,7 +57,7 @@ passport.use(new BasicStrategy(
             if(user == null) {
                 return done(undefined, null, {message: "Email not found"});
             }
-            if(user.validatePassword(password)) return user.role === Role.Admin ? done(null, user) : done(undefined, null, {message: "Insufficient privilege"});
+            if(user.validatePassword(password)) return done(null, user) ;
             return done(undefined, null, {message: "Invalid password!"});
         })
     }

@@ -88,6 +88,7 @@ export class TeamResolver {
     }
 
     private async _hasTeamAuthority(user: User, team: Team): Promise<Boolean> {
+        console.log(user, team,  await this._getTeamMembership(user, team.id));
         return (await this._getTeamMembership(user, team.id)).isAdmin;
     }
 
