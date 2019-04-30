@@ -204,6 +204,16 @@ export class GameProgressionManager implements EntitySubscriberInterface{
         return challengeCompletion;
     }
 
+    public async unCompleteChallenge(user: User, challengeCompletionId: number): Promise<ChallengeCompletion> {
+        let challengeCompletion: ChallengeCompletion = await this.challengeCompletionRepository.findOne(challengeCompletionId);
+        // check the spc exists
+        if (!challengeCompletion) return Promise.reject("challengeCompletion not found!");
+        // check that it wasn't rejected
+        challengeCompletion = await this.challengeCompletionRepository.remove(challengeCompletion);
+        publish(challengeCompletion, "remove", true);
+        return challengeCompletion;
+    }
+
     public async rejectChallenge(user: User, seasonPlanChallengeId: number): Promise<ChallengeRejection> {
         let seasonPlanChallenge: SeasonPlanChallenge = await this.getSeasonPlanChallengeFromCurrentSeasonPlanById(seasonPlanChallengeId);
         const currentSeasonPlan = await this.getCurrentSeasonPlan();

@@ -92,6 +92,15 @@ export class Team {
             throw err
         });
         console.log(res);
+    }
+
+    public async subScore(points: number) {
+        this.score -= points;
+        console.log(this);
+        let res = await getRepository(Team).save(this).catch(err => {
+            throw err
+        });
+        console.log(res);
 
     }
 
