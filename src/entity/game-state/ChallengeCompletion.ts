@@ -8,9 +8,9 @@ import {ChallengeReplacement} from "./ChallengeReplacement";
 @ObjectType()
 export class ChallengeCompletion {
 
-    @Field(type => Int)
+    @Field(type => Int, {nullable: true})
     @PrimaryGeneratedColumn()
-    id: number;
+    id?: number;
 
     @Field(type => Date)
     @CreateDateColumn()
