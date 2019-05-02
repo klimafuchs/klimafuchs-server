@@ -35,6 +35,10 @@ export class ChallengeReplacement extends IUserChallenge {
     @ManyToOne(type => SeasonPlan)
     plan: Promise<SeasonPlan>;
 
+    @Field(type => Boolean, {nullable: true})
+    replaceable: Boolean = false;
+
+
     @Field(type => ChallengeCompletion, {nullable: true})
     @OneToOne(type => ChallengeCompletion, c => c.replacementChallenge, {nullable: true})
     completion: Promise<ChallengeCompletion>;

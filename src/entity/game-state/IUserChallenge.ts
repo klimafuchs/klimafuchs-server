@@ -16,6 +16,9 @@ export abstract class IUserChallenge {
     @Field(type => SeasonPlan)
     plan: Promise<SeasonPlan>;
 
+    @Field(type => Boolean, {nullable: true})
+    replaceable: Boolean = true;
+
     @Field(type => ChallengeCompletion, {nullable: true})
     async challengeCompletion({user}: Context): Promise<ChallengeCompletion> {
         console.error("dont call this");
