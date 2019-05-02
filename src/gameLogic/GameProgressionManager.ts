@@ -255,14 +255,22 @@ export class GameProgressionManager implements EntitySubscriberInterface{
             }
         });
 
-        if(rejections &&rejections.length > 0){
+        if(rejections && rejections.length > 0){
             const rejectionPlanIds = await Promise.all(rejections.map(async rejection => {
                 return {rejection, id: await rejection.seasonPlanChallenge.then(_ => _.id)}
             }));
 
+            console.log("rejectionPlanIds: " + rejectionPlanIds);
+
             const nonRejectedChallenges = challenges.filter(challenge => {
-                return rejectionPlanIds.some(rejectionPlanId => rejectionPlanId.id !== challenge.id);
+                console.log("challenge: " + challenge);
+
+                return rejectionPlanIds.some(rejectionPlanId => {
+                    return rejectionPlanId.id !== challenge.id
+                });
             });
+
+            console.log("nonRejectedChallenges: " + nonRejectedChallenges);
 
             return nonRejectedChallenges;
         } else {
