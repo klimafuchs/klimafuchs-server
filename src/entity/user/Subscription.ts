@@ -1,26 +1,21 @@
-import {Column, Entity, PrimaryGeneratedColumn} from "typeorm";
+import {Column, Entity, JoinColumn, OneToOne, PrimaryGeneratedColumn} from "typeorm";
+import {User} from "./User";
+import {Field, Int, ObjectType} from "type-graphql";
 
 @Entity()
+@ObjectType()
 export class Subscription {
+
+    @Field(type => Int, {nullable: true})
     @PrimaryGeneratedColumn()
     id: number;
 
-    @Column({type: "text"})
-    endpoint: string;
+    @Field(type => User, {nullable: true})
+    @OneToOne(type => User)
+    @JoinColumn()
+    user: Promise<User>;
 
+    @Field(type => String, {nullable: true})
     @Column()
-    auth: string;
-
-    @Column()
-    p256dh: string;
-
-    public static build(endpoint: string, auth: string, p256dh: string): Object {
-        return {
-            endpoint: endpoint,
-            keys: {
-                auth: auth,
-                p256dh: p256dh
-            }
-        }
-    }
+    pushToken: string
 }

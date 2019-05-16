@@ -10,16 +10,12 @@ import {
 } from "typeorm";
 import {ObjectType, Field, Int} from "type-graphql";
 import * as bcrypt from 'bcrypt-nodejs';
-import {Team} from "../social/Team";
-import {dateFormat} from "dateformat";
 import {Membership} from "../social/Membership";
 import {PasswordResetToken} from "./PasswordResetToken";
 import {FeedPost} from "../social/FeedPost";
 import {FeedComment} from "../social/FeedComment";
 import {Media} from "../Media";
 import {ChallengeCompletion} from "../game-state/ChallengeCompletion";
-import {Challenge} from "../wiki-content/Challenge";
-import Maybe from "graphql/tsutils/Maybe";
 import {ChallengeRejection} from "../game-state/ChallengeRejection";
 import {ChallengeReplacement} from "../game-state/ChallengeReplacement";
 
