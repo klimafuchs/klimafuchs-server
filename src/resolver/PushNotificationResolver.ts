@@ -61,7 +61,7 @@ export class PushNotificationResolver {
         return this.subscriptionRepository.findOne({where: {user: {id : user.id}}})
     }
 
-    @Query(returns => Boolean, {nullable: true})
+    @Mutation(returns => Boolean, {nullable: true})
     async testNotification(@Ctx() {user}): Promise<Boolean>{
         const subscription = await this.subscriptionRepository.findOne({where: {user: {id : user.id}}});
         if(subscription) {
