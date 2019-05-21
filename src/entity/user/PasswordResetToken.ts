@@ -1,7 +1,9 @@
 import {BeforeInsert, Column, CreateDateColumn, Entity, JoinColumn, OneToOne, PrimaryGeneratedColumn} from "typeorm";
 import {User} from "./User";
+import {ObjectType} from "type-graphql";
 
 @Entity()
+@ObjectType()
 export class PasswordResetToken {
 
     @PrimaryGeneratedColumn()

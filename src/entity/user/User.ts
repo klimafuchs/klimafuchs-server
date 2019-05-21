@@ -18,7 +18,8 @@ import {Media} from "../Media";
 import {ChallengeCompletion} from "../game-state/ChallengeCompletion";
 import {ChallengeRejection} from "../game-state/ChallengeRejection";
 import {ChallengeReplacement} from "../game-state/ChallengeReplacement";
-
+import {Notification} from "./Notification";
+import {Subscription} from "./Subscription";
 
 export enum Role {
     User = 0,
@@ -67,8 +68,14 @@ export class User { //TODO split into profile data and user data
     @OneToMany(type => Membership, m => m.user, {eager: true})
     memberships: Promise<Membership[]>;
 
-    @OneToOne(type => PasswordResetToken, p => p.user)
+    @OneToOne(type => PasswordResetToken, p => p.user, {nullable: true})
+    @Field(type => PasswordResetToken, {nullable: true})
     passwordResetToken: PasswordResetToken;
+
+
+    @OneToOne(type => Subscription, s => s.user, {nullable: true})
+    @Field(type => Subscription,{nullable: true})
+    subscription?: Promise<Subscription>;
 
     @Field(type => Media, {nullable: true})
     @ManyToOne(type => Media, {nullable: true})
@@ -77,6 +84,10 @@ export class User { //TODO split into profile data and user data
     @Field(type => [Media], {nullable: true})
     @OneToMany(type => Media, media => media.uploader, {nullable: true})
     media?: Promise<Media[]>;
+
+    @Field(type => [Notification], {nullable: true})
+    @OneToMany(type => Notification, notification => notification.user, {nullable: true})
+    notifications?: Promise<Notification[]>;
 
     @Field(type => [FeedPost], {nullable: true})
     @OneToMany(type => FeedPost, post => post.author, {nullable: true})
