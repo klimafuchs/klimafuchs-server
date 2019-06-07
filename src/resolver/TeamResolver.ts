@@ -256,7 +256,7 @@ export class TeamResolver {
     }
 
     @Mutation(returns => Membership)
-    async inviteUserToTeam(@Arg("screeName", type => String) screenName: String, @Arg("teamId", type => Int) teamId: number): Promise<Membership> {
+    async inviteUserToTeam(@Arg("screenName", type => String) screenName: String, @Arg("teamId", type => Int) teamId: number): Promise<Membership> {
         const user = await this.userRepository.findOne({where: {screenName}});
         const team = await this.teamRepository.findOne(teamId);
         if (!user) {
