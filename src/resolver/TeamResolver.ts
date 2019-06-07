@@ -167,6 +167,11 @@ export class TeamResolver {
         return selectedTeams
     }
 
+    @Query(returns => Team)
+    async getTeam(@Arg("teamId", type => Int) teamId: number, @Ctx() {user}: Context): Promise<Team> {
+        return this.teamRepository.findOne(teamId); //TODO blank fields based on closed status
+    }
+
     @Query(returns => [Membership])
     async myMemberships(@Ctx() {user}: Context): Promise<Membership[]> {
         return user.memberships;
