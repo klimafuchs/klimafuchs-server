@@ -120,6 +120,7 @@ export class TeamResolver {
 
         newTeam.name = teamInput.teamName;
         newTeam.description = teamInput.teamDescription || null;
+        newTeam.closed = teamInput.closed || false;
 
         let team = await this.teamRepository.save(newTeam);
 
@@ -140,6 +141,7 @@ export class TeamResolver {
 
         team.name = teamInput.teamName || team.name;
         team.description = teamInput.teamDescription || team.description;
+        team.closed = teamInput.closed || false;
 
         team = await this.teamRepository.save(team).catch((err) => {
             console.error(err);

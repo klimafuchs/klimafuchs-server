@@ -80,6 +80,10 @@ export class Team {
     @Column({default: -1}) // if this value is -1 the team has no points at all;
     place: number;
 
+    @Field(type => Boolean)
+    @Column({default: false})
+    closed: boolean;
+
     @BeforeInsert()
     setInviteIdIfNoneExists() {
         this.inviteId = this.inviteId || generate();
