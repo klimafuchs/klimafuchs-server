@@ -136,7 +136,7 @@ export class TeamResolver {
     async updateTeam(@Arg('team', type => TeamInput) teamInput: TeamInput,
                      @Ctx() {user}: Context): Promise<Team> {
 
-        let team = await this.teamRepository.findOne({where: {name: teamInput.teamName}});
+        let team = await this.teamRepository.findOne(teamInput.id);
         if (!team) return Promise.reject(TeamResolverErrors.ERR_TEAM_DOES_NOT_EXIST);
 
         team.name = teamInput.teamName || team.name;
