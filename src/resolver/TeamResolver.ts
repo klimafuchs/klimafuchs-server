@@ -257,7 +257,8 @@ export class TeamResolver {
 
     @Mutation(returns => Membership)
     async inviteUserToTeam(@Arg("screenName", type => String) screenName: String, @Arg("teamId", type => Int) teamId: number): Promise<Membership> {
-        const user = await this.userRepository.findOne({where: {screenName}});
+        const user = await this.userRepository.findOne({where:
+                [{screenName: screenName}, {userName: screenName}]});
         const team = await this.teamRepository.findOne(teamId);
         if (!user) {
             return Promise.reject(TeamResolverErrors.ERR_USER_DOES_NOT_EXIST);
