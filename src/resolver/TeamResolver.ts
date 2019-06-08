@@ -57,7 +57,7 @@ export class TeamResolver {
     private async _confirm(memberShip: Membership): Promise<Membership> {
         memberShip.isActive = true;
         memberShip.activationDate = new Date(Date.now());
-        publish(memberShip, "add", true);
+        publish(memberShip, "confirm", true);
         return this.memberRepository.save(memberShip);
     }
 

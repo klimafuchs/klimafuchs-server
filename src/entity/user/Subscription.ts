@@ -11,7 +11,7 @@ export class Subscription {
     id: number;
 
     @Field(type => User, {nullable: true})
-    @OneToOne(type => User)
+    @OneToOne(type => User, u => u.subscription)
     @JoinColumn()
     user: Promise<User>;
 
