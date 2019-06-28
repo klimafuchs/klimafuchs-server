@@ -70,12 +70,12 @@ export class GameProgressionManager implements EntitySubscriberInterface{
     }
 
     async getCurrentSeasonPlan(): Promise<SeasonPlan> {
-        let currentSesonId = await this.getRedisAsync("currentSeasonPlan");
-        if (!currentSesonId) {
+        let currentSeasonPlanId = await this.getRedisAsync("currentSeasonPlan");
+        if (!currentSeasonPlanId) {
             const sp = await this.findCurrentSeasonPlan(await this.getCurrentSeason());
             this.setCurrentSeasonPlan(sp);
         }
-        return this.seasonPlanRepository.findOne(this.getRedisAsync("currentSeasonPlan"));
+        return this.seasonPlanRepository.findOne(currentSeasonPlanId);
     }
 
     setCurrentSeasonPlan(seasonPlan: SeasonPlan) {

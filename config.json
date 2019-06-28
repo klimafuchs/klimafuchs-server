@@ -9,7 +9,7 @@
   "key": "../../server.key",
   "cert": "../../server.crt",
   "domain": "https://localhost",
-  "wikiUrl": "https://enviroommate.org/wiki",
+  "wikiUrl": "https://klimafuchs.org/wiki",
   "wikiKey": "secret",
   "redisDb": "0"
 }
