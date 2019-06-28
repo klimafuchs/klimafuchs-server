@@ -238,6 +238,10 @@ export class GameProgressionManager implements EntitySubscriberInterface{
     public async getCurrentChallengesForUser(user: User): Promise<IUserChallenge[]> {
         const currentSeasonPlan = await this.getCurrentSeasonPlan();
         let challenges: IUserChallenge[] = await currentSeasonPlan.challenges;
+        challenges = (await Promise.all(
+            challenges.map(async c => {return {challenge: c, isSpare: (await c.challenge).isSpare}})))
+            .filter(v => !v.isSpare)
+            .map(v => v.challenge);
         const replacements: IUserChallenge[] = await this.challengeReplacementRepository.find({
             where: {
                 owner: user,
