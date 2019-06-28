@@ -57,7 +57,7 @@ export class TeamResolver {
     private async _confirm(memberShip: Membership): Promise<Membership> {
         memberShip.isActive = true;
         memberShip.activationDate = new Date(Date.now());
-        publish(memberShip, "add", true);
+        publish(memberShip, "confirm", true);
         return this.memberRepository.save(memberShip);
     }
 
@@ -120,6 +120,7 @@ export class TeamResolver {
 
         newTeam.name = teamInput.teamName;
         newTeam.description = teamInput.teamDescription || null;
+        newTeam.closed = teamInput.closed || false;
 
         let team = await this.teamRepository.save(newTeam);
 
@@ -135,11 +136,12 @@ export class TeamResolver {
     async updateTeam(@Arg('team', type => TeamInput) teamInput: TeamInput,
                      @Ctx() {user}: Context): Promise<Team> {
 
-        let team = await this.teamRepository.findOne({where: {name: teamInput.teamName}});
+        let team = await this.teamRepository.findOne(teamInput.id);
         if (!team) return Promise.reject(TeamResolverErrors.ERR_TEAM_DOES_NOT_EXIST);
 
         team.name = teamInput.teamName || team.name;
         team.description = teamInput.teamDescription || team.description;
+        team.closed = teamInput.closed || false;
 
         team = await this.teamRepository.save(team).catch((err) => {
             console.error(err);
@@ -163,6 +165,11 @@ export class TeamResolver {
         );
         if (!selectedTeams) return Promise.reject(TeamResolverErrors.ERR_NOT_TEAM_MEMBER);
         return selectedTeams
+    }
+
+    @Query(returns => Team)
+    async getTeam(@Arg("teamId", type => Int) teamId: number, @Ctx() {user}: Context): Promise<Team> {
+        return this.teamRepository.findOne(teamId); //TODO blank fields based on closed status
     }
 
     @Query(returns => [Membership])
@@ -249,8 +256,9 @@ export class TeamResolver {
     }
 
     @Mutation(returns => Membership)
-    async inviteUserToTeam(@Arg("screeName", type => String) screenName: String, @Arg("teamId", type => Int) teamId: number): Promise<Membership> {
-        const user = await this.userRepository.findOne({where: {screenName}});
+    async inviteUserToTeam(@Arg("screenName", type => String) screenName: String, @Arg("teamId", type => Int) teamId: number): Promise<Membership> {
+        const user = await this.userRepository.findOne({where:
+                [{screenName: screenName}, {userName: screenName}]});
         const team = await this.teamRepository.findOne(teamId);
         if (!user) {
             return Promise.reject(TeamResolverErrors.ERR_USER_DOES_NOT_EXIST);

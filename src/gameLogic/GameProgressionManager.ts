@@ -204,6 +204,16 @@ export class GameProgressionManager implements EntitySubscriberInterface{
         return challengeCompletion;
     }
 
+    public async unCompleteChallenge(user: User, challengeCompletionId: number): Promise<ChallengeCompletion> {
+        let challengeCompletion: ChallengeCompletion = await this.challengeCompletionRepository.findOne(challengeCompletionId);
+        // check the spc exists
+        if (!challengeCompletion) return Promise.reject("challengeCompletion not found!");
+        // check that it wasn't rejected
+        challengeCompletion = await this.challengeCompletionRepository.remove(challengeCompletion);
+        publish(challengeCompletion, "remove", true);
+        return challengeCompletion;
+    }
+
     public async rejectChallenge(user: User, seasonPlanChallengeId: number): Promise<ChallengeRejection> {
         let seasonPlanChallenge: SeasonPlanChallenge = await this.getSeasonPlanChallengeFromCurrentSeasonPlanById(seasonPlanChallengeId);
         const currentSeasonPlan = await this.getCurrentSeasonPlan();
@@ -245,14 +255,22 @@ export class GameProgressionManager implements EntitySubscriberInterface{
             }
         });
 
-        if(rejections &&rejections.length > 0){
+        if(rejections && rejections.length > 0){
             const rejectionPlanIds = await Promise.all(rejections.map(async rejection => {
                 return {rejection, id: await rejection.seasonPlanChallenge.then(_ => _.id)}
             }));
 
+            console.log("rejectionPlanIds: " + rejectionPlanIds);
+
             const nonRejectedChallenges = challenges.filter(challenge => {
-                return rejectionPlanIds.some(rejectionPlanId => rejectionPlanId.id !== challenge.id);
+                console.log("challenge: " + challenge);
+
+                return rejectionPlanIds.some(rejectionPlanId => {
+                    return rejectionPlanId.id !== challenge.id
+                });
             });
+
+            console.log("nonRejectedChallenges: " + nonRejectedChallenges);
 
             return nonRejectedChallenges;
         } else {

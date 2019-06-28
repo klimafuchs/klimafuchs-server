@@ -30,7 +30,7 @@ export class LeaderBoardManager {
             if (membership.isActive) {
                 let team = await membership.team;
                 console.log(`Updating score on ${team.name}`);
-                await team.addScore(points);
+                action === 'add' ? await team.addScore(points) : await team.subScore(points);
                 teamScoresChanged = true;
             }
         })).then(() => {

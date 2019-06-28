@@ -37,10 +37,7 @@ export class Tasks {
         mondayTimer.hour = 17;
         mondayTimer.minute = 0;
         this.mondayJob = schedule.scheduleJob(mondayTimer, () => {
-            Tasks.sendNotification({
-                title: "Enviroommate",
-                message: "Eure neue Wochenchallenge ist online! Neugierig?"
-            }).catch((err) => console.error(err));
+                //TODO push challenge reminder
         });
 
         // notify thursday
@@ -50,10 +47,8 @@ export class Tasks {
         thursdayTimer.minute = 0;
 
         this.thursdayJob = schedule.scheduleJob(thursdayTimer, () => {
-            Tasks.sendNotification({
-                title: "Enviroommate",
-                message: "Wie siehts aus bei unseren Enviroommates? Habt ihr Bock?"
-            }).catch((err) => console.error(err));
+            //TODO push challenge reminder
+
         });
 
         // notify sunday
@@ -63,10 +58,8 @@ export class Tasks {
         sundayTimer.minute = 0;
 
         this.sundayJob = schedule.scheduleJob(sundayTimer, () => {
-            Tasks.sendNotification({
-                title: "Enviroommate",
-                message: "Zeit eure Punkte einzusammeln! Wir sind gespannt, wie eure Woche gelaufen ist!"
-            }).catch((err) => console.error(err));
+            //TODO push challenge reminder
+
         });
 
         if (process.env.NODE_ENV !== "production") {
@@ -99,31 +92,6 @@ export class Tasks {
     async syncWithWiki() {
         console.log("syncing data from wiki...");
         Container.get(WikiClient).syncAllPages().catch(err => console.error("Error: " + err.toString()))
-    }
-
-    static async sendNotification(param) {
-        const options = {
-            TTL: 60 * 60 * 24
-        };
-        let subscriptions = await getRepository(Subscription).find();
-        subscriptions.forEach((val,i,subs) => {
-            const subscription = Subscription.build(val.endpoint, val.auth, val.p256dh);
-            webPush.sendNotification(subscription, JSON.stringify(param), options)
-                .then(function() {
-                    console.log("send notification to " + JSON.stringify(subscription));
-                })
-                .catch(function(err) {
-                    if (err.statusCode === 410) {
-                        return Tasks.deleteSubscriptionFromDatabase(val.id);
-                    } else {
-                        console.log('Subscription is no longer valid: ', err);
-                    }
-                });
-        }, 60 * 60 * 24 * 1000);
-    }
-
-    private static deleteSubscriptionFromDatabase(id: number) {
-        getRepository(Subscription).delete({id: id}).catch(err => console.log(err))
     }
 
     public static async sendPasswordReset(userId) {
