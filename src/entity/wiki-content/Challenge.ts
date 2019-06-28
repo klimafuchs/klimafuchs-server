@@ -68,8 +68,8 @@ export class Challenge {
     props: Promise<Props>;
 
     @Field(type => WikiImage, {nullable: true})
-    @ManyToOne(type => WikiImage, {eager: true})
-    headerImage: WikiImage;
+    @ManyToOne(type => WikiImage)
+    headerImage: Promise<WikiImage>;
 
     headerImageUrl?: string;
 
