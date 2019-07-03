@@ -64,13 +64,16 @@ describe('creating and joining teams', () => {
         let acceptedMembership = await tr.confirmMember(test01JoinTestId, {user: users[0]});
         expect(acceptedMembership.isActive).toBeTruthy();
     });
-/*    test('team size is updated after user joined', async () => {
+    /* TODO fix test -- the update to the teamsize gets slightly delayed because the teamSize
+        update is passed through the redis messaging pipeline to make sure leaderboards get updated
+        according to the new teamSize. This delay fails the test because it runs before the update
+        has propagated
+    test('team size is updated after user joined', async () => {
         await new Promise(r => setTimeout(r, 1000));
         let team = await tr.getMyTeam(test01id, {user: users[0]});
         expect(team.teamSize).toBe(TeamSize.DUO);
         console.log(team);
-    })
-*/
+    }) */
 });
 
 
