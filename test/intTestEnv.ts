@@ -23,7 +23,7 @@ export async function initTestContainer() {
             "src/entity/**/*.ts"
         ],
         synchronize: true,
-        logging: false,
+        logging: true,
         dropSchema: true
     });
     const tasks = Container.get(Tasks);
@@ -50,4 +50,8 @@ export async function mk<T>(type : T) {
 
 
 
+}
+
+export async function resetDB() {
+    connection.query("DELETE FROM membership; DELETE FROM team; ")
 }

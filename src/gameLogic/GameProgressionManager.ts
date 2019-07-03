@@ -70,12 +70,12 @@ export class GameProgressionManager implements EntitySubscriberInterface{
     }
 
     async getCurrentSeasonPlan(): Promise<SeasonPlan> {
-        let currentSesonId = await this.getRedisAsync("currentSeasonPlan");
-        if (!currentSesonId) {
+        let currentSeasonPlanId = await this.getRedisAsync("currentSeasonPlan");
+        if (!currentSeasonPlanId) {
             const sp = await this.findCurrentSeasonPlan(await this.getCurrentSeason());
             this.setCurrentSeasonPlan(sp);
         }
-        return this.seasonPlanRepository.findOne(this.getRedisAsync("currentSeasonPlan"));
+        return this.seasonPlanRepository.findOne(currentSeasonPlanId);
     }
 
     setCurrentSeasonPlan(seasonPlan: SeasonPlan) {
@@ -204,6 +204,16 @@ export class GameProgressionManager implements EntitySubscriberInterface{
         return challengeCompletion;
     }
 
+    public async unCompleteChallenge(user: User, challengeCompletionId: number): Promise<ChallengeCompletion> {
+        let challengeCompletion: ChallengeCompletion = await this.challengeCompletionRepository.findOne(challengeCompletionId);
+        // check the spc exists
+        if (!challengeCompletion) return Promise.reject("challengeCompletion not found!");
+        // check that it wasn't rejected
+        challengeCompletion = await this.challengeCompletionRepository.remove(challengeCompletion);
+        publish(challengeCompletion, "remove", true);
+        return challengeCompletion;
+    }
+
     public async rejectChallenge(user: User, seasonPlanChallengeId: number): Promise<ChallengeRejection> {
         let seasonPlanChallenge: SeasonPlanChallenge = await this.getSeasonPlanChallengeFromCurrentSeasonPlanById(seasonPlanChallengeId);
         const currentSeasonPlan = await this.getCurrentSeasonPlan();
@@ -228,6 +238,10 @@ export class GameProgressionManager implements EntitySubscriberInterface{
     public async getCurrentChallengesForUser(user: User): Promise<IUserChallenge[]> {
         const currentSeasonPlan = await this.getCurrentSeasonPlan();
         let challenges: IUserChallenge[] = await currentSeasonPlan.challenges;
+        challenges = (await Promise.all(
+            challenges.map(async c => {return {challenge: c, isSpare: (await c.challenge).isSpare}})))
+            .filter(v => !v.isSpare)
+            .map(v => v.challenge);
         const replacements: IUserChallenge[] = await this.challengeReplacementRepository.find({
             where: {
                 owner: user,
@@ -245,14 +259,22 @@ export class GameProgressionManager implements EntitySubscriberInterface{
             }
         });
 
-        if(rejections &&rejections.length > 0){
+        if(rejections && rejections.length > 0){
             const rejectionPlanIds = await Promise.all(rejections.map(async rejection => {
                 return {rejection, id: await rejection.seasonPlanChallenge.then(_ => _.id)}
             }));
 
+            console.log("rejectionPlanIds: " + rejectionPlanIds);
+
             const nonRejectedChallenges = challenges.filter(challenge => {
-                return rejectionPlanIds.some(rejectionPlanId => rejectionPlanId.id !== challenge.id);
+                console.log("challenge: " + challenge);
+
+                return rejectionPlanIds.some(rejectionPlanId => {
+                    return rejectionPlanId.id !== challenge.id
+                });
             });
+
+            console.log("nonRejectedChallenges: " + nonRejectedChallenges);
 
             return nonRejectedChallenges;
         } else {

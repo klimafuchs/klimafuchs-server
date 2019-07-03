@@ -16,13 +16,13 @@ import {passportConf} from "./PassportConfig";
 import {ApiLandingContoller} from "./controller/ApiLandingController";
 import * as cors from 'cors';
 import {Tasks} from "./tasks";
-import {PushController} from "./controller/PushController";
 import {FeedController} from "./controller/GqlController";
 import {WikiSyncController} from "./controller/WikiSyncController";
 import {GameProgressionManager} from "./gameLogic/GameProgressionManager";
 import * as redis from "redis";
 import {RedisClient} from "redis";
 import {LeaderBoardManager} from "./gameLogic/LeaderBoardManager";
+import {PushNotificationService} from "./push/PushNotificationService";
 
 let config = require("../config.json");
 
@@ -37,6 +37,7 @@ TypeORM.createConnection().then(async connection => {
     const tasks = Container.get(Tasks);
     const gameProgressionManager = Container.get(GameProgressionManager);
     const leadboardManager = Container.get(LeaderBoardManager);
+    const pushNotificationService = Container.get(PushNotificationService);
     // create express app
     const app = express();
 
@@ -72,7 +73,6 @@ TypeORM.createConnection().then(async connection => {
     app.use(expressValidator());
 
     try {
-        app.use('/api/push', PushController);
         app.use('/api/', ApiLandingContoller);
         app.use('/api/auth', passport.authenticate('jwt', {session: false}), ApiContoller);
         app.use('/api/sync', WikiSyncController);

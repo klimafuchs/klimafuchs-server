@@ -163,3 +163,5 @@ tags
 schema.gql
 #don't commit test dbs
 *.sqlite
+
+.expo/

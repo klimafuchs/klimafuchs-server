@@ -15,4 +15,7 @@ export class TeamInput {
     @Field(type => Int, {nullable: true})
     mediaId?: number;
 
+    @Field(type => Boolean, {nullable: true})
+    closed?: boolean;
+
 }

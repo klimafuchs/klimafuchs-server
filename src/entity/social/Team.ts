@@ -80,6 +80,10 @@ export class Team {
     @Column({default: -1}) // if this value is -1 the team has no points at all;
     place: number;
 
+    @Field(type => Boolean)
+    @Column({default: false})
+    closed: boolean;
+
     @BeforeInsert()
     setInviteIdIfNoneExists() {
         this.inviteId = this.inviteId || generate();
@@ -87,6 +91,15 @@ export class Team {
 
     public async addScore(points: number) {
         this.score += points;
+        console.log(this);
+        let res = await getRepository(Team).save(this).catch(err => {
+            throw err
+        });
+        console.log(res);
+    }
+
+    public async subScore(points: number) {
+        this.score -= points;
         console.log(this);
         let res = await getRepository(Team).save(this).catch(err => {
             throw err
