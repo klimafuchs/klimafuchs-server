@@ -1,0 +1,458 @@
+# This file was generated based on ".graphqlconfig". Do not edit manually.
+
+schema {
+    query: Query
+    mutation: Mutation
+    subscription: Subscription
+}
+
+interface IUserChallenge {
+    challenge: Challenge!
+    challengeCompletion: ChallengeCompletion
+    id: Int!
+    plan: SeasonPlan!
+    replaceable: Boolean
+}
+
+type Challenge {
+    content: String!
+    createdAt: DateTime!
+    headerImage: WikiImage
+    id: Int!
+    isSpare: Boolean!
+    kategorie: Kategorie!
+    oberthema: Oberthema!
+    props: Props!
+    score: Int
+    themenWoche: Themenwoche!
+    tip: String
+    title: String!
+    updatedAt: DateTime!
+}
+
+type ChallengeCompletion {
+    createdAt: DateTime!
+    id: Int
+    owner: User!
+    replacementChallenge: ChallengeReplacement
+    seasonPlanChallenge: SeasonPlanChallenge
+    updatedAt: DateTime!
+}
+
+type ChallengeRejection {
+    createdAt: DateTime!
+    id: Int!
+    owner: User!
+    seasonPlanChallenge: SeasonPlanChallenge!
+    updatedAt: DateTime!
+}
+
+type ChallengeReplacement implements IUserChallenge {
+    async: ChallengeCompletion
+    challenge: Challenge!
+    challengeCompletion: ChallengeCompletion
+    completion: ChallengeCompletion
+    createdAt: DateTime!
+    id: Int!
+    owner: User!
+    plan: SeasonPlan!
+    replaceable: Boolean
+    updatedAt: DateTime!
+}
+
+type FeedComment {
+    author: User!
+    body: String
+    children: [FeedComment!]
+    currentUserLikesComment: Boolean!
+    dateCreated: DateTime!
+    id: Int!
+    parent: FeedComment
+    post: FeedPost!
+    sentiment: Int!
+}
+
+type FeedPost {
+    author: User!
+    body: String
+    commentCount: Int!
+    comments: [FeedComment!]
+    currentUserLikesPost: Boolean!
+    dateCreated: DateTime!
+    id: Int!
+    image: Media
+    isPinned: Boolean!
+    sentiment: Int!
+    title: String
+    ytId: String
+}
+
+type FeedPostConnection {
+    edges: [FeedPostEdge!]!
+    pageInfo: [FeedPostEdge!]!
+}
+
+type FeedPostEdge {
+    cursor: String!
+    cursorDecoded: String!
+    node: FeedPost!
+}
+
+type FeedPostPage {
+    page: FeedPostConnection!
+    pageData: PageData!
+}
+
+type Kategorie {
+    challenges: [Challenge!]!
+    createdAt: DateTime!
+    name: String!
+    oberthemen: [Oberthema!]!
+    props: Props!
+    themenWochen: [Themenwoche!]!
+    updatedAt: DateTime!
+}
+
+type LeaderBoardEntry {
+    place: Int!
+    team: Team!
+}
+
+type LeaderBoardEntryConnection {
+    edges: [LeaderBoardEntryEdge!]!
+    pageInfo: [LeaderBoardEntryEdge!]!
+}
+
+type LeaderBoardEntryEdge {
+    cursor: String!
+    cursorDecoded: String!
+    node: Team!
+}
+
+type LeaderBoardEntryPage {
+    page: LeaderBoardEntryConnection!
+    pageData: PageData!
+}
+
+type Media {
+    encoding: String!
+    filename: String!
+    height: Int!
+    id: Int
+    mimetype: String!
+    path: String!
+    uploadedAt: String!
+    uploader: User!
+    width: Int!
+}
+
+type Membership {
+    activationDate: DateTime
+    dateCreated: DateTime!
+    id: Int!
+    isActive: Boolean!
+    isAdmin: Boolean!
+    team: Team!
+    user: User!
+}
+
+type Mutation {
+    addComment(comment: FeedCommentInput!): FeedComment!
+    addPost(post: FeedPostInput!): FeedPost!
+    changePassword(newPassword: String!, oldPassword: String!): User!
+    changeUser(user: UserInput!): User
+    completeChallenge(challengeId: Int!): ChallengeCompletion
+    confirmMember(membershipId: Int!): Membership!
+    createTeam(team: TeamInput!): Team!
+    delMember(membershipId: Int!): Membership!
+    delete(mediaId: Int!): Media!
+    inviteUserToTeam(screenName: String!, teamId: Int!): Membership!
+    leaveTeam(membershipId: Int!): Membership!
+    likeComment(commentId: Int!): FeedComment!
+    likePost(postId: Int!): FeedPost!
+    modMember(membershipId: Int!): Membership!
+    rejectChallenge(challengeId: Int!): ChallengeRejection
+    removeComment(CommentId: Int!): FeedComment!
+    removeOwnComment(CommentId: Int!): Boolean!
+    removeOwnPost(postId: Int!): Boolean!
+    removePost(postId: Int!): FeedPost!
+    removeSeason(seasonId: Int!): Season
+    removeSeasonPlan(seasonPlanId: Int!): SeasonPlan
+    requestJoinTeam(teamId: Int!): Membership!
+    resetLeaderBoard: [Team!]!
+    subscribe(pushToken: String!): Subscription
+    syncWikiData: String!
+    syncWikiPage(pageId: Float!): String!
+    testNotification: Boolean
+    uncompleteChallenge(challengeCompletionId: Int!): ChallengeCompletion
+    unlikeComment(commentId: Int!): FeedComment!
+    unlikePost(postId: Int!): FeedPost!
+    unmodMember(membershipId: Int!): Membership!
+    unsubscribe: Subscription
+    updateProfile(avatarId: Int, screenName: String, userName: String): User!
+    updateSeason(season: SeasonInput!): Season
+    updateSeasonPlan(seasonPlan: SeasonPlanInput!): SeasonPlan
+    updateTeam(team: TeamInput!): Team!
+    upload(file: Upload!, height: Int!, width: Int!): Media!
+}
+
+type Notification {
+    body: String!
+    icon: String!
+    id: Int!
+    status: String!
+    ticketId: Int!
+    title: String!
+    user: User!
+}
+
+type Oberthema {
+    challenges: [Challenge!]!
+    createdAt: DateTime!
+    kategorie: Kategorie!
+    name: String!
+    props: Props!
+    themenWochen: [Themenwoche!]!
+    updatedAt: DateTime!
+}
+
+type PageData {
+    count: Int!
+    limit: Int!
+    offset: Int!
+}
+
+type PasswordResetToken {
+    createdAt: DateTime!
+    id: Int!
+    resetToken: String!
+    user: User!
+}
+
+type Props {
+    createdAt: DateTime!
+    pageid: Int!
+    parentid: Int!
+    revid: Int!
+    timestamp: DateTime!
+    updatedAt: DateTime!
+    user: String!
+    warnings: WikiWarning!
+}
+
+type Quelle {
+    createdAt: DateTime!
+    id: Int!
+    title: String!
+    updatedAt: DateTime!
+    url: String!
+}
+
+type Query {
+    allPagesWithWarings: [Props!]
+    commentsOfPost(postId: Int!): [FeedComment!]
+    currentChallenges: [IUserChallenge!]
+    currentSeason: Season
+    getCurrentUser: User!
+    getLeaderBoard(connectionArgs: ConnectionArgs!, teamSize: TeamSize!): LeaderBoardEntryPage
+    getMyTeam(teamId: Int!): Team!
+    getPageProps(pageId: Int!): Props
+    getTeam(teamId: Int!): Team!
+    globalCurrentChallenges: SeasonPlan
+    isSubscribed: Subscription
+    kategorie(kategorieId: String!): Kategorie
+    kategories: [Kategorie!]
+    myMedia: [Media!]!
+    myMemberships: [Membership!]!
+    oberthema(oberthemaId: String!): Oberthema
+    oberthemas: [Oberthema!]
+    paginatedPosts(connectionArgs: ConnectionArgs!): FeedPostPage!
+    post(postId: Int!): FeedPost
+    posts: [FeedPost!]!
+    searchTeamsByName(teamName: String!): [Team!]!
+    season(seasonId: Int!): Season
+    seasonPlan(seasonId: Int!): SeasonPlan
+    seasonPlans: [SeasonPlan!]
+    seasons: [Season!]
+    themenwoche(themenwocheId: String!): Themenwoche
+    themenwoches: [Themenwoche!]
+    user(userId: Int!): User
+    users: [User!]
+}
+
+type Season {
+    endDate: DateTime!
+    id: Int!
+    seasonPlan: [SeasonPlan!]!
+    startDate: DateTime!
+    startOffsetDate: DateTime!
+    title: String!
+}
+
+type SeasonPlan {
+    challenges: [SeasonPlanChallenge!]!
+    createdAt: DateTime!
+    duration: Int!
+    id: Int!
+    position: Int!
+    season: Season!
+    themenwoche: Themenwoche!
+    updatedAt: DateTime!
+}
+
+type SeasonPlanChallenge implements IUserChallenge {
+    challenge: Challenge!
+    challengeCompletion: ChallengeCompletion
+    completions: ChallengeCompletion!
+    id: Int!
+    plan: SeasonPlan!
+    rejections: ChallengeRejection!
+    replaceable: Boolean
+}
+
+type Subscription {
+    id: Int
+    pushToken: String
+    user: User
+}
+
+type Team {
+    avatar: Media
+    closed: Boolean!
+    description: String
+    id: Int!
+    inviteId: String!
+    members: [Membership!]
+    name: String!
+    place: Int
+    score: Int!
+    teamSize: TeamSize!
+}
+
+type Themenwoche {
+    challenges: [Challenge!]
+    content: String!
+    createdAt: DateTime!
+    headerImage: WikiImage
+    kategorie: Kategorie
+    oberthema: Oberthema
+    props: Props!
+    quellen: Quelle
+    title: String!
+    updatedAt: DateTime!
+    usages: [SeasonPlan!]
+}
+
+type User {
+    avatar: Media
+    challengeCompletions: [ChallengeCompletion!]
+    challengeRejections: [ChallengeRejection!]
+    challengeReplacements: [ChallengeReplacement!]
+    comments: [FeedComment!]
+    dateCreated: DateTime!
+    emailConfirmed: Boolean!
+    id: Int!
+    isBanned: Boolean!
+    media: [Media!]
+    notifications: [Notification!]
+    passwordResetToken: PasswordResetToken
+    posts: [FeedPost!]
+    role: Int!
+    screenName: String!
+    subscription: Subscription
+    userName: String!
+}
+
+type WikiImage {
+    canonicalName: String!
+    createdAt: DateTime!
+    details: String!
+    mimetype: String!
+    props: Props!
+    timestamp: DateTime!
+    updatedAt: DateTime!
+    uploader: String!
+    url: String!
+}
+
+type WikiWarning {
+    createdAt: DateTime!
+    id: Int!
+    props: Props!
+    updatedAt: DateTime!
+    warnings: String!
+}
+
+"team size brackets"
+enum TeamSize {
+    DUO
+    HUGE
+    LARGE
+    SMALL
+    SOLO
+}
+
+input ConnectionArgs {
+    "Paginate after opaque cursor"
+    after: String
+    "Paginate before opaque cursor"
+    before: String
+    "Paginate first"
+    first: Float
+    "Paginate last"
+    last: Float
+}
+
+input FeedCommentInput {
+    body: String!
+    parent: Int
+    post: Int!
+}
+
+input FeedPostInput {
+    body: String!
+    isPinned: Boolean
+    mediaId: Int
+    title: String!
+    ytId: String
+}
+
+input SeasonInput {
+    endDate: DateTime
+    id: Int
+    startDate: DateTime
+    startOffsetDate: DateTime
+    title: String
+}
+
+input SeasonPlanInput {
+    duration: Int
+    id: Int
+    position: Int
+    seasonId: Int
+    themenwocheId: String
+}
+
+input TeamInput {
+    closed: Boolean
+    id: Int
+    mediaId: Int
+    teamDescription: String
+    teamName: String
+}
+
+input UserInput {
+    avatar: String
+    emailConfirmed: Boolean
+    id: Int!
+    isBanned: Boolean
+    screenName: String
+    userName: String
+}
+
+
+"The javascript `Date` as string. Type represents date and time as the ISO Date string."
+scalar DateTime
+
+"The `Upload` scalar type represents a file upload."
+scalar Upload

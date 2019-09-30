@@ -1,11 +1,11 @@
 import {Request, Response, Router} from "express";
 import * as passport from "passport";
-import {User} from "../entity/User";
+import {User} from "../entity/user/User";
 import * as jwt from "jsonwebtoken";
-import {Group} from "../entity/Group";
+import {Team} from "../entity/social/Team";
 import {getRepository} from "typeorm";
-import {Member} from "../entity/Member";
-import {PasswordResetToken} from "../entity/PasswordResetToken";
+import {Membership} from "../entity/social/Membership";
+import {PasswordResetToken} from "../entity/user/PasswordResetToken";
 import {Tasks} from "../tasks";
 
 let router = Router();
@@ -29,14 +29,27 @@ const config = require("../../config.json");
  */
 router.post('/login', passport.authenticate('local', {session: false}), (req: Request, res: Response, done: Function) => {
     if (!req.user) {
-        res.status = 401;
+        res.status(401);
         done(res.json({message: "No such user!"}));
     }
     const id = req.user.id;
     const token = jwt.sign(id, config.tokenSecret);
-    done(res.json({id, token}));
+    res.json({id,token});
+    done();
 });
 
+router.get('/checkEmail', async (request: Request, response: Response, done: Function) => {
+    const userName = request.query.username;
+    getRepository(User).findOne({userName: userName}).then(async (user) => {
+        if (user == null) {
+            response.json({status: "false"});
+            done();
+        } else {
+            response.json({status: "true"});
+            done();
+        }
+    }).catch((err) => console.log(err));
+});
 /**
  * @api {post} /api/register Register
  * @apiName Register
@@ -72,7 +85,11 @@ router.post('/register', async (request: Request, response: Response, done: Func
     let screenname = request.body.screenname;
     let password = request.body.password;
     let confirmPassword = request.body.confirm_password;
-    let inviteLink = request.body.invite;
+
+    if(confirmPassword !== password){
+        response.status(422);
+        done(response.json({message: "'Passwort' und 'Passwort wiederholen' stimmen nicht überein!"}));
+    }
 
     getRepository(User).findOne({userName: username}).then(async (user) => {
         if (user == null) {
@@ -83,17 +100,6 @@ router.post('/register', async (request: Request, response: Response, done: Func
             await getRepository(User).insert(newUser);
             let u = await getRepository(User).findOne({where:{userName: newUser.userName}});
 
-            if (inviteLink != null) {
-                getRepository(Group).findOne({inviteId: inviteLink}).then(async g => {
-                    if (g != null) {
-                        let m = new Member();
-                        m.group = g;
-                        m.user = u;
-                        await getRepository(Member).save(m);
-                        let updated = await getRepository(Group).findOne({id: g.id});
-                    }
-                }).catch(err => console.log(err))
-            }
             response.json(newUser.transfer(true));
             done();
         } else {

@@ -1,669 +1,395 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
+
 <head>
-  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
-  <title>Loading...</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
-  <link href="vendor/bootstrap.min.css" rel="stylesheet" media="screen">
-  <link href="vendor/prettify.css" rel="stylesheet" media="screen">
-  <link href="css/style.css" rel="stylesheet" media="screen, print">
-  <link href="img/favicon.ico" rel="icon" type="image/x-icon">
-  <script src="vendor/polyfill.js"></script>
+    <meta charset="utf-8" />
+    <meta http-equiv="x-ua-compatible" content="ie=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <link type="text/css" rel="stylesheet" href="./styles/graphdoc.css" />
+    <title>Graphql schema documentation</title>
+    <link href="https://fonts.googleapis.com/css?family=Ubuntu+Mono:400,700" rel="stylesheet"><link type="text/css" rel="stylesheet" href="./assets/code.css" /><link type="text/css" rel="stylesheet" href="./assets/require-by.css" />
 </head>
-<body>
-
-<script id="template-sidenav" type="text/x-handlebars-template">
-<nav id="scrollingNav">
-  <div class="sidenav-search">
-    <input class="form-control search" type="text" placeholder="{{__ "Filter..."}}">
-    <span class="search-reset">x</span>
-  </div>
-  <ul class="sidenav nav nav-list list">
-  {{#each nav}}
-    {{#if title}}
-      {{#if isHeader}}
-        {{#if isFixed}}
-          <li class="nav-fixed nav-header navbar-btn nav-list-item" data-group="{{group}}"><a href="#api-{{group}}">{{underscoreToSpace title}}</a></li>
-        {{else}}
-          <li class="nav-header nav-list-item" data-group="{{group}}"><a href="#api-{{group}}">{{underscoreToSpace title}}</a></li>
-        {{/if}}
-      {{else}}
-        <li class="{{#if hidden}}hide {{/if}}" data-group="{{group}}" data-name="{{name}}" data-version="{{version}}">
-          <a href="#api-{{group}}-{{name}}" class="nav-list-item">{{title}}</a>
-        </li>
-      {{/if}}
-    {{/if}}
-  {{/each}}
-  </ul>
-</nav>
-</script>
-
-<script id="template-project" type="text/x-handlebars-template">
-  <div class="pull-left">
-    <h1>{{name}}</h1>
-    {{#if description}}<h2>{{{nl2br description}}}</h2>{{/if}}
-  </div>
-  {{#if template.withCompare}}
-  <div class="pull-right">
-    <div class="btn-group">
-      <button id="version" class="btn btn-lg btn-default dropdown-toggle" data-toggle="dropdown">
-        <strong>{{version}}</strong>&nbsp;<span class="caret"></span>
-      </button>
-      <ul id="versions" class="dropdown-menu open-left">
-        <li><a id="compareAllWithPredecessor" href="#">{{__ "Compare all with predecessor"}}</a></li>
-        <li class="divider"></li>
-        <li class="disabled"><a href="#">{{__ "show up to version:"}}</a></li>
-      {{#each versions}}
-        <li class="version"><a href="#">{{this}}</a></li>
-      {{/each}}
-      </ul>
-    </div>
-  </div>
-  {{/if}}
-  <div class="clearfix"></div>
-</script>
-
-<script id="template-header" type="text/x-handlebars-template">
-  {{#if content}}
-    <div id="api-_">{{{content}}}</div>
-  {{/if}}
-</script>
-
-<script id="template-footer" type="text/x-handlebars-template">
-  {{#if content}}
-    <div id="api-_footer">{{{content}}}</div>
-  {{/if}}
-</script>
-
-<script id="template-generator" type="text/x-handlebars-template">
-  {{#if template.withGenerator}}
-    {{#if generator}}
-      <div class="content">
-        {{__ "Generated with"}} <a href="{{{generator.url}}}">{{{generator.name}}}</a> {{{generator.version}}} - {{{generator.time}}}
-      </div>
-    {{/if}}
-  {{/if}}
-</script>
-
-<script id="template-sections" type="text/x-handlebars-template">
-  <section id="api-{{group}}">
-    <h1>{{underscoreToSpace title}}</h1>
-    {{#if description}}
-      <p>{{{nl2br description}}}</p>
-    {{/if}}
-    {{#each articles}}
-      <div id="api-{{group}}-{{name}}">
-        {{{article}}}
-      </div>
-    {{/each}}
-  </section>
-</script>
-
-<script id="template-article" type="text/x-handlebars-template">
-  <article id="api-{{article.group}}-{{article.name}}-{{article.version}}" {{#if hidden}}class="hide"{{/if}} data-group="{{article.group}}" data-name="{{article.name}}" data-version="{{article.version}}">
-    <div class="pull-left">
-      <h1>{{article.groupTitle}}{{#if article.title}} - {{article.title}}{{/if}}</h1>
-    </div>
-    {{#if template.withCompare}}
-    <div class="pull-right">
-      <div class="btn-group">
-        <button class="version btn btn-default dropdown-toggle" data-toggle="dropdown">
-          <strong>{{article.version}}</strong>&nbsp;<span class="caret"></span>
-        </button>
-        <ul class="versions dropdown-menu open-left">
-          <li class="disabled"><a href="#">{{__ "compare changes to:"}}</a></li>
-        {{#each versions}}
-          <li class="version"><a href="#">{{this}}</a></li>
-        {{/each}}
-        </ul>
-      </div>
-    </div>
-    {{/if}}
-    <div class="clearfix"></div>
-
-    {{#if article.deprecated}}
-      <p class="deprecated"><span>{{__ "DEPRECATED"}}</span>
-        {{{markdown article.deprecated.content}}}
-      </p>
-    {{/if}}
-
-    {{#if article.description}}
-      <p>{{{nl2br article.description}}}</p>
-    {{/if}}
-    <span class="type type__{{toLowerCase article.type}}">{{toLowerCase article.type}}</span>
-    <pre class="prettyprint language-html" data-type="{{toLowerCase article.type}}"><code>{{article.url}}</code></pre>
-
-    {{#if article.permission}}
-      <p>
-        {{__ "Permission:"}}
-        {{#each article.permission}}
-          {{name}}
-          {{#if title}}
-          <button type="button" class="btn btn-info btn-xs" data-title="{{title}}" data-content="{{nl2br description}}" data-html="true" data-toggle="popover" data-placement="right" data-trigger="hover">
-              <span class="glyphicon glyphicon-info-sign" aria-hidden="true"></span>
-          </button>
-          {{/if}}
-        {{/each}}
-      </p>
-    {{/if}}
-
-    {{#if_gt article.examples.length compare=0}}
-      <ul class="nav nav-tabs nav-tabs-examples">
-        {{#each article.examples}}
-          <li{{#if_eq @index compare=0}} class="active"{{/if_eq}}>
-            <a href="#examples-{{../id}}-{{@index}}">{{title}}</a>
-          </li>
-        {{/each}}
-      </ul>
-
-      <div class="tab-content">
-      {{#each article.examples}}
-        <div class="tab-pane{{#if_eq @index compare=0}} active{{/if_eq}}" id="examples-{{../id}}-{{@index}}">
-          <pre class="prettyprint language-{{type}}" data-type="{{type}}"><code>{{content}}</code></pre>
-        </div>
-      {{/each}}
-      </div>
-    {{/if_gt}}
-
-    {{subTemplate "article-param-block" params=article.header _hasType=_hasTypeInHeaderFields section="header"}}
-    {{subTemplate "article-param-block" params=article.parameter _hasType=_hasTypeInParameterFields section="parameter"}}
-    {{subTemplate "article-param-block" params=article.success _hasType=_hasTypeInSuccessFields section="success"}}
-    {{subTemplate "article-param-block" params=article.error _col1="Name" _hasType=_hasTypeInErrorFields section="error"}}
-
-    {{subTemplate "article-sample-request" article=article id=id}}
-  </article>
-</script>
-
-<script id="template-article-param-block" type="text/x-handlebars-template">
-  {{#if params}}
-    {{#each params.fields}}
-      <h2>{{__ @key}}</h2>
-      <table>
-        <thead>
-          <tr>
-          <th style="width: 30%">{{#if ../_col1}}{{__ ../_col1}}{{else}}{{__ "Field"}}{{/if}}</th>
-            {{#if ../_hasType}}<th style="width: 10%">{{__ "Type"}}</th>{{/if}}
-            <th style="width: {{#if ../_hasType}}60%{{else}}70%{{/if}}">{{__ "Description"}}</th>
-          </tr>
-        </thead>
-        <tbody>
-        {{#each this}}
-          <tr>
-            <td class="code">{{{splitFill field "." "&nbsp;&nbsp;"}}}{{#if optional}} <span class="label label-optional">{{__ "optional"}}</span>{{/if}}</td>
-            {{#if ../../_hasType}}
-              <td>
-                {{{type}}}
-              </td>
-            {{/if}}
-            <td>
-            {{{nl2br description}}}
-            {{#if defaultValue}}<p class="default-value">{{__ "Default value:"}} <code>{{{defaultValue}}}</code></p>{{/if}}
-            {{#if size}}<p class="type-size">{{__ "Size range:"}} <code>{{{size}}}</code></p>{{/if}}
-            {{#if allowedValues}}<p class="type-size">{{__ "Allowed values:"}}
-              {{#each allowedValues}}
-                <code>{{{this}}}</code>{{#unless @last}}, {{/unless}}
-              {{/each}}
-              </p>
-            {{/if}}
-            </td>
-          </tr>
-        {{/each}}
-        </tbody>
-      </table>
-    {{/each}}
-    {{#if_gt params.examples.length compare=0}}
-      <ul class="nav nav-tabs nav-tabs-examples">
-      {{#each params.examples}}
-        <li{{#if_eq @index compare=0}} class="active"{{/if_eq}}>
-          <a href="#{{../section}}-examples-{{../id}}-{{@index}}">{{title}}</a>
-        </li>
-      {{/each}}
-      </ul>
-
-      <div class="tab-content">
-      {{#each params.examples}}
-        <div class="tab-pane{{#if_eq @index compare=0}} active{{/if_eq}}" id="{{../section}}-examples-{{../id}}-{{@index}}">
-        <pre class="prettyprint language-{{type}}" data-type="{{type}}"><code>{{reformat content type}}</code></pre>
-        </div>
-      {{/each}}
-      </div>
-    {{/if_gt}}
-  {{/if}}
-</script>
-
-<script id="template-article-sample-request" type="text/x-handlebars-template">
-    {{#if article.sampleRequest}}
-      <h2>{{__ "Send a Sample Request"}}</h2>
-      <form class="form-horizontal">
-        <fieldset>
-            <div class="form-group">
-              <label class="col-md-3 control-label" for="{{../id}}-sample-request-url"></label>
-              <div class="input-group">
-                <input id="{{../id}}-sample-request-url" type="text" class="form-control sample-request-url" value="{{article.sampleRequest.0.url}}" />
-                <span class="input-group-addon">{{__ "url"}}</span>
-              </div>
+<body class="slds-scrollable--y">
+    <nav class="slds-grid slds-grid--vertical slds-col--rule-right">
+        <header class="slds-p-around--medium slds-col slds-shrik slds-grow-none">
+            <button class="slds-button slds-button--icon slds-float--right js-toggle-navigation less-than-medium">
+                <i class="material-icons">close</i>
+            </button>
+                <h3 class="slds-text-heading--medium"><a href="./">GraphQL Schema</a></h3>
+            <div class="slds-p-top--small">
+                <input id="type-search" type="text" placeholder="Search a type" autofocus="" class="slds-input" />
             </div>
-
-      {{#if article.header}}
-        {{#if article.header.fields}}
-          <h3>{{__ "Headers"}}</h3>
-          {{#each article.header.fields}}
-            <h4><input type="radio" data-sample-request-header-group-id="sample-request-header-{{@index}}" name="{{../id}}-sample-request-header" value="{{@index}}" class="sample-request-header sample-request-switch" {{#if_eq @index compare=0}} checked{{/if_eq}} />{{@key}}</h4>
-            <div class="{{../id}}-sample-request-header-fields{{#if_gt @index compare=0}} hide{{/if_gt}}">
-              {{#each this}}
-              <div class="form-group">
-                <label class="col-md-3 control-label" for="sample-request-header-field-{{field}}">{{field}}</label>
-                <div class="input-group">
-                  <input type="text" placeholder="{{field}}" id="sample-request-header-field-{{field}}" class="form-control sample-request-header" data-sample-request-header-name="{{field}}" data-sample-request-header-group="sample-request-header-{{@../index}}">
-                  <span class="input-group-addon">{{{type}}}</span>
-                </div>
-              </div>
-              {{/each}}
-            </div>
-          {{/each}}
-        {{/if}}
-      {{/if}}
-
-      {{#if article.parameter}}
-        {{#if article.parameter.fields}}
-          <h3>{{__ "Parameters"}}</h3>
-          {{#each article.parameter.fields}}
-            <h4><input type="radio" data-sample-request-param-group-id="sample-request-param-{{@index}}"  name="{{../id}}-sample-request-param" value="{{@index}}" class="sample-request-param sample-request-switch" {{#if_eq @index compare=0}} checked{{/if_eq}} />{{@key}}</h4>
-            <div class="form-group {{../id}}-sample-request-param-fields{{#if_gt @index compare=0}} hide{{/if_gt}}">
-              {{#each this}}
-                <label class="col-md-3 control-label" for="sample-request-param-field-{{field}}">{{field}}</label>
-                <div class="input-group">
-                  <input id="sample-request-param-field-{{field}}" type="text" placeholder="{{field}}" class="form-control sample-request-param" data-sample-request-param-name="{{field}}" data-sample-request-param-group="sample-request-param-{{@../index}}" {{#if optional}}data-sample-request-param-optional="true"{{/if}}>
-                  <div class="input-group-addon">{{{type}}}</div>
-                </div>
-              {{/each}}
-            </div>
-          {{/each}}
-        {{/if}}
-      {{/if}}
-
-          <div class="form-group">
-            <div class="controls pull-right">
-              <button class="btn btn-primary sample-request-send" data-sample-request-type="{{article.type}}">{{__ "Send"}}</button>
-            </div>
-          </div>
-          <div class="form-group sample-request-response" style="display: none;">
-            <h3>
-              {{__ "Response"}}
-              <button class="btn btn-default btn-xs pull-right sample-request-clear">X</button>
-            </h3>
-            <pre class="prettyprint language-json" data-type="json"><code class="sample-request-response-json"></code></pre>
-          </div>
-        </fieldset>
-      </form>
-    {{/if}}
-</script>
-
-<script id="template-compare-article" type="text/x-handlebars-template">
-  <article id="api-{{article.group}}-{{article.name}}-{{article.version}}" {{#if hidden}}class="hide"{{/if}} data-group="{{article.group}}" data-name="{{article.name}}" data-version="{{article.version}}" data-compare-version="{{compare.version}}">
-    <div class="pull-left">
-      <h1>{{underscoreToSpace article.group}} - {{{showDiff article.title compare.title}}}</h1>
-    </div>
-
-    <div class="pull-right">
-      <div class="btn-group">
-        <button class="btn btn-success" disabled>
-          <strong>{{article.version}}</strong> {{__ "compared to"}}
-        </button>
-        <button class="version btn btn-danger dropdown-toggle" data-toggle="dropdown">
-          <strong>{{compare.version}}</strong>&nbsp;<span class="caret"></span>
-        </button>
-        <ul class="versions dropdown-menu open-left">
-          <li class="disabled"><a href="#">{{__ "compare changes to:"}}</a></li>
-          <li class="divider"></li>
-        {{#each versions}}
-          <li class="version"><a href="#">{{this}}</a></li>
-        {{/each}}
-        </ul>
-      </div>
-    </div>
-    <div class="clearfix"></div>
-
-    {{#if article.description}}
-      <p>{{{showDiff article.description compare.description "nl2br"}}}</p>
-    {{else}}
-      {{#if compare.description}}
-      <p>{{{showDiff "" compare.description "nl2br"}}}</p>
-      {{/if}}
-    {{/if}}
-
-    <pre class="prettyprint language-html" data-type="{{toLowerCase article.type}}"><code>{{{showDiff article.url compare.url}}}</code></pre>
-
-    {{subTemplate "article-compare-permission" article=article compare=compare}}
-
-    <ul class="nav nav-tabs nav-tabs-examples">
-    {{#each_compare_title article.examples compare.examples}}
-      {{#if typeSame}}
-        <li{{#if_eq index compare=0}} class="active"{{/if_eq}}>
-          <a href="#compare-examples-{{../../article.id}}-{{index}}">{{{showDiff source.title compare.title}}}</a>
+        </header>
+        <div id="navication-scroll" class="slds-scrollable--y slds-col slds-grow">
+<div class="slds-grid slds-grid--vertical slds-navigation-list--vertical">
+    <h4 class="slds-text-title--caps slds-p-around--medium">Schema</h4>
+    <ul>
+        <li  title="Query">
+            <a href="query.doc.html" class="slds-navigation-list--vertical__action slds-text-link--reset slds-truncate">
+                Query
+            </a>
         </li>
-      {{/if}}
-
-      {{#if typeIns}}
-        <li{{#if_eq index compare=0}} class="active"{{/if_eq}}>
-          <a href="#compare-examples-{{../../article.id}}-{{index}}"><ins>{{{source.title}}}</ins></a>
+        <li  title="Mutation">
+            <a href="mutation.doc.html" class="slds-navigation-list--vertical__action slds-text-link--reset slds-truncate">
+                Mutation
+            </a>
         </li>
-      {{/if}}
-
-      {{#if typeDel}}
-        <li{{#if_eq index compare=0}} class="active"{{/if_eq}}>
-          <a href="#compare-examples-{{../../article.id}}-{{index}}"><del>{{{compare.title}}}</del></a>
-        </li>
-      {{/if}}
-    {{/each_compare_title}}
     </ul>
-
-    <div class="tab-content">
-    {{#each_compare_title article.examples compare.examples}}
-
-      {{#if typeSame}}
-        <div class="tab-pane{{#if_eq index compare=0}} active{{/if_eq}}" id="compare-examples-{{../../article.id}}-{{index}}">
-          <pre class="prettyprint language-{{source.type}}" data-type="{{source.type}}"><code>{{{showDiff source.content compare.content}}}</code></pre>
-        </div>
-      {{/if}}
-
-      {{#if typeIns}}
-        <div class="tab-pane{{#if_eq index compare=0}} active{{/if_eq}}" id="compare-examples-{{../../article.id}}-{{index}}">
-          <pre class="prettyprint language-{{source.type}}" data-type="{{source.type}}"><code>{{{source.content}}}</code></pre>
-        </div>
-      {{/if}}
-
-      {{#if typeDel}}
-        <div class="tab-pane{{#if_eq index compare=0}} active{{/if_eq}}" id="compare-examples-{{../../article.id}}-{{index}}">
-          <pre class="prettyprint language-{{source.type}}" data-type="{{compare.type}}"><code>{{{compare.content}}}</code></pre>
-        </div>
-      {{/if}}
-
-    {{/each_compare_title}}
-    </div>
-
-    {{subTemplate "article-compare-param-block" source=article.parameter compare=compare.parameter _hasType=_hasTypeInParameterFields section="parameter"}}
-    {{subTemplate "article-compare-param-block" source=article.success compare=compare.success _hasType=_hasTypeInSuccessFields section="success"}}
-    {{subTemplate "article-compare-param-block" source=article.error compare=compare.error _col1="Name" _hasType=_hasTypeInErrorFields section="error"}}
-
-    {{subTemplate "article-sample-request" article=article id=id}}
-
-  </article>
-</script>
-
-<script id="template-article-compare-permission" type="text/x-handlebars-template">
-  <p>
-  {{__ "Permission:"}}
-  {{#each_compare_list_field article.permission compare.permission field="name"}}
-    {{#if source}}
-      {{#if typeSame}}
-        {{source.name}}
-        {{#if source.title}}
-          <button type="button" class="btn btn-info btn-xs" data-title="{{source.title}}" data-content="{{nl2br source.description}}" data-html="true" data-toggle="popover" data-placement="right" data-trigger="hover">
-            <span class="glyphicon glyphicon-info-sign" aria-hidden="true"></span>
-          </button>
-          {{#unless _last}}, {{/unless}}
-        {{/if}}
-      {{/if}}
-
-      {{#if typeIns}}
-        <ins>{{source.name}}</ins>
-        {{#if source.title}}
-          <button type="button" class="btn btn-info btn-xs" data-title="{{source.title}}" data-content="{{nl2br source.description}}" data-html="true" data-toggle="popover" data-placement="right" data-trigger="hover">
-            <span class="glyphicon glyphicon-info-sign" aria-hidden="true"></span>
-          </button>
-          {{#unless _last}}, {{/unless}}
-        {{/if}}
-      {{/if}}
-
-      {{#if typeDel}}
-        <del>{{source.name}}</del>
-        {{#if source.title}}
-          <button type="button" class="btn btn-info btn-xs" data-title="{{source.title}}" data-content="{{nl2br source.description}}" data-html="true" data-toggle="popover" data-placement="right" data-trigger="hover">
-            <span class="glyphicon glyphicon-info-sign" aria-hidden="true"></span>
-          </button>
-          {{#unless _last}}, {{/unless}}
-        {{/if}}
-      {{/if}}
-    {{else}}
-      {{#if typeSame}}
-        {{compare.name}}
-        {{#if compare.title}}
-          <button type="button" class="btn btn-info btn-xs" data-title="{{compare.title}}" data-content="{{nl2br compare.description}}" data-html="true" data-toggle="popover" data-placement="right" data-trigger="hover">
-            <span class="glyphicon glyphicon-info-sign" aria-hidden="true"></span>
-          </button>
-          {{#unless _last}}, {{/unless}}
-        {{/if}}
-      {{/if}}
-
-      {{#if typeIns}}
-        <ins>{{compare.name}}</ins>
-        {{#if compare.title}}
-          <button type="button" class="btn btn-info btn-xs" data-title="{{compare.title}}" data-content="{{nl2br compare.description}}" data-html="true" data-toggle="popover" data-placement="right" data-trigger="hover">
-            <span class="glyphicon glyphicon-info-sign" aria-hidden="true"></span>
-          </button>
-          {{#unless _last}}, {{/unless}}
-        {{/if}}
-      {{/if}}
-
-      {{#if typeDel}}
-        <del>{{compare.name}}</del>
-        {{#if compare.title}}
-          <button type="button" class="btn btn-info btn-xs" data-title="{{compare.title}}" data-content="{{nl2br compare.description}}" data-html="true" data-toggle="popover" data-placement="right" data-trigger="hover">
-            <span class="glyphicon glyphicon-info-sign" aria-hidden="true"></span>
-          </button>
-          {{#unless _last}}, {{/unless}}
-        {{/if}}
-      {{/if}}
-    {{/if}}
-  {{/each_compare_list_field}}
-  </p>
-</script>
-
-<script id="template-article-compare-param-block" type="text/x-handlebars-template">
-  {{#if source}}
-    {{#each_compare_keys source.fields compare.fields}}
-      {{#if typeSame}}
-        <h2>{{__ source.key}}</h2>
-        <table>
-        <thead>
-          <tr>
-            <th style="width: 30%">{{#if ../_col1}}{{__ ../_col1}}{{else}}{{__ "Field"}}{{/if}}</th>
-            {{#if ../_hasType}}<th style="width: 10%">{{__ "Type"}}</th>{{/if}}
-            <th style="width: {{#if ../_hasType}}60%{{else}}70%{{/if}}">{{__ "Description"}}</th>
-          </tr>
-        </thead>
-        {{subTemplate "article-compare-param-block-body" source=source.value compare=compare.value _hasType=../_hasType}}
-        </table>
-      {{/if}}
-
-      {{#if typeIns}}
-        <h2><ins>{{__ source.key}}</ins></h2>
-        <table class="ins">
-        <thead>
-          <tr>
-            <th style="width: 30%">{{#if ../_col1}}{{__ ../_col1}}{{else}}{{__ "Field"}}{{/if}}</th>
-            {{#if ../_hasType}}<th style="width: 10%">{{__ "Type"}}</th>{{/if}}
-            <th style="width: {{#if ../_hasType}}60%{{else}}70%{{/if}}">{{__ "Description"}}</th>
-          </tr>
-        </thead>
-        {{subTemplate "article-compare-param-block-body" source=source.value compare=source.value _hasType=../_hasType}}
-        </table>
-      {{/if}}
-
-      {{#if typeDel}}
-        <h2><del>{{__ compare.key}}</del></h2>
-        <table class="del">
-        <thead>
-          <tr>
-            <th style="width: 30%">{{#if ../_col1}}{{__ ../_col1}}{{else}}{{__ "Field"}}{{/if}}</th>
-            {{#if ../_hasType}}<th style="width: 10%">{{__ "Type"}}</th>{{/if}}
-            <th style="width: {{#if ../_hasType}}60%{{else}}70%{{/if}}">{{__ "Description"}}</th>
-          </tr>
-        </thead>
-        {{subTemplate "article-compare-param-block-body" source=compare.value compare=compare.value _hasType=../_hasType}}
-        </table>
-      {{/if}}
-    {{/each_compare_keys}}
-
-    {{#if source.examples}}
-    <ul class="nav nav-tabs nav-tabs-examples">
-    {{#each_compare_title source.examples compare.examples}}
-      {{#if typeSame}}
-        <li{{#if_eq index compare=0}} class="active"{{/if_eq}}>
-          <a href="#{{../../section}}-compare-examples-{{../../article.id}}-{{index}}">{{{showDiff source.title compare.title}}}</a>
+</div>
+<div class="slds-grid slds-grid--vertical slds-navigation-list--vertical">
+    <h4 class="slds-text-title--caps slds-p-around--medium">Scalars</h4>
+    <ul>
+        <li  title="Boolean">
+            <a href="boolean.doc.html" class="slds-navigation-list--vertical__action slds-text-link--reset slds-truncate">
+                Boolean
+            </a>
         </li>
-      {{/if}}
-
-      {{#if typeIns}}
-        <li{{#if_eq index compare=0}} class="active"{{/if_eq}}>
-          <a href="#{{../../section}}-compare-examples-{{../../article.id}}-{{index}}"><ins>{{{source.title}}}</ins></a>
+        <li  title="DateTime">
+            <a href="datetime.doc.html" class="slds-navigation-list--vertical__action slds-text-link--reset slds-truncate">
+                DateTime
+            </a>
         </li>
-      {{/if}}
-
-      {{#if typeDel}}
-        <li{{#if_eq index compare=0}} class="active"{{/if_eq}}>
-          <a href="#{{../../section}}-compare-examples-{{../../article.id}}-{{index}}"><del>{{{compare.title}}}</del></a>
+        <li  title="Float">
+            <a href="float.doc.html" class="slds-navigation-list--vertical__action slds-text-link--reset slds-truncate">
+                Float
+            </a>
         </li>
-      {{/if}}
-    {{/each_compare_title}}
+        <li  title="Int">
+            <a href="int.doc.html" class="slds-navigation-list--vertical__action slds-text-link--reset slds-truncate">
+                Int
+            </a>
+        </li>
+        <li  title="String">
+            <a href="string.doc.html" class="slds-navigation-list--vertical__action slds-text-link--reset slds-truncate">
+                String
+            </a>
+        </li>
+        <li  title="Upload">
+            <a href="upload.doc.html" class="slds-navigation-list--vertical__action slds-text-link--reset slds-truncate">
+                Upload
+            </a>
+        </li>
     </ul>
-
-    <div class="tab-content">
-    {{#each_compare_title source.examples compare.examples}}
-
-      {{#if typeSame}}
-        <div class="tab-pane{{#if_eq index compare=0}} active{{/if_eq}}" id="{{../../section}}-compare-examples-{{../../article.id}}-{{index}}">
-          <pre class="prettyprint language-{{source.type}}" data-type="{{source.type}}"><code>{{{showDiff source.content compare.content}}}</code></pre>
-        </div>
-      {{/if}}
-
-      {{#if typeIns}}
-        <div class="tab-pane{{#if_eq index compare=0}} active{{/if_eq}}" id="{{../../section}}-compare-examples-{{../../article.id}}-{{index}}">
-          <pre class="prettyprint language-{{source.type}}" data-type="{{source.type}}"><code>{{{source.content}}}</code></pre>
-        </div>
-      {{/if}}
-
-      {{#if typeDel}}
-        <div class="tab-pane{{#if_eq index compare=0}} active{{/if_eq}}" id="{{../../section}}-compare-examples-{{../../article.id}}-{{index}}">
-          <pre class="prettyprint language-{{source.type}}" data-type="{{compare.type}}"><code>{{{compare.content}}}</code></pre>
-        </div>
-      {{/if}}
-    {{/each_compare_title}}
-    </div>
-    {{/if}}
-  {{/if}}
-</script>
-
-<script id="template-article-compare-param-block-body" type="text/x-handlebars-template">
-  <tbody>
-    {{#each_compare_field source compare}}
-      {{#if typeSame}}
-        <tr>
-          <td class="code">
-            {{{splitFill source.field "." "&nbsp;&nbsp;"}}}
-            {{#if source.optional}}
-              {{#if compare.optional}} <span class="label label-optional">{{__ "optional"}}</span>
-              {{else}} <span class="label label-optional label-ins">{{__ "optional"}}</span>
-              {{/if}}
-            {{else}}
-              {{#if compare.optional}} <span class="label label-optional label-del">{{__ "optional"}}</span>{{/if}}
-            {{/if}}
-          </td>
-
-        {{#if source.type}}
-          {{#if compare.type}}
-          <td>{{{showDiff source.type compare.type}}}</td>
-          {{else}}
-          <td>{{{source.type}}}</td>
-          {{/if}}
-        {{else}}
-          {{#if compare.type}}
-          <td>{{{compare.type}}}</td>
-          {{else}}
-            {{#if ../../../../_hasType}}<td></td>{{/if}}
-          {{/if}}
-        {{/if}}
-          <td>
-            {{{showDiff source.description compare.description "nl2br"}}}
-            {{#if source.defaultValue}}<p class="default-value">{{__ "Default value:"}} <code>{{{showDiff source.defaultValue compare.defaultValue}}}</code><p>{{/if}}
-          </td>
-        </tr>
-      {{/if}}
-
-      {{#if typeIns}}
-        <tr class="ins">
-          <td class="code">
-            {{{splitFill source.field "." "&nbsp;&nbsp;"}}}
-            {{#if source.optional}} <span class="label label-optional label-ins">{{__ "optional"}}</span>{{/if}}
-          </td>
-
-        {{#if source.type}}
-          <td>{{{source.type}}}</td>
-        {{else}}
-          {{{typRowTd}}}
-        {{/if}}
-
-          <td>
-            {{{nl2br source.description}}}
-            {{#if source.defaultValue}}<p class="default-value">{{__ "Default value:"}} <code>{{{source.defaultValue}}}</code><p>{{/if}}
-          </td>
-        </tr>
-      {{/if}}
-
-      {{#if typeDel}}
-        <tr class="del">
-          <td class="code">
-            {{{splitFill compare.field "." "&nbsp;&nbsp;"}}}
-            {{#if compare.optional}} <span class="label label-optional label-del">{{__ "optional"}}</span>{{/if}}
-          </td>
-
-        {{#if compare.type}}
-          <td>{{{compare.type}}}</td>
-        {{else}}
-          {{{typRowTd}}}
-        {{/if}}
-
-          <td>
-            {{{nl2br compare.description}}}
-            {{#if compare.defaultValue}}<p class="default-value">{{__ "Default value:"}} <code>{{{compare.defaultValue}}}</code><p>{{/if}}
-          </td>
-        </tr>
-      {{/if}}
-
-    {{/each_compare_field}}
-  </tbody>
-</script>
-
-<div class="container-fluid">
-  <div class="row">
-    <div id="sidenav" class="span2"></div>
-    <div id="content">
-      <div id="project"></div>
-      <div id="header"></div>
-      <div id="sections"></div>
-      <div id="footer"></div>
-      <div id="generator"></div>
-    </div>
-  </div>
 </div>
-
-<div id="loader">
-  <div class="spinner">
-    <div class="spinner-container container1">
-      <div class="circle1"></div><div class="circle2"></div><div class="circle3"></div><div class="circle4"></div>
-    </div>
-    <div class="spinner-container container2">
-      <div class="circle1"></div><div class="circle2"></div><div class="circle3"></div><div class="circle4"></div>
-    </div>
-    <div class="spinner-container container3">
-      <div class="circle1"></div><div class="circle2"></div><div class="circle3"></div><div class="circle4"></div>
-    </div>
-    <p>Loading...</p>
-  </div>
+<div class="slds-grid slds-grid--vertical slds-navigation-list--vertical">
+    <h4 class="slds-text-title--caps slds-p-around--medium">Enums</h4>
+    <ul>
+        <li  title="TeamSize">
+            <a href="teamsize.doc.html" class="slds-navigation-list--vertical__action slds-text-link--reset slds-truncate">
+                TeamSize
+            </a>
+        </li>
+        <li  title="__DirectiveLocation">
+            <a href="directivelocation.spec.html" class="slds-navigation-list--vertical__action slds-text-link--reset slds-truncate">
+                __DirectiveLocation
+            </a>
+        </li>
+        <li  title="__TypeKind">
+            <a href="typekind.spec.html" class="slds-navigation-list--vertical__action slds-text-link--reset slds-truncate">
+                __TypeKind
+            </a>
+        </li>
+    </ul>
 </div>
-
-<script data-main="main.js" src="vendor/require.min.js"></script>
+<div class="slds-grid slds-grid--vertical slds-navigation-list--vertical">
+    <h4 class="slds-text-title--caps slds-p-around--medium">Interfaces</h4>
+    <ul>
+        <li  title="IUserChallenge">
+            <a href="iuserchallenge.doc.html" class="slds-navigation-list--vertical__action slds-text-link--reset slds-truncate">
+                IUserChallenge
+            </a>
+        </li>
+    </ul>
+</div>
+<div class="slds-grid slds-grid--vertical slds-navigation-list--vertical">
+    <h4 class="slds-text-title--caps slds-p-around--medium">Objects</h4>
+    <ul>
+        <li  title="Challenge">
+            <a href="challenge.doc.html" class="slds-navigation-list--vertical__action slds-text-link--reset slds-truncate">
+                Challenge
+            </a>
+        </li>
+        <li  title="ChallengeCompletion">
+            <a href="challengecompletion.doc.html" class="slds-navigation-list--vertical__action slds-text-link--reset slds-truncate">
+                ChallengeCompletion
+            </a>
+        </li>
+        <li  title="ChallengeRejection">
+            <a href="challengerejection.doc.html" class="slds-navigation-list--vertical__action slds-text-link--reset slds-truncate">
+                ChallengeRejection
+            </a>
+        </li>
+        <li  title="ChallengeReplacement">
+            <a href="challengereplacement.doc.html" class="slds-navigation-list--vertical__action slds-text-link--reset slds-truncate">
+                ChallengeReplacement
+            </a>
+        </li>
+        <li  title="FeedComment">
+            <a href="feedcomment.doc.html" class="slds-navigation-list--vertical__action slds-text-link--reset slds-truncate">
+                FeedComment
+            </a>
+        </li>
+        <li  title="FeedPost">
+            <a href="feedpost.doc.html" class="slds-navigation-list--vertical__action slds-text-link--reset slds-truncate">
+                FeedPost
+            </a>
+        </li>
+        <li  title="FeedPostConnection">
+            <a href="feedpostconnection.doc.html" class="slds-navigation-list--vertical__action slds-text-link--reset slds-truncate">
+                FeedPostConnection
+            </a>
+        </li>
+        <li  title="FeedPostEdge">
+            <a href="feedpostedge.doc.html" class="slds-navigation-list--vertical__action slds-text-link--reset slds-truncate">
+                FeedPostEdge
+            </a>
+        </li>
+        <li  title="FeedPostPage">
+            <a href="feedpostpage.doc.html" class="slds-navigation-list--vertical__action slds-text-link--reset slds-truncate">
+                FeedPostPage
+            </a>
+        </li>
+        <li  title="Kategorie">
+            <a href="kategorie.doc.html" class="slds-navigation-list--vertical__action slds-text-link--reset slds-truncate">
+                Kategorie
+            </a>
+        </li>
+        <li  title="LeaderBoardEntry">
+            <a href="leaderboardentry.doc.html" class="slds-navigation-list--vertical__action slds-text-link--reset slds-truncate">
+                LeaderBoardEntry
+            </a>
+        </li>
+        <li  title="LeaderBoardEntryConnection">
+            <a href="leaderboardentryconnection.doc.html" class="slds-navigation-list--vertical__action slds-text-link--reset slds-truncate">
+                LeaderBoardEntryConnection
+            </a>
+        </li>
+        <li  title="LeaderBoardEntryEdge">
+            <a href="leaderboardentryedge.doc.html" class="slds-navigation-list--vertical__action slds-text-link--reset slds-truncate">
+                LeaderBoardEntryEdge
+            </a>
+        </li>
+        <li  title="LeaderBoardEntryPage">
+            <a href="leaderboardentrypage.doc.html" class="slds-navigation-list--vertical__action slds-text-link--reset slds-truncate">
+                LeaderBoardEntryPage
+            </a>
+        </li>
+        <li  title="Media">
+            <a href="media.doc.html" class="slds-navigation-list--vertical__action slds-text-link--reset slds-truncate">
+                Media
+            </a>
+        </li>
+        <li  title="Membership">
+            <a href="membership.doc.html" class="slds-navigation-list--vertical__action slds-text-link--reset slds-truncate">
+                Membership
+            </a>
+        </li>
+        <li  title="Notification">
+            <a href="notification.doc.html" class="slds-navigation-list--vertical__action slds-text-link--reset slds-truncate">
+                Notification
+            </a>
+        </li>
+        <li  title="Oberthema">
+            <a href="oberthema.doc.html" class="slds-navigation-list--vertical__action slds-text-link--reset slds-truncate">
+                Oberthema
+            </a>
+        </li>
+        <li  title="PageData">
+            <a href="pagedata.doc.html" class="slds-navigation-list--vertical__action slds-text-link--reset slds-truncate">
+                PageData
+            </a>
+        </li>
+        <li  title="PasswordResetToken">
+            <a href="passwordresettoken.doc.html" class="slds-navigation-list--vertical__action slds-text-link--reset slds-truncate">
+                PasswordResetToken
+            </a>
+        </li>
+        <li  title="Props">
+            <a href="props.doc.html" class="slds-navigation-list--vertical__action slds-text-link--reset slds-truncate">
+                Props
+            </a>
+        </li>
+        <li  title="Quelle">
+            <a href="quelle.doc.html" class="slds-navigation-list--vertical__action slds-text-link--reset slds-truncate">
+                Quelle
+            </a>
+        </li>
+        <li  title="Season">
+            <a href="season.doc.html" class="slds-navigation-list--vertical__action slds-text-link--reset slds-truncate">
+                Season
+            </a>
+        </li>
+        <li  title="SeasonPlan">
+            <a href="seasonplan.doc.html" class="slds-navigation-list--vertical__action slds-text-link--reset slds-truncate">
+                SeasonPlan
+            </a>
+        </li>
+        <li  title="SeasonPlanChallenge">
+            <a href="seasonplanchallenge.doc.html" class="slds-navigation-list--vertical__action slds-text-link--reset slds-truncate">
+                SeasonPlanChallenge
+            </a>
+        </li>
+        <li  title="Subscription">
+            <a href="subscription.doc.html" class="slds-navigation-list--vertical__action slds-text-link--reset slds-truncate">
+                Subscription
+            </a>
+        </li>
+        <li  title="Team">
+            <a href="team.doc.html" class="slds-navigation-list--vertical__action slds-text-link--reset slds-truncate">
+                Team
+            </a>
+        </li>
+        <li  title="Themenwoche">
+            <a href="themenwoche.doc.html" class="slds-navigation-list--vertical__action slds-text-link--reset slds-truncate">
+                Themenwoche
+            </a>
+        </li>
+        <li  title="User">
+            <a href="user.doc.html" class="slds-navigation-list--vertical__action slds-text-link--reset slds-truncate">
+                User
+            </a>
+        </li>
+        <li  title="WikiImage">
+            <a href="wikiimage.doc.html" class="slds-navigation-list--vertical__action slds-text-link--reset slds-truncate">
+                WikiImage
+            </a>
+        </li>
+        <li  title="WikiWarning">
+            <a href="wikiwarning.doc.html" class="slds-navigation-list--vertical__action slds-text-link--reset slds-truncate">
+                WikiWarning
+            </a>
+        </li>
+        <li  title="__Directive">
+            <a href="directive.spec.html" class="slds-navigation-list--vertical__action slds-text-link--reset slds-truncate">
+                __Directive
+            </a>
+        </li>
+        <li  title="__EnumValue">
+            <a href="enumvalue.spec.html" class="slds-navigation-list--vertical__action slds-text-link--reset slds-truncate">
+                __EnumValue
+            </a>
+        </li>
+        <li  title="__Field">
+            <a href="field.spec.html" class="slds-navigation-list--vertical__action slds-text-link--reset slds-truncate">
+                __Field
+            </a>
+        </li>
+        <li  title="__InputValue">
+            <a href="inputvalue.spec.html" class="slds-navigation-list--vertical__action slds-text-link--reset slds-truncate">
+                __InputValue
+            </a>
+        </li>
+        <li  title="__Schema">
+            <a href="schema.spec.html" class="slds-navigation-list--vertical__action slds-text-link--reset slds-truncate">
+                __Schema
+            </a>
+        </li>
+        <li  title="__Type">
+            <a href="type.spec.html" class="slds-navigation-list--vertical__action slds-text-link--reset slds-truncate">
+                __Type
+            </a>
+        </li>
+    </ul>
+</div>
+<div class="slds-grid slds-grid--vertical slds-navigation-list--vertical">
+    <h4 class="slds-text-title--caps slds-p-around--medium">Input Objects</h4>
+    <ul>
+        <li  title="ConnectionArgs">
+            <a href="connectionargs.doc.html" class="slds-navigation-list--vertical__action slds-text-link--reset slds-truncate">
+                ConnectionArgs
+            </a>
+        </li>
+        <li  title="FeedCommentInput">
+            <a href="feedcommentinput.doc.html" class="slds-navigation-list--vertical__action slds-text-link--reset slds-truncate">
+                FeedCommentInput
+            </a>
+        </li>
+        <li  title="FeedPostInput">
+            <a href="feedpostinput.doc.html" class="slds-navigation-list--vertical__action slds-text-link--reset slds-truncate">
+                FeedPostInput
+            </a>
+        </li>
+        <li  title="SeasonInput">
+            <a href="seasoninput.doc.html" class="slds-navigation-list--vertical__action slds-text-link--reset slds-truncate">
+                SeasonInput
+            </a>
+        </li>
+        <li  title="SeasonPlanInput">
+            <a href="seasonplaninput.doc.html" class="slds-navigation-list--vertical__action slds-text-link--reset slds-truncate">
+                SeasonPlanInput
+            </a>
+        </li>
+        <li  title="TeamInput">
+            <a href="teaminput.doc.html" class="slds-navigation-list--vertical__action slds-text-link--reset slds-truncate">
+                TeamInput
+            </a>
+        </li>
+        <li  title="UserInput">
+            <a href="userinput.doc.html" class="slds-navigation-list--vertical__action slds-text-link--reset slds-truncate">
+                UserInput
+            </a>
+        </li>
+    </ul>
+</div>
+<div class="slds-grid slds-grid--vertical slds-navigation-list--vertical">
+    <h4 class="slds-text-title--caps slds-p-around--medium">Directives</h4>
+    <ul>
+        <li  title="deprecated">
+            <a href="deprecated.doc.html" class="slds-navigation-list--vertical__action slds-text-link--reset slds-truncate">
+                deprecated
+            </a>
+        </li>
+        <li  title="include">
+            <a href="include.doc.html" class="slds-navigation-list--vertical__action slds-text-link--reset slds-truncate">
+                include
+            </a>
+        </li>
+        <li  title="skip">
+            <a href="skip.doc.html" class="slds-navigation-list--vertical__action slds-text-link--reset slds-truncate">
+                skip
+            </a>
+        </li>
+    </ul>
+</div>
+        </div>
+    </nav>
+    <main><section class="title slds-theme--inverse">
+    <div class="container slds-grid">
+        <div>
+        <button class="slds-button js-toggle-navigation less-than-medium">
+            <i class="material-icons slds-button__icon slds-button__icon--left">menu</i>
+            <span class="slds-text-title--caps">Types<span>
+        </button>
+        </div>
+        </div>
+    </div>
+    <div class="container">
+        
+        <h1 class="slds-text-heading--large">Graphql schema documentation</h1>
+        <div class="slds-text-body--regular">Backend for the Enviroommate App.</div>
+    </div>
+</section>
+<section>
+    <div class="container">
+        <h2 id="graphql-schema-definition" class="graphdoc-section__title slds-text-heading--medium slds-m-top--small">
+            <a href="#graphql-schema-definition">
+                <i class="material-icons">link</i>
+            </a>
+            GraphQL Schema definition
+        </h2>
+        <code class="highlight"><ul class="code" style="padding-left:28px"><li><span class="keyword operator ts">schema</span> {</li><li></li><li><span class="tab"><span class="meta">query</span>: <a class="support type" href="query.doc.html">Query</a></span></li><li></li><li><span class="tab"><span class="meta">mutation</span>: <a class="support type" href="mutation.doc.html">Mutation</a></span></li><li>}</li></ul></code>
+    </div>
+</section>
+<footer>
+<div class="container slds-p-around--large">
+    <p class="slds-text-align--right slds-text-title--caps">
+        Generated with <a href="https://github.com/2fd/graphdoc#readme" target="_blank">graphdoc 2.4.0</a>
+    </p>
+</div>
+</footer>
+</main>
+    <script src="./scripts/focus-active.js"></script>
+    <script src="./scripts/filter-types.js"></script>
+    <script src="./scripts/toggle-navigation.js"></script>
 </body>
-</html>

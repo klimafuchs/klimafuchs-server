@@ -4,9 +4,12 @@
   },
   "secret": "haaaands",
   "tokenSecret": "haaaands",
-  "port": 3000,
+  "port": 3500,
   "dev": true,
   "key": "../../server.key",
   "cert": "../../server.crt",
-  "domain": "https://localhost"
+  "domain": "https://localhost",
+  "wikiUrl": "https://klimafuchs.org/wiki",
+  "wikiKey": "secret",
+  "redisDb": "0"
 }

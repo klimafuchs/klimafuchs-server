@@ -1,31 +1,35 @@
-import {Challenge} from "./entity/Challenge";
-import {getRepository, LessThan, MoreThan} from "typeorm";
-import {DateUtils} from "typeorm/util/DateUtils";
+import {Challenge} from "./entity/wiki-content/Challenge";
+import {getRepository, Repository} from "typeorm";
 import * as schedule from 'node-schedule';
-import {DailyChallenge} from "./entity/DailyChallenge";
-import {Subscription} from "./entity/Subscription";
+import {Subscription} from "./entity/user/Subscription";
 import * as webPush from 'web-push';
-import * as nodemailer from 'nodemailer';
 //import * as sendmail from 'sendmail';
-import {PasswordResetToken} from "./entity/PasswordResetToken";
+import {PasswordResetToken} from "./entity/user/PasswordResetToken";
+import {WikiClient} from "./wikiData/WikiClient";
+import {Container, Service} from "typedi";
+import {Role, User} from "./entity/user/User";
 
+@Service()
 export class Tasks {
-
-    public dbChallengeUpdateJob;
-    public dbDailyUpdateJob;
 
     public mondayJob;
     public thursdayJob;
     public sundayJob;
 
-    public constructor() {
+    public syncWithWikiJob;
+
+    public constructor(
+    ) {
 
         // db updates
-        let dbAdvanceChallengesTimer = new schedule.RecurrenceRule();
-        dbAdvanceChallengesTimer.hour = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23];
-        dbAdvanceChallengesTimer.minute = 0;
-        this.dbChallengeUpdateJob = schedule.scheduleJob(dbAdvanceChallengesTimer, this.dbChallengeUpdate);
-        this.dbDailyUpdateJob = schedule.scheduleJob(dbAdvanceChallengesTimer, this.dbDailyUpdate);
+
+        //update wiki data on server restart
+        this.syncWithWiki().then((res) => console.log(res));
+
+        let syncWithWikiTimer = new schedule.RecurrenceRule();
+        syncWithWikiTimer.hour = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23];
+        syncWithWikiTimer.minute = 0;
+        this.syncWithWikiJob = schedule.scheduleJob(syncWithWikiTimer, this.syncWithWiki);
 
         // notify monday
         let mondayTimer = new schedule.RecurrenceRule();
@@ -33,10 +37,7 @@ export class Tasks {
         mondayTimer.hour = 17;
         mondayTimer.minute = 0;
         this.mondayJob = schedule.scheduleJob(mondayTimer, () => {
-            Tasks.sendNotification({
-                title: "Enviroommate",
-                message: "Eure neue Wochenchallenge ist online! Neugierig?"
-            }).catch((err) => console.error(err));
+                //TODO push challenge reminder
         });
 
         // notify thursday
@@ -46,10 +47,8 @@ export class Tasks {
         thursdayTimer.minute = 0;
 
         this.thursdayJob = schedule.scheduleJob(thursdayTimer, () => {
-            Tasks.sendNotification({
-                title: "Enviroommate",
-                message: "Wie siehts aus bei unseren Enviroommates? Habt ihr Bock?"
-            }).catch((err) => console.error(err));
+            //TODO push challenge reminder
+
         });
 
         // notify sunday
@@ -59,96 +58,40 @@ export class Tasks {
         sundayTimer.minute = 0;
 
         this.sundayJob = schedule.scheduleJob(sundayTimer, () => {
-            Tasks.sendNotification({
-                title: "Enviroommate",
-                message: "Zeit eure Punkte einzusammeln! Wir sind gespannt, wie eure Woche gelaufen ist!"
-            }).catch((err) => console.error(err));
+            //TODO push challenge reminder
+
         });
-    }
 
+        if (process.env.NODE_ENV !== "production") {
+            const defaultAdmin = new User();
+            defaultAdmin.userName = "root";
+            defaultAdmin.password = "root";
+            defaultAdmin.screenName = "root";
+            defaultAdmin.role = Role.Admin;
+            const defaultUser = new User();
+            defaultUser.userName = "user";
+            defaultUser.password = "user";
+            defaultUser.screenName = "user";
+            defaultUser.role = Role.User;
 
-    //TODO deduplicate
-    async dbChallengeUpdate() {
-        let now = new Date(Date.now());
-        let nowString = DateUtils.mixedDateToDatetimeString(now);
-        let currentActiveChallenge = await getRepository(Challenge).findOne({where: {active: true}})
-        currentActiveChallenge.active = currentActiveChallenge.startDate.getTime() < now.getTime()
-            && currentActiveChallenge.endDate.getTime() >= now.getTime();
-        if (!currentActiveChallenge || !currentActiveChallenge.active) {
-            console.log("Advancing to next challenge");
-            let newActiveChallenge = await getRepository(Challenge).findOne({startDate: LessThan(nowString), endDate: MoreThan(nowString)});
-            if(newActiveChallenge) {
-                console.log("New challenge: ", newActiveChallenge.id + " " + newActiveChallenge.title);
-                newActiveChallenge.active = true;
-                currentActiveChallenge ? await getRepository(Challenge).save(currentActiveChallenge) : {};
-                await getRepository(Challenge).save(newActiveChallenge);
-                Tasks.sendNotificationNewChallenge(newActiveChallenge);
-            } else {
-                console.error("No more challenges")
-            }
-        } else {
-            console.log("Challenge not yet over");
-            let deltaT = (currentActiveChallenge.endDate.getTime() - now.getTime())/ 36e5;
-            console.log("Time remaining: " +deltaT)
-            if(deltaT < 24 && deltaT > 22.9) {
-                //Tasks.sendNotificationWarnChallengeExpire(deltaT).then().catch((err)=> console.log(err));
-            }
+            const userRepo = getRepository(User);
+            userRepo.findOneOrFail({where: {userName: "root"}}).then(() => {
+                console.error("Found default test users! This should not happen in PRODUCTION")
+            }).catch(
+                _ => {
+                    userRepo.save(defaultUser)
+                        .catch(e => console.error(e));
+                    userRepo.save(defaultAdmin)
+                        .catch(e => console.error(e));
+                }
+            )
+
         }
     }
 
-    async dbDailyUpdate() {
-        let now = new Date(Date.now());
-        let nowString = DateUtils.mixedDateToDatetimeString(now);
-        let currentActiveChallenge = await getRepository(DailyChallenge).findOne({where: {active: true}})
-        currentActiveChallenge.active = currentActiveChallenge.startDate.getTime() < now.getTime()
-            && currentActiveChallenge.endDate.getTime() >= now.getTime();
-        if (!currentActiveChallenge || !currentActiveChallenge.active) {
-            console.log("Advancing to next daily");
-            let newActiveChallenge = await getRepository(DailyChallenge).findOne({startDate: LessThan(nowString), endDate: MoreThan(nowString)});
-            if(newActiveChallenge) {
-                console.log("New daily: ", newActiveChallenge.id + " " + newActiveChallenge.title);
-                newActiveChallenge.active = true;
-                currentActiveChallenge ? await getRepository(DailyChallenge).save(currentActiveChallenge) : {};
-                await getRepository(DailyChallenge).save(newActiveChallenge);
-            } else {
-                console.error("No more daily")
-            }
-        } else {
-            console.log("Challenge not yet over");
-        }
-    }
-
-    static async sendNotificationWarnChallengeExpire(deltaT: number) {
-        await Tasks.sendNotification({title: "Enviroommate",message: "Die aktuelle Challenge läuft nur noch " + deltaT.toFixed(0) + " Stunden." }).then(() => console.log("send reminder notifications")).catch(err => console.error(err))
-    }
-
-    static async sendNotification(param) {
-        const options = {
-            TTL: 60 * 60 * 24
-        };
-        let subscriptions = await getRepository(Subscription).find();
-        subscriptions.forEach((val,i,subs) => {
-            const subscription = Subscription.build(val.endpoint, val.auth, val.p256dh);
-            webPush.sendNotification(subscription, JSON.stringify(param), options)
-                .then(function() {
-                    console.log("send notification to " + JSON.stringify(subscription));
-                })
-                .catch(function(err) {
-                    if (err.statusCode === 410) {
-                        return Tasks.deleteSubscriptionFromDatabase(val.id);
-                    } else {
-                        console.log('Subscription is no longer valid: ', err);
-                    }
-                });
-        }, 60 * 60 * 24 * 1000);
-    }
-
-    private static deleteSubscriptionFromDatabase(id: number) {
-        getRepository(Subscription).delete({id: id}).catch(err => console.log(err))
-    }
-
-    private static sendNotificationNewChallenge(newActiveChallenge: Challenge) {
-        Tasks.sendNotification({title: "Neue Wochenchallenge", message: newActiveChallenge.title}).catch((err) => console.error(err))
+    async syncWithWiki() {
+        console.log("syncing data from wiki...");
+        Container.get(WikiClient).syncAllPages().catch(err => console.error("Error: " + err.toString()))
     }
 
     public static async sendPasswordReset(userId) {

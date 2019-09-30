@@ -1,9 +1,9 @@
-import {User} from "./entity/User";
+import {Role, User} from "./entity/user/User";
 import {getRepository} from "typeorm";
 import * as passportLocal from "passport-local";
 import * as passportJwt from "passport-jwt";
 import * as passport from "passport";
-
+import {BasicStrategy} from "passport-http";
 const config = require("../config.json");
 
 const LocalStrategy = passportLocal.Strategy;
@@ -43,9 +43,22 @@ passport.use( new JwtStrategy ( {
     secretOrKey: process.env.API_SECRET || config.tokenSecret
     }, (jwtPayload, done: Function) => {
         getRepository(User).findOne({id: jwtPayload}).then(user => {
+            // TODO track login dates and count per user
             return done(null,user);
         }).catch(err => {
             return done(err);
+        })
+    }
+));
+
+passport.use(new BasicStrategy(
+    function(userid, password, done) {
+        getRepository(User).findOne({userName: userid}).then(user => {
+            if(user == null) {
+                return done(undefined, null, {message: "Email not found"});
+            }
+            if(user.validatePassword(password)) return done(null, user) ;
+            return done(undefined, null, {message: "Invalid password!"});
         })
     }
 ));
