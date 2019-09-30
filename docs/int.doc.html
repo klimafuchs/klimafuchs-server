@@ -7,7 +7,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
     <link type="text/css" rel="stylesheet" href="./styles/graphdoc.css" />
-    <title>Graphql schema documentation</title>
+    <title>Int</title>
     <link href="https://fonts.googleapis.com/css?family=Ubuntu+Mono:400,700" rel="stylesheet"><link type="text/css" rel="stylesheet" href="./assets/code.css" /><link type="text/css" rel="stylesheet" href="./assets/require-by.css" />
 </head>
 <body class="slds-scrollable--y">
@@ -55,7 +55,7 @@
                 Float
             </a>
         </li>
-        <li  title="Int">
+        <li class="slds-is-active" title="Int">
             <a href="int.doc.html" class="slds-navigation-list--vertical__action slds-text-link--reset slds-truncate">
                 Int
             </a>
@@ -365,9 +365,10 @@
         </div>
     </div>
     <div class="container">
-        
-        <h1 class="slds-text-heading--large">Graphql schema documentation</h1>
-        <div class="slds-text-body--regular">Backend for the Enviroommate App.</div>
+        <p class="slds-text-title--caps slds-text-color--weak">SCALAR</p>
+        <h1 class="slds-text-heading--large">Int</h1>
+        <div class="slds-text-body--regular"><p>The <code>Int</code> scalar type represents non-fractional signed whole numeric values. Int can represent values between -(2^31) and 2^31 - 1. </p>
+</div>
     </div>
 </section>
 <section>
@@ -378,7 +379,18 @@
             </a>
             GraphQL Schema definition
         </h2>
-        <code class="highlight"><ul class="code" style="padding-left:28px"><li><span class="keyword operator ts">schema</span> {</li><li></li><li><span class="tab"><span class="meta">query</span>: <a class="support type" href="query.doc.html">Query</a></span></li><li></li><li><span class="tab"><span class="meta">mutation</span>: <a class="support type" href="mutation.doc.html">Mutation</a></span></li><li>}</li></ul></code>
+        <code class="highlight"><ul class="code" style="padding-left:28px"><li><span class="keyword operator ts">scalar</span> <span class="identifier">Int</span></li></ul></code>
+    </div>
+</section>
+<section>
+    <div class="container">
+        <h2 id="require-by" class="graphdoc-section__title slds-text-heading--medium slds-m-top--small">
+            <a href="#require-by">
+                <i class="material-icons">link</i>
+            </a>
+            Require by
+        </h2>
+        <ul class="require-by"><li><a href="challenge.doc.html" title="Challenge - ">Challenge<em>null</em></a><li><li><a href="challengecompletion.doc.html" title="ChallengeCompletion - ">ChallengeCompletion<em>null</em></a><li><li><a href="challengerejection.doc.html" title="ChallengeRejection - ">ChallengeRejection<em>null</em></a><li><li><a href="challengereplacement.doc.html" title="ChallengeReplacement - ">ChallengeReplacement<em>null</em></a><li><li><a href="feedcomment.doc.html" title="FeedComment - ">FeedComment<em>null</em></a><li><li><a href="feedcommentinput.doc.html" title="FeedCommentInput - ">FeedCommentInput<em>null</em></a><li><li><a href="feedpost.doc.html" title="FeedPost - ">FeedPost<em>null</em></a><li><li><a href="feedpostinput.doc.html" title="FeedPostInput - ">FeedPostInput<em>null</em></a><li><li><a href="iuserchallenge.doc.html" title="IUserChallenge - ">IUserChallenge<em>null</em></a><li><li><a href="leaderboardentry.doc.html" title="LeaderBoardEntry - ">LeaderBoardEntry<em>null</em></a><li><li><a href="media.doc.html" title="Media - ">Media<em>null</em></a><li><li><a href="membership.doc.html" title="Membership - ">Membership<em>null</em></a><li><li><a href="mutation.doc.html" title="Mutation - ">Mutation<em>null</em></a><li><li><a href="notification.doc.html" title="Notification - ">Notification<em>null</em></a><li><li><a href="pagedata.doc.html" title="PageData - ">PageData<em>null</em></a><li><li><a href="passwordresettoken.doc.html" title="PasswordResetToken - ">PasswordResetToken<em>null</em></a><li><li><a href="props.doc.html" title="Props - ">Props<em>null</em></a><li><li><a href="quelle.doc.html" title="Quelle - ">Quelle<em>null</em></a><li><li><a href="query.doc.html" title="Query - ">Query<em>null</em></a><li><li><a href="season.doc.html" title="Season - ">Season<em>null</em></a><li><li><a href="seasoninput.doc.html" title="SeasonInput - ">SeasonInput<em>null</em></a><li><li><a href="seasonplan.doc.html" title="SeasonPlan - ">SeasonPlan<em>null</em></a><li><li><a href="seasonplanchallenge.doc.html" title="SeasonPlanChallenge - ">SeasonPlanChallenge<em>null</em></a><li><li><a href="seasonplaninput.doc.html" title="SeasonPlanInput - ">SeasonPlanInput<em>null</em></a><li><li><a href="subscription.doc.html" title="Subscription - ">Subscription<em>null</em></a><li><li><a href="team.doc.html" title="Team - ">Team<em>null</em></a><li><li><a href="teaminput.doc.html" title="TeamInput - ">TeamInput<em>null</em></a><li><li><a href="user.doc.html" title="User - ">User<em>null</em></a><li><li><a href="userinput.doc.html" title="UserInput - ">UserInput<em>null</em></a><li><li><a href="wikiwarning.doc.html" title="WikiWarning - ">WikiWarning<em>null</em></a><li></ul>
     </div>
 </section>
 <footer>
